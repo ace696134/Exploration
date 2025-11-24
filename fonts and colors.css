@@ -1,0 +1,10 @@
+/* Import the font from Google Fonts API */
+@import url('https://fonts.googleapis.com/css2?family=Underdog:wght@400;700&display=swap');
+
+/* Apply the font to all elements */
+* {
+    font-family: 'Underdog', Underdog;
+    /* Optional: ensure consistent text rendering */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
