@@ -10,5 +10,5 @@
     color: red;
     background-color: 000000;
    text-align: center;
-   text-align: bottom;
+  vertical-align: text-bottom;
 }
