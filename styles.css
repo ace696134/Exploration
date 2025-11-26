@@ -9,4 +9,8 @@
     -moz-osx-font-smoothing: grayscale;
     color: red;
     background-color: 000000;
+    div {
+display: flex;
+justify-content: flex-end;
+    }
 }
