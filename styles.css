@@ -9,6 +9,16 @@
     -moz-osx-font-smoothing: grayscale;
     color: red;
     background-color: 000000;
-   text-align: center;
-  vertical-align: text-bottom;
+}
+.container {
+    display: flex;
+    justify-content: center;   /* Horizontal center */
+    align-items: flex-end;     /* Push to bottom */
+    height: 300px;             /* Example height */
+    border: 1px solid #ccc;    /* Just for visualization */
+}
+
+.text {
+    padding: 10px;
+    background: lightblue;
 }
