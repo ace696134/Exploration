@@ -10,15 +10,19 @@
     color: red;
     background-color: black;
 }
-.container {
-    display: flex;
-    justify-content: center;   /* Horizontal center */
-    align-items: flex-end;     /* Push to bottom */
-    height: 300px;             /* Example height */
-    border: 1px solid #ccc;    /* Just for visualization */
-}
-
 .text {
     padding: 10px;
     background: lightblue;
+}
+.container {
+  position: relative;        /* Needed for absolute positioning */
+  height: 300px;
+  border: 1px solid #ccc;
+}
+
+.bottom-text {
+  position: absolute;
+  bottom: 0;                 /* Stick to bottom */
+  left: 50%;                 /* Move to horizontal center */
+  transform: translateX(-50%); /* Adjust for perfect centering */
 }
