@@ -20,9 +20,9 @@
   border: 1px solid #ccc;
 }
 
-.bottom-text {
-  position: absolute;
-  bottom: 0;                 /* Stick to bottom */
-  left: 50%;                 /* Move to horizontal center */
-  transform: translateX(-50%); /* Adjust for perfect centering */
+.center-box{
+    display: flex;
+    justify-content: center;
+    align-items: center:
+    height: 100vh;
 }
