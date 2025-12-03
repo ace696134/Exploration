@@ -13,7 +13,7 @@
   // Title screen audio
   let titleAudio = new Audio('sounds/hum.mp3');
   titleAudio.loop = true;
-  titleAudio.volume = 0.4;
+  titleAudio.volume = 0.8;
   let isMuted = false;
 
   function initAudio() {
