@@ -26,7 +26,15 @@
     //ToDo load game screen!!
   }
 
-    showPlayButton();
+   function showPlayButton() {
+     document.body.classlist.add('fade-out');
+     const door = new Audio('sounds/creaky_door.mp3');
+     door.volume = 1;
+     door.play();
+     setTimeout(() => {
+       window.location.href = "lore.html"; 
+     }, 2000)
+   }
   
   function initAudio() {
     titleAudio.play().catch(e => console.warn('Audio blocked:', e));
