@@ -25,13 +25,14 @@
     console.log("Game Started!");
     //ToDo load game screen!!
   }
+
+    showPlayButton();
   
   function initAudio() {
     titleAudio.play().catch(e => console.warn('Audio blocked:', e));
     enableBtn.classList.add('hidden');
     muteBtn.classList.remove('hidden');
     muteBtn.textContent = 'Mute';
-    showPlayButton();
   }
 
   function toggleMute() {
