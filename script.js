@@ -6,6 +6,7 @@
   const subtitleEl = document.getElementById('subtitle');
   const enableBtn = document.getElementById('enableAudio');
   const muteBtn = document.getElementById('toggleMute');
+  const playBtn = document.getElementById('playButton');
 
   // Mirror text for CSS pseudo-elements (glitch)
   titleEl.setAttribute('data-text', titleEl.textContent);
@@ -15,12 +16,22 @@
   titleAudio.loop = true;
   titleAudio.volume = 0.8;
   let isMuted = false;
+  
+  function showPlayButton() {
+    playBtn.classList.remove('hidden');
+  }
 
+  function startGame() {
+    console.log("Game Started!");
+    //ToDo load game screen!!
+  }
+  
   function initAudio() {
     titleAudio.play().catch(e => console.warn('Audio blocked:', e));
     enableBtn.classList.add('hidden');
     muteBtn.classList.remove('hidden');
     muteBtn.textContent = 'Mute';
+    showPlayButton();
   }
 
   function toggleMute() {
