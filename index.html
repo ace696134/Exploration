@@ -1,15 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Adventure game.</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>My Analog Horror Adventure</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="center-box">
-        <h1>My adventure horror game</h1>
-        <p>This is my adventure game; it may be difficult for sensitive audiences.</p>
-    </div>
+  <div id="stage" class="stage">
+    <div class="vignette"></div>
+    <div class="grain"></div>
+    <div class="scanlines"></div>
+
+    <main class="center-box" id="centerBox">
+      <h1 class="title glitch" id="title">My Adventure Horror Game</h1>
+      <p class="subtitle flash" id="subtitle">This is my adventure game; it may be difficult for sensitive audiences.</p>
+
+      <div class="controls">
+        <button id="enableAudio" class="btn">Enable Audio</button>
+        <button id="toggleMute" class="btn hidden">Mute</button>
+      </div>
+    </main>
+  </div>
+
+  <script src="script.js"></script>
 </body>
 </html>
