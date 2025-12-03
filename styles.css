@@ -72,3 +72,12 @@ body.fade-out {
   from { opacity: 1; }
   to { opacity: 0; background-color: black; }
 }
+
+body.fade-in {
+  animation: fadeIn 1.5s forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
