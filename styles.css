@@ -4,25 +4,37 @@
 /* Apply the font to all elements */
 * {
     font-family: 'Underdog', Underdog;
-    /* Optional: ensure consistent text rendering */
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    color: red;
-    background-color: black;
 }
+
+/* Global background + text color */
+body {
+    background-color: black;
+    color: red;
+    margin: 0;
+}
+
+/* Text box example */
 .text {
     padding: 10px;
     background: lightblue;
 }
+
+/* Layout example container */
 .container {
-  position: relative;        /* Needed for absolute positioning */
-  height: 300px;
-  border: 1px solid #ccc;
+    position: relative;
+    height: 300px;
+    border: 1px solid #ccc;
 }
 
-.center-box{
+/* Centering box for the intro screen */
+.center-box {
     display: flex;
-    justify-content: center;
-    align-items: center:
-    height: 100vh;
+    flex-direction: column;   /* <-- forces elements onto separate lines */
+    justify-content: center;  /* vertical center */
+    align-items: center;      /* horizontal center */
+    height: 100vh;            /* full screen */
+    text-align: center;       /* center multi-line text */
+    gap: 12px;                /* space between title and paragraph */
 }
