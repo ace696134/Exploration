@@ -44,7 +44,6 @@ html, body { height:100%; width:100%; background:black; color:white; font-family
 @keyframes grainAnim {0%{transform:translate(0,0);}50%{transform:translate(-1px,1px);}100%{transform:translate(0,0);}}
 @keyframes scanlineShift {0%{background-position:0 0;}100%{background-position:0 100%;}}
 
-
 .menu-btn {
   margin-top: 20px;
   padding: 12px 28px;
@@ -62,4 +61,14 @@ html, body { height:100%; width:100%; background:black; color:white; font-family
 
 .hidden {
   display: none;
+}
+
+/* Fade to black */
+body.fade-out {
+  animation: fadeToBlack 1s forwards;
+}
+
+@keyframes fadeToBlack {
+  from { opacity: 1; }
+  to { opacity: 0; background-color: black; }
 }
