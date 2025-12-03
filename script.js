@@ -1,4 +1,4 @@
-/* script.js - optimized for performance, sounds in /sounds folder */
+/* script.js - Title screen hum only + glitch/flicker */
 
 (function() {
   const stage = document.getElementById('stage');
@@ -7,54 +7,77 @@
   const enableBtn = document.getElementById('enableAudio');
   const muteBtn = document.getElementById('toggleMute');
 
-  // Mirror text for glitch pseudo-elements
+  // Mirror text for CSS pseudo-elements (glitch)
   titleEl.setAttribute('data-text', titleEl.textContent);
 
-  // Audio setup
-  let audioCtx = null;
-  let humOsc = null;
-  let humGain = null;
+  // Title screen audio
+  let titleAudio = new Audio('/sounds/hum.mp3');
+  titleAudio.loop = true;
+  titleAudio.volume = 0.4;
   let isMuted = false;
 
   function initAudio() {
-    if (audioCtx) return;
-
-    try {
-      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
-      // Drone hum
-      humOsc = audioCtx.createOscillator();
-      humGain = audioCtx.createGain();
-
-      humOsc.type = 'sine';
-      humOsc.frequency.value = 42; // low horror drone
-
-      // subtle LFO for pitch wobble
-      const lfo = audioCtx.createOscillator();
-      lfo.frequency.value = 0.12; 
-      const lfoGain = audioCtx.createGain();
-      lfoGain.gain.value = 6;
-      lfo.connect(lfoGain);
-      lfoGain.connect(humOsc.frequency);
-
-      humGain.gain.value = 0.02;
-      humOsc.connect(humGain);
-      humGain.connect(audioCtx.destination);
-
-      lfo.start();
-      humOsc.start();
-
-      enableBtn.classList.add('hidden');
-      muteBtn.classList.remove('hidden');
-      muteBtn.textContent = 'Mute';
-    } catch (e) {
-      console.warn('Audio init error:', e);
-    }
+    titleAudio.play().catch(e => console.warn('Audio blocked:', e));
+    enableBtn.classList.add('hidden');
+    muteBtn.classList.remove('hidden');
+    muteBtn.textContent = 'Mute';
   }
 
   function toggleMute() {
-    if (!audioCtx) return;
     isMuted = !isMuted;
-    humGain.gain.setValueAtTime(isMuted ? 0 : 0.02, audioCtx.currentTime);
+    titleAudio.muted = isMuted;
     muteBtn.textContent = isMuted ? 'Unmute' : 'Mute';
   }
+
+  enableBtn.addEventListener('click', initAudio);
+  muteBtn.addEventListener('click', toggleMute);
+
+  // Allow first click or keypress to start audio (browser autoplay policy)
+  function firstGesture() {
+    initAudio();
+    window.removeEventListener('keydown', firstGesture);
+    window.removeEventListener('click', firstGesture);
+  }
+  window.addEventListener('keydown', firstGesture);
+  window.addEventListener('click', firstGesture);
+
+  // -------------------
+  // Glitch + flicker logic
+  // -------------------
+  function rand(min,max) { return Math.random()*(max-min)+min; }
+
+  function glitchSpike() {
+    titleEl.classList.add('glitch-spike');
+    subtitleEl.classList.add('flash');
+    titleEl.style.setProperty('--tx', `${rand(-12,12)}px`);
+    setTimeout(() => {
+      titleEl.classList.remove('glitch-spike');
+      subtitleEl.classList.remove('flash');
+      titleEl.style.removeProperty('--tx');
+    }, 600);
+  }
+
+  function flickerStage(shake=false) {
+    stage.classList.add('flicker');
+    if(shake) stage.classList.add('shake');
+    setTimeout(() => {
+      stage.classList.remove('flicker');
+      stage.classList.remove('shake');
+    }, 520);
+  }
+
+  function scheduleChaos() {
+    setInterval(() => { if(Math.random()<0.55) glitchSpike(); }, rand(2500,4000));
+    setInterval(() => { if(Math.random()<0.18) flickerStage(Math.random()<0.5); }, rand(8000,16000));
+    setInterval(() => {
+      if(Math.random()<0.12){
+        glitchSpike();
+        setTimeout(glitchSpike, 120);
+        setTimeout(()=>flickerStage(true), 340);
+      }
+    }, rand(15000,25000));
+  }
+
+  setTimeout(scheduleChaos, 800);
+
+})();
