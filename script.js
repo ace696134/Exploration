@@ -11,7 +11,7 @@
   titleEl.setAttribute('data-text', titleEl.textContent);
 
   // Title screen audio
-  let titleAudio = new Audio('/sounds/hum.mp3');
+  let titleAudio = new Audio('sounds/hum.mp3');
   titleAudio.loop = true;
   titleAudio.volume = 0.4;
   let isMuted = false;
