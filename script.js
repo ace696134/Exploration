@@ -17,9 +17,7 @@
   titleAudio.volume = 0.8;
   let isMuted = false;
   
-  function showPlayButton() {
-    playBtn.classList.remove('hidden');
-  }
+    showPlayButton();
 
    function showPlayButton() {
      document.body.classlist.add('fade-out');
