@@ -43,3 +43,23 @@ html, body { height:100%; width:100%; background:black; color:white; font-family
 /* Performance tweak: lower opacity, fewer steps */
 @keyframes grainAnim {0%{transform:translate(0,0);}50%{transform:translate(-1px,1px);}100%{transform:translate(0,0);}}
 @keyframes scanlineShift {0%{background-position:0 0;}100%{background-position:0 100%;}}
+
+
+.menu-btn {
+  margin-top: 20px;
+  padding: 12px 28px;
+  font-size: 1.2rem;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.3);
+  color: white;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.menu-btn:hover {
+  background: rgba(255,255,255,0.15);
+}
+
+.hidden {
+  display: none;
+}
