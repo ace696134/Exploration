@@ -21,11 +21,6 @@
     playBtn.classList.remove('hidden');
   }
 
-  function startGame() {
-    console.log("Game Started!");
-    //ToDo load game screen!!
-  }
-
    function showPlayButton() {
      document.body.classlist.add('fade-out');
      const door = new Audio('sounds/creaky_door.mp3');
