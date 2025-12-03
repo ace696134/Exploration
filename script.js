@@ -32,7 +32,7 @@
      door.volume = 1;
      door.play();
      setTimeout(() => {
-       window.location.href = "lore.html"; 
+       window.location.href = "rooms/lore.html"; 
      }, 2000)
    }
   
