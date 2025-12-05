@@ -13,8 +13,10 @@
     <div class="scanlines"></div>
 
     <main class="center-box" id="centerBox">
-<h1 class="title glitch" data-text="Endless Requium">Endless Requium</h1>
-      <p class="subtitle flash" id="subtitle">
+      <!-- single h1 only; data-text used by CSS pseudo-elements -->
+      <h1 id="title" class="title glitch" data-text="Endless Requium">Endless Requium</h1>
+
+      <p id="subtitle" class="subtitle flash">
         This experience contains disturbing content.
       </p>
 
@@ -26,6 +28,7 @@
     </main>
   </div>
 
+  <!-- script placed at end but script.js also waits for DOMContentLoaded, safe either way -->
   <script src="script.js"></script>
 </body>
 </html>
