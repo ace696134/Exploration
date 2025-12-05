@@ -6,14 +6,12 @@
   <title>Endless Requium — Room</title>
   <link rel="stylesheet" href="../styles.css">
   <style>
-    /* Room-specific styles */
     body.room {
       background: black url('../images/room_bg.jpg') no-repeat center center;
       background-size: cover;
       opacity: 0; /* start invisible for fade-in */
       transition: opacity 1.2s ease-in-out;
     }
-
     .room-box {
       position: absolute;
       top: 50%; left: 50%;
@@ -27,56 +25,30 @@
       flex-direction: column;
       gap: 16px;
     }
-
     .room-box h1 {
       font-size: clamp(2rem, 6vw, 4rem);
       margin: 0;
       position: relative;
     }
-
     .room-box p {
       font-size: clamp(1rem, 2.5vw, 1.3rem);
       margin: 0;
     }
-
     .room-box .btn {
       width: fit-content;
       align-self: center;
     }
   </style>
 </head>
-<body class="room">
+<body class="room" data-audio="room_ambient.mp3">
   <div class="room-box">
     <h1>Room Title</h1>
-    <p>Description of the room goes here. Add eerie text, clues, or horror lore.</p>
+    <p>Description of the room goes here.</p>
 
-    <!-- Choices / navigation -->
     <button class="btn" onclick="location.href='room1.html'">Go Left</button>
     <button class="btn" onclick="location.href='room2.html'">Go Right</button>
   </div>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      // FADE-IN EFFECT
-      requestAnimationFrame(() => {
-        document.body.style.opacity = 1;
-      });
-
-      // AMBIENT ROOM SOUND
-      const ambient = new Audio('../sounds/room_ambient.mp3'); // put your file in /sounds/
-      ambient.loop = true;
-      ambient.volume = 0.5;
-      
-      // Autoplay workaround: play on first click or keypress
-      function startAmbient() {
-        ambient.play().catch(e => console.warn('Ambient sound blocked:', e));
-        window.removeEventListener('click', startAmbient);
-        window.removeEventListener('keydown', startAmbient);
-      }
-
-      window.addEventListener('click', startAmbient);
-      window.addEventListener('keydown', startAmbient);
-    });
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
