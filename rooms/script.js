@@ -1,46 +1,80 @@
-/* Room Audio + Fade-in (automatic from body data-audio) */
+/* Endless Requium - Room Handler
+   Handles: fade-in, fade-out, ambient audio, background images, navigation.
+*/
 
-(function() {
-  document.addEventListener('DOMContentLoaded', () => {
-    const body = document.body;
-    const audioFile = body.dataset.audio; // reads data-audio attribute
-    if (!audioFile) return; // do nothing if not set
+document.addEventListener("DOMContentLoaded", function () {
+  const body = document.body;
+  const audioName = body.dataset.audio;
+  const bg = body.dataset.bg;
 
-    // --- FADE-IN ---
-    body.style.opacity = 0;
-    body.style.transition = 'opacity 1.2s ease-in-out';
-    requestAnimationFrame(() => {
-      body.style.opacity = 1;
-    });
+  /* ---------------- BACKGROUND SET ---------------- */
+  if (bg) {
+    body.style.backgroundImage = `url('${bg}')`;
+  }
 
-    // --- AMBIENT AUDIO ---
-    const ambient = new Audio(`../sounds/${audioFile}`);
-    ambient.loop = true;
-    ambient.volume = 0; // start silent for fade-in
-
-    // smoothly fade-in the audio
-    const fadeDuration = 1500; // ms
-    let startTime = null;
-
-    function fadeAudio(timestamp) {
-      if (!startTime) startTime = timestamp;
-      const elapsed = timestamp - startTime;
-      const progress = Math.min(elapsed / fadeDuration, 1);
-      ambient.volume = 0.5 * progress; // target volume 0.5
-      if (progress < 1) {
-        requestAnimationFrame(fadeAudio);
-      }
-    }
-
-    function startAmbient() {
-      ambient.play().catch(e => console.warn('Ambient blocked:', e));
-      requestAnimationFrame(fadeAudio);
-      window.removeEventListener('click', startAmbient);
-      window.removeEventListener('keydown', startAmbient);
-    }
-
-    // autoplay workaround: first click or keypress
-    window.addEventListener('click', startAmbient);
-    window.addEventListener('keydown', startAmbient);
+  /* ---------------- FADE IN ---------------- */
+  requestAnimationFrame(() => {
+    body.style.opacity = 1;
   });
-})();
+
+  /* ---------------- AUDIO FADE IN ---------------- */
+  let ambient;
+  if (audioName) {
+    ambient = new Audio(`../sounds/${audioName}`);
+    ambient.loop = true;
+    ambient.volume = 0;
+
+    function startAudio() {
+      ambient.play().catch(() => {});
+      fadeAudioIn();
+      window.removeEventListener("click", startAudio);
+      window.removeEventListener("keydown", startAudio);
+    }
+
+    window.addEventListener("click", startAudio);
+    window.addEventListener("keydown", startAudio);
+  }
+
+  function fadeAudioIn() {
+    let vol = 0;
+    const interval = setInterval(() => {
+      vol += 0.02;
+      if (ambient) ambient.volume = vol;
+      if (vol >= 0.5) clearInterval(interval);
+    }, 50);
+  }
+
+  function fadeAudioOut(callback) {
+    if (!ambient) return callback();
+
+    let vol = ambient.volume;
+    const interval = setInterval(() => {
+      vol -= 0.03;
+      ambient.volume = Math.max(vol, 0);
+      if (vol <= 0) {
+        clearInterval(interval);
+        ambient.pause();
+        callback();
+      }
+    }, 40);
+  }
+
+  /* ---------------- ROOM BUTTONS ---------------- */
+  const buttons = document.querySelectorAll("[data-jump]");
+
+  buttons.forEach(btn => {
+    btn.addEventListener("click", () => {
+      const nextRoom = btn.dataset.jump;
+
+      // Fade-out effect
+      body.style.transition = "opacity 0.8s ease-out";
+      body.style.opacity = 0;
+
+      fadeAudioOut(() => {
+        setTimeout(() => {
+          window.location.href = nextRoom;
+        }, 800);
+      });
+    });
+  });
+});
