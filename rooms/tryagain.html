@@ -3,14 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Endless Requium — Not getting off that easy!</title>
-  <!-- Go up one folder to get the root styles.css -->
+  <title>Endless Requium — Room</title>
   <link rel="stylesheet" href="../styles.css">
   <style>
     /* Room-specific styles */
     body.room {
-      background: black url('../images/room_bg.jpg') no-repeat center center;
+      background: black url('../images/road.png') no-repeat center center;
       background-size: cover;
+      opacity: 0; /* start invisible for fade-in */
+      transition: opacity 1.2s ease-in-out;
     }
 
     .room-box {
@@ -50,7 +51,31 @@
     <p>You walk back and flag the taxi that dropped you here, nothing happens, he speeds off, you never caught his name nor face.. now that you think about it, he didn't have one..</p>
 
     <!-- Choices / navigation -->
-    <button class="btn" onclick="location.href='door.html'">Door</button>
+    <button class="btn" onclick="location.href='door.html'">Go to the front door.</button>
   </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // FADE-IN EFFECT
+      requestAnimationFrame(() => {
+        document.body.style.opacity = 1;
+      });
+
+      // AMBIENT ROOM SOUND
+      const ambient = new Audio('../sounds/noon.mp3'); // put your file in /sounds/
+      ambient.loop = true;
+      ambient.volume = 0.5;
+      
+      // Autoplay workaround: play on first click or keypress
+      function startAmbient() {
+        ambient.play().catch(e => console.warn('Ambient sound blocked:', e));
+        window.removeEventListener('click', startAmbient);
+        window.removeEventListener('keydown', startAmbient);
+      }
+
+      window.addEventListener('click', startAmbient);
+      window.addEventListener('keydown', startAmbient);
+    });
+  </script>
 </body>
 </html>
