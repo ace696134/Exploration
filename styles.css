@@ -1,83 +1,135 @@
-/* Font */
-@import url('https://fonts.googleapis.com/css2?family=Underdog:wght@400;700&display=swap');
+/* ————— GENERAL ————— */
 
-/* Reset */
-* { box-sizing:border-box; margin:0; padding:0; }
-html, body { height:100%; width:100%; background:black; color:white; font-family:'Underdog', monospace; overflow:hidden; }
-
-/* Stage */
-.stage { position:relative; width:100vw; height:100vh; overflow:hidden; }
-
-/* Overlays - simplified for performance */
-.vignette { position:absolute; inset:0; pointer-events:none; background: radial-gradient(ellipse at center, rgba(0,0,0,0) 30%, rgba(0,0,0,0.6) 70%); z-index:10; }
-.grain { position:absolute; inset:0; pointer-events:none; background-image: radial-gradient(circle, rgba(255,255,255,0.03) 1px, transparent 1px); background-size:4px 4px; opacity:0.07; z-index:20; }
-.scanlines { position:absolute; inset:0; pointer-events:none; background-image: linear-gradient(rgba(0,0,0,0.12) 50%, rgba(255,255,255,0.01) 50%); background-size:100% 4px; opacity:0.15; z-index:15; }
-
-/* Center box */
-.center-box { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); max-width:850px; width:90%; text-align:center; display:flex; flex-direction:column; gap:14px; z-index:100; }
-
-/* Title & subtitle */
-.title { font-size: clamp(2rem,6vw,5rem); line-height:1; position:relative; }
-.subtitle { font-size: clamp(1rem,2.5vw,1.5rem); color:#ffd9d6; }
-
-/* Controls */
-.controls { margin-top:20px; display:flex; justify-content:center; gap:10px; }
-.btn { padding:8px 14px; border-radius:5px; border:1px solid rgba(255,255,255,0.08); background:rgba(255,255,255,0.05); color:#ffd9d6; cursor:pointer; transition: transform 0.12s ease, opacity 0.12s ease; }
-.btn:hover { transform:translateY(-2px); opacity:1; }
-.hidden { display:none; }
-
-/* Flash subtitle */
-.flash { animation: flashPulse 2.5s ease-in-out infinite; }
-@keyframes flashPulse {
-  0%,100%{opacity:0.95;color:#ffd9d6;}
-  50%{opacity:1;color:#ff4a4a;}
-}
-
-/* Glitch effect */
-.glitch { position:relative; display:inline-block; color:white; }
-.glitch::before, .glitch::after { content: attr(data-text); position:absolute; left:0; top:0; width:100%; pointer-events:none; mix-blend-mode:screen; opacity:0.95; }
-.glitch::before { color:rgba(255,80,80,0.95); transform:translateX(-4px); animation:sliceMove 3s linear infinite; }
-.glitch::after { color:rgba(120,220,255,0.95); transform:translateX(4px); animation:sliceMove 3s linear infinite reverse; }
-@keyframes sliceMove { 0%,100%{clip-path:inset(0 0 0 0);} 25%{clip-path:inset(50% 0 0 0);} 50%{clip-path:inset(20% 0 30% 0);} 75%{clip-path:inset(60% 0 0 0);} }
-
-/* Performance tweak: lower opacity, fewer steps */
-@keyframes grainAnim {0%{transform:translate(0,0);}50%{transform:translate(-1px,1px);}100%{transform:translate(0,0);}}
-@keyframes scanlineShift {0%{background-position:0 0;}100%{background-position:0 100%;}}
-
-.menu-btn {
-  margin-top: 20px;
-  padding: 12px 28px;
-  font-size: 1.2rem;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.3);
-  color: white;
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-.menu-btn:hover {
-  background: rgba(255,255,255,0.15);
+body {
+  margin: 0;
+  background: black;
+  color: red;
+  font-family: 'Underdog', sans-serif;
+  overflow: hidden;
 }
 
 .hidden {
   display: none;
 }
 
-/* Fade to black */
+.btn {
+  background: transparent;
+  color: red;
+  border: 2px solid red;
+  padding: 10px 20px;
+  font-size: 24px;
+  cursor: pointer;
+  margin-top: 20px;
+  transition: 0.2s;
+}
+
+.btn:hover {
+  background: red;
+  color: black;
+}
+
+/* ————— CENTER LAYOUT ————— */
+
+.center-box {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  text-align: center;
+}
+
+.title {
+  font-size: 64px;
+  margin: 0;
+}
+
+.subtitle {
+  font-size: 22px;
+  opacity: 0.8;
+}
+
+/* ————— GLITCH EFFECT ————— */
+
+.glitch {
+  position: relative;
+}
+
+.glitch::before,
+.glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.glitch::before {
+  left: 2px;
+  text-shadow: -3px 0 blue;
+}
+
+.glitch::after {
+  left: -2px;
+  text-shadow: -3px 0 red;
+}
+
+.glitch-spike {
+  animation: glitchPulse 0.15s steps(2, end) infinite;
+}
+
+@keyframes glitchPulse {
+  0% { transform: translate(2px, -2px); }
+  100% { transform: translate(-2px, 2px); }
+}
+
+/* ————— VHS ————— */
+
+.vignette {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  box-shadow: inset 0 0 200px black;
+}
+
+.scanlines {
+  pointer-events: none;
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  background: repeating-linear-gradient(
+    black 0px,
+    rgba(0, 0, 0, 0.2) 2px,
+    black 4px
+  );
+  opacity: 0.1;
+}
+
+.grain {
+  pointer-events: none;
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  background-image: url('grain.png');
+  opacity: 0.08;
+}
+
+.flicker {
+  animation: flickerEffect 0.2s;
+}
+
+@keyframes flickerEffect {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* ————— SCREEN TRANSITIONS ————— */
+
 body.fade-out {
   animation: fadeToBlack 1s forwards;
 }
 
 @keyframes fadeToBlack {
   from { opacity: 1; }
-  to { opacity: 0; background-color: black; }
-}
-
-body.fade-in {
-  animation: fadeIn 1.5s forwards;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  to { opacity: 0; background: black; }
 }
