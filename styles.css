@@ -42,7 +42,10 @@ body {
 .title {
   font-size: 64px;
   margin: 0;
+  position: relative;    /* ← REQUIRED */
+  display: inline-block; /* ← Prevents drifting */
 }
+
 
 .subtitle {
   font-size: 22px;
