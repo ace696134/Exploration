@@ -1,138 +1,96 @@
-/* ————— GENERAL ————— */
+/* GENERAL */
+* { box-sizing: border-box; }
+html,body { height:100%; margin:0; padding:0; background:#000; color:#e33; font-family: 'Underdog', sans-serif; }
+.hidden { display: none; }
 
-body {
-  margin: 0;
-  background: black;
-  color: red;
-  font-family: 'Underdog', sans-serif;
-  overflow: hidden;
-}
-
-.hidden {
-  display: none;
-}
-
-.btn {
-  background: transparent;
-  color: red;
-  border: 2px solid red;
-  padding: 10px 20px;
-  font-size: 24px;
-  cursor: pointer;
-  margin-top: 20px;
-  transition: 0.2s;
-}
-
-.btn:hover {
-  background: red;
-  color: black;
-}
-
-/* ————— CENTER LAYOUT ————— */
-
+/* CENTER LAYOUT */
 .center-box {
+  position: absolute;
+  left: 50%; top: 50%;
+  transform: translate(-50%,-50%);
+  width: 90%;
+  max-width: 900px;
+  text-align: center;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  gap: 14px;
   align-items: center;
-  height: 100vh;
-  text-align: center;
 }
 
+/* TITLE */
 .title {
-  font-size: 64px;
+  font-size: clamp(2rem, 6vw, 5rem);
   margin: 0;
-  position: relative;    /* ← REQUIRED */
-  display: inline-block; /* ← Prevents drifting */
+  position: relative;     /* anchor for pseudo elements */
+  display: inline-block;  /* keeps width tight so pseudo elements overlap exactly */
+  line-height: 0.95;
 }
 
+/* SUBTITLE */
+.subtitle { font-size: clamp(0.9rem, 2.4vw, 1.4rem); color:#ffd9d6; margin:0; opacity:0.9; }
 
-.subtitle {
-  font-size: 22px;
-  opacity: 0.8;
+/* BUTTONS */
+.btn {
+  background: transparent;
+  color: #e33;
+  border: 2px solid #e33;
+  padding: 10px 18px;
+  font-size: 1rem;
+  cursor: pointer;
+  border-radius: 6px;
 }
+.btn:not(.hidden) { margin-top: 8px; }
+.btn:hover { background: #e33; color: #000; }
 
-/* ————— GLITCH EFFECT ————— */
-
-.glitch {
-  position: relative;
-}
-
-.glitch::before,
-.glitch::after {
+/* GLITCH: only two ghost layers (::before and ::after) + main text */
+.title.glitch::before,
+.title.glitch::after {
   content: attr(data-text);
   position: absolute;
-  top: 0;
-  left: 0;
-}
-
-.glitch::before {
-  left: 2px;
-  text-shadow: -3px 0 blue;
-}
-
-.glitch::after {
-  left: -2px;
-  text-shadow: -3px 0 red;
-}
-
-.glitch-spike {
-  animation: glitchPulse 0.15s steps(2, end) infinite;
-}
-
-@keyframes glitchPulse {
-  0% { transform: translate(2px, -2px); }
-  100% { transform: translate(-2px, 2px); }
-}
-
-/* ————— VHS ————— */
-
-.vignette {
-  position: fixed;
   top: 0; left: 0;
-  width: 100%; height: 100%;
-  pointer-events: none;
-  box-shadow: inset 0 0 200px black;
-}
-
-.scanlines {
-  pointer-events: none;
-  position: fixed;
   width: 100%;
   height: 100%;
-  background: repeating-linear-gradient(
-    black 0px,
-    rgba(0, 0, 0, 0.2) 2px,
-    black 4px
-  );
-  opacity: 0.1;
-}
-
-.grain {
   pointer-events: none;
-  position: fixed;
-  width: 100%;
-  height: 100%;
-  background-image: url('grain.png');
-  opacity: 0.08;
+  opacity: 0.95;
+  mix-blend-mode: screen;
 }
 
-.flicker {
-  animation: flickerEffect 0.2s;
+/* chromatic offsets */
+.title.glitch::before { transform: translateX(-4px); color: rgba(255,90,90,0.95); }
+.title.glitch::after  { transform: translateX(4px);  color: rgba(120,220,255,0.95); }
+
+/* quick spike (added/removed by JS) */
+.glitch-spike { animation: glitchSpike 0.56s steps(2, end) 1; }
+@keyframes glitchSpike {
+  0% { transform: translate(0,0); filter: none; }
+  30% { transform: translate(-12px, -6px) skewX(-6deg); filter: blur(.6px) saturate(1.4); }
+  70% { transform: translate(12px, 6px) skewX(6deg); filter: blur(.8px) saturate(.6); }
+  100% { transform: translate(0,0); filter:none; }
 }
 
-@keyframes flickerEffect {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+/* FLASH */
+.flash { animation: flashPulse 2.6s ease-in-out infinite; }
+@keyframes flashPulse {
+  0%,100%{ color:#ffd9d6; opacity:0.95; text-shadow:none; }
+  50%{ color:#ff4a4a; text-shadow:0 0 12px rgba(255,70,70,0.35); transform: translateY(-1px); }
 }
 
-/* ————— SCREEN TRANSITIONS ————— */
+/* LIGHT OVERLAYS (low cost) */
+.vignette { position:fixed; inset:0; pointer-events:none; box-shadow: inset 0 0 200px rgba(0,0,0,.85); z-index:10; }
+.scanlines { position:fixed; inset:0; pointer-events:none; background-image: linear-gradient(rgba(0,0,0,0.12) 50%, rgba(255,255,255,0.02) 50%); background-size:100% 4px; opacity:0.08; z-index:12; }
+.grain { position:fixed; inset:0; pointer-events:none; background-image: radial-gradient(circle, rgba(255,255,255,0.03) 1px, transparent 1px); background-size:4px 4px; opacity:0.04; z-index:11; }
 
-body.fade-out {
-  animation: fadeToBlack 1s forwards;
-}
+/* FLICKER */
+.flicker { animation: flickerAnim .22s steps(3) 1; }
+@keyframes flickerAnim { 0%{opacity:1} 50%{opacity:.2} 100%{opacity:1} }
 
-@keyframes fadeToBlack {
-  from { opacity: 1; }
-  to { opacity: 0; background: black; }
+/* TRANSITION */
+body.fade-out { animation: fadeToBlack 1s forwards; }
+@keyframes fadeToBlack { from{opacity:1} to{opacity:0; background:#000;} }
+
+/* Responsive tweaks */
+@media (max-width:600px) {
+  .title { font-size: clamp(1.6rem, 12vw, 3rem); }
+  .subtitle { font-size: 0.95rem; }
+  .btn { font-size: 0.95rem; padding: 8px 14px; }
 }
