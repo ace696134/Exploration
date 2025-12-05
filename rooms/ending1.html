@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Endless Requium — Not getting off that easy!</title>
+  <!-- Go up one folder to get the root styles.css -->
+  <link rel="stylesheet" href="../styles.css">
+  <style>
+    /* Room-specific styles */
+    body.room {
+      background: black url('../images/room_bg.jpg') no-repeat center center;
+      background-size: cover;
+    }
+
+    .room-box {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 90%;
+      max-width: 900px;
+      text-align: center;
+      color: #ffd9d6;
+      text-shadow: 0 0 6px black;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .room-box h1 {
+      font-size: clamp(2rem, 6vw, 4rem);
+      margin: 0;
+      position: relative;
+    }
+
+    .room-box p {
+      font-size: clamp(1rem, 2.5vw, 1.3rem);
+      margin: 0;
+    }
+
+    .room-box .btn {
+      width: fit-content;
+      align-self: center;
+    }
+  </style>
+</head>
+<body class="room">
+  <div class="room-box">
+    <h1>Well..</h1>
+    <p>You walk back and flag the taxi that dropped you here, nothing happens, he speeds off, you never caught his name nor face.. now that you think about it, he didn't have one..</p>
+
+    <!-- Choices / navigation -->
+    <button class="btn" onclick="location.href='door.html'">Door</button>
+  </div>
+</body>
+</html>
