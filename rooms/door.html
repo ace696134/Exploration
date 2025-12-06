@@ -3,15 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Endless Requium — Door </title>
+  <title>Endless Requium — Door</title>
+
+  <!-- Main global stylesheet -->
   <link rel="stylesheet" href="../styles.css">
+
+  <!-- Room-specific layout -->
   <style>
-    /* Room-specific styles */
     body.room {
-      background: black url('../images/door.png') no-repeat center center;
+      margin: 0;
+      width: 100vw;
+      height: 100vh;
+      background: black;
       background-size: cover;
-      opacity: 0; /* start invisible for fade-in */
+      background-position: center;
+      opacity: 0; /* fade-in start */
       transition: opacity 1.2s ease-in-out;
+      overflow: hidden;
     }
 
     .room-box {
@@ -21,62 +29,60 @@
       width: 90%;
       max-width: 900px;
       text-align: center;
-      color: #ffd9d6;
-      text-shadow: 0 0 6px black;
+      color: #ffdfdf;
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 20px;
+      text-shadow: 0 0 10px black;
+      padding: 20px;
     }
 
-    .room-box h1 {
+    .room-title {
+      margin: 0;
       font-size: clamp(2rem, 6vw, 4rem);
-      margin: 0;
-      position: relative;
     }
 
-    .room-box p {
-      font-size: clamp(1rem, 2.5vw, 1.3rem);
+    .room-desc {
       margin: 0;
+      font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+      opacity: 0.85;
     }
 
-    .room-box .btn {
+    .room-btn {
+      background: transparent;
+      color: red;
+      border: 2px solid red;
+      padding: 10px 28px;
+      font-size: 22px;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: 0.2s;
       width: fit-content;
       align-self: center;
     }
+
+    .room-btn:hover {
+      background: red;
+      color: black;
+    }
   </style>
 </head>
-<body class="room">
-  <div class="room-box">
-    <h1>A Door..</h1>
-    <p>You wonder who couldve once lived here..</p>
 
-    <!-- Choices / navigation -->
-    <button class="btn" onclick="location.href='room1.html'">Go Left</button>
-    <button class="btn" onclick="location.href='room2.html'">Go Right</button>
+<!-- Example: This room plays hallway.mp3 -->
+<body class="room" 
+      data-audio="night.mp3"
+      data-bg="../images/door.png">
+
+  <div class="room-box">
+    <h1 class="room-title">Front Door..</h1>
+    <p class="room-desc">
+      There's a door to the house..
+    </p>
+
+    <button class="room-btn" data-jump="room2.html">Continue Forward</button>
+    <button class="room-btn" data-jump="room1.html">Go Back</button>
   </div>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      // FADE-IN EFFECT
-      requestAnimationFrame(() => {
-        document.body.style.opacity = 1;
-      });
-
-      // AMBIENT ROOM SOUND
-      const ambient = new Audio('../sounds/night.mp3'); // put your file in /sounds/
-      ambient.loop = true;
-      ambient.volume = 0.5;
-      
-      // Autoplay workaround: play on first click or keypress
-      function startAmbient() {
-        ambient.play().catch(e => console.warn('Ambient sound blocked:', e));
-        window.removeEventListener('click', startAmbient);
-        window.removeEventListener('keydown', startAmbient);
-      }
-
-      window.addEventListener('click', startAmbient);
-      window.addEventListener('keydown', startAmbient);
-    });
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
