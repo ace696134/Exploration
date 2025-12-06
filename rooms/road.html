@@ -3,15 +3,25 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Endless Requium — He left us..</title>
+  <title>Endless Requium — Road</title>
+
+  <!-- Main global stylesheet -->
   <link rel="stylesheet" href="../styles.css">
+
+  <!-- Room-specific layout -->
   <style>
     body.room {
-      background: black url('../images/road.png') no-repeat center center;
+      margin: 0;
+      width: 100vw;
+      height: 100vh;
+      background: black;
       background-size: cover;
-      opacity: 0; /* start invisible for fade-in */
+      background-position: center;
+      opacity: 0; /* fade-in start */
       transition: opacity 1.2s ease-in-out;
+      overflow: hidden;
     }
+
     .room-box {
       position: absolute;
       top: 50%; left: 50%;
@@ -19,34 +29,58 @@
       width: 90%;
       max-width: 900px;
       text-align: center;
-      color: #ffd9d6;
-      text-shadow: 0 0 6px black;
+      color: #ffdfdf;
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 20px;
+      text-shadow: 0 0 10px black;
+      padding: 20px;
     }
-    .room-box h1 {
+
+    .room-title {
+      margin: 0;
       font-size: clamp(2rem, 6vw, 4rem);
-      margin: 0;
-      position: relative;
     }
-    .room-box p {
-      font-size: clamp(1rem, 2.5vw, 1.3rem);
+
+    .room-desc {
       margin: 0;
+      font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+      opacity: 0.85;
     }
-    .room-box .btn {
+
+    .room-btn {
+      background: transparent;
+      color: red;
+      border: 2px solid red;
+      padding: 10px 28px;
+      font-size: 22px;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: 0.2s;
       width: fit-content;
       align-self: center;
     }
+
+    .room-btn:hover {
+      background: red;
+      color: black;
+    }
   </style>
 </head>
-<body class="room" data-audio="noon.mp3">
-  <div class="room-box">
-    <h1>Well..</h1>
-    <p>You walk back and flag the taxi that dropped you here, nothing happens, he speeds off, you never caught his name nor face.. now that you think about it, he didn't have one.. It's getting dark very quick now that you look.</p>
 
-    <button class="btn" onclick="location.href='door.html'">Go to the door.</button>
-    <button class="btn" onclick="location.href='blank'">Exit.</button>
+<!-- Example: This room plays hallway.mp3 -->
+<body class="room" 
+      data-audio="noon.mp3"
+      data-bg="../images/road.png">
+
+  <div class="room-box">
+    <h1 class="room-title">Well..</h1>
+    <p class="room-desc">
+You walk back and flag the taxi that dropped you here, nothing happens, he speeds off, you never caught his name nor face.. now that you think about it, he didn't have one.. It's getting dark very quick now that you look.
+    </p>
+
+    <button class="room-btn" data-jump="door.html">Continue Forward.</button>
+    <button class="room-btn" data-jump="field.html">Look around.</button>
   </div>
 
   <script src="script.js"></script>
