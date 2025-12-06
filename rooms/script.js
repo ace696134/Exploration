@@ -9,7 +9,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
   /* ---------------- BACKGROUND SET ---------------- */
   if (bg) {
-    body.style.backgroundImage = `url('${bg}')`;
+    // If absolute file URL, use directly
+    if (bg.startsWith("file:///")) {
+      body.style.backgroundImage = `url("${bg}")`;
+    } else {
+      body.style.backgroundImage = `url("../images/${bg}")`;
+    }
   }
 
   /* ---------------- FADE IN ---------------- */
@@ -17,10 +22,16 @@ document.addEventListener("DOMContentLoaded", function () {
     body.style.opacity = 1;
   });
 
-  /* ---------------- AUDIO FADE IN ---------------- */
+  /* ---------------- AUDIO SETUP ---------------- */
   let ambient;
+
   if (audioName) {
-    ambient = new Audio(`../sounds/${audioName}`);
+    // Support full file paths directly
+    const audioPath = audioName.startsWith("file:///")
+      ? audioName
+      : `../sounds/${audioName}`;
+
+    ambient = new Audio(audioPath);
     ambient.loop = true;
     ambient.volume = 0;
 
@@ -35,31 +46,33 @@ document.addEventListener("DOMContentLoaded", function () {
     window.addEventListener("keydown", startAudio);
   }
 
+  /* ---------------- AUDIO FADE IN ---------------- */
   function fadeAudioIn() {
-    let vol = 0;
-    const interval = setInterval(() => {
-      vol += 0.02;
-      if (ambient) ambient.volume = vol;
-      if (vol >= 0.5) clearInterval(interval);
+    let v = 0;
+    const fade = setInterval(() => {
+      v += 0.02;
+      if (ambient) ambient.volume = v;
+      if (v >= 0.6) clearInterval(fade);
     }, 50);
   }
 
+  /* ---------------- AUDIO FADE OUT ---------------- */
   function fadeAudioOut(callback) {
     if (!ambient) return callback();
 
-    let vol = ambient.volume;
-    const interval = setInterval(() => {
-      vol -= 0.03;
-      ambient.volume = Math.max(vol, 0);
-      if (vol <= 0) {
-        clearInterval(interval);
+    let v = ambient.volume;
+    const fade = setInterval(() => {
+      v -= 0.03;
+      ambient.volume = Math.max(v, 0);
+      if (v <= 0) {
+        clearInterval(fade);
         ambient.pause();
         callback();
       }
     }, 40);
   }
 
-  /* ---------------- ROOM BUTTONS ---------------- */
+  /* ---------------- ROOM NAVIGATION ---------------- */
   const buttons = document.querySelectorAll("[data-jump]");
 
   buttons.forEach(btn => {
