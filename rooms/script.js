@@ -1,5 +1,6 @@
 /* Endless Requium - Room Handler
-   Handles: fade-in, fade-out, ambient audio, background images, navigation.
+   Autoplay-safe audio, fade, background, navigation,
+   AND carries over mute state from index.html.
 */
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -7,9 +8,11 @@ document.addEventListener("DOMContentLoaded", function () {
   const audioName = body.dataset.audio;
   const bg = body.dataset.bg;
 
-  /* ---------------- BACKGROUND SET ---------------- */
+  /* ---------------- LOAD MUTE STATE ---------------- */
+  const muteState = localStorage.getItem("gameMuted") === "1";
+
+  /* ---------------- BACKGROUND ---------------- */
   if (bg) {
-    // If absolute file URL, use directly
     if (bg.startsWith("file:///")) {
       body.style.backgroundImage = `url("${bg}")`;
     } else {
@@ -22,48 +25,64 @@ document.addEventListener("DOMContentLoaded", function () {
     body.style.opacity = 1;
   });
 
-  /* ---------------- AUDIO SETUP ---------------- */
+  /* ---------------- AUDIO AUTOPLAY ---------------- */
   let ambient;
 
   if (audioName) {
-    // Support full file paths directly
     const audioPath = audioName.startsWith("file:///")
       ? audioName
       : `../sounds/${audioName}`;
 
     ambient = new Audio(audioPath);
     ambient.loop = true;
+
+    // Respect mute setting
+    ambient.muted = muteState;
+
+    // Start silent to satisfy autoplay
     ambient.volume = 0;
 
-    function startAudio() {
-      ambient.play().catch(() => {});
-      fadeAudioIn();
-      window.removeEventListener("click", startAudio);
-      window.removeEventListener("keydown", startAudio);
-    }
-
-    window.addEventListener("click", startAudio);
-    window.addEventListener("keydown", startAudio);
+    ambient.play().then(() => {
+      if (!muteState) {
+        setTimeout(() => fadeAudioIn(), 200);
+      }
+    }).catch(() => {
+      // Autoplay blocked → fallback interaction
+      window.addEventListener("click", startAudioFallback);
+      window.addEventListener("keydown", startAudioFallback);
+    });
   }
 
-  /* ---------------- AUDIO FADE IN ---------------- */
+  function startAudioFallback() {
+    ambient.play();
+    if (!muteState) fadeAudioIn();
+    window.removeEventListener("click", startAudioFallback);
+    window.removeEventListener("keydown", startAudioFallback);
+  }
+
+  /* ---------------- FADE IN ---------------- */
   function fadeAudioIn() {
     let v = 0;
     const fade = setInterval(() => {
       v += 0.02;
-      if (ambient) ambient.volume = v;
+      ambient.volume = v;
       if (v >= 0.6) clearInterval(fade);
     }, 50);
   }
 
-  /* ---------------- AUDIO FADE OUT ---------------- */
+  /* ---------------- FADE OUT ---------------- */
   function fadeAudioOut(callback) {
     if (!ambient) return callback();
+
+    if (muteState) {
+      ambient.pause();
+      return callback();
+    }
 
     let v = ambient.volume;
     const fade = setInterval(() => {
       v -= 0.03;
-      ambient.volume = Math.max(v, 0);
+      ambient.volume = Math.max(0, v);
       if (v <= 0) {
         clearInterval(fade);
         ambient.pause();
@@ -79,7 +98,6 @@ document.addEventListener("DOMContentLoaded", function () {
     btn.addEventListener("click", () => {
       const nextRoom = btn.dataset.jump;
 
-      // Fade-out effect
       body.style.transition = "opacity 0.8s ease-out";
       body.style.opacity = 0;
 
