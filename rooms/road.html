@@ -3,113 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Endless Requium - Road</title>
+  <title>Endless Requium - Room</title>
   <link rel="stylesheet" href="../styles.css">
-  <style>
-    /* ---------- GENERAL ---------- */
-    body {
-      margin: 0;
-      font-family: 'Underdog', sans-serif;
-      color: red;
-      background: black;
-      opacity: 0;
-      overflow: hidden;
-      transition: opacity 1s ease-out;
-    }
-
-    /* ---------- BACKGROUND LAYER ---------- */
-    #bgContainer {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 0;
-    }
-    #bgContainer img {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    /* ---------- CENTERED CONTENT ---------- */
-    .center-box {
-      position: relative;
-      z-index: 10;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      text-align: center;
-      padding: 20px;
-    }
-
-    .btn {
-      background: transparent;
-      color: red;
-      border: 2px solid red;
-      padding: 10px 20px;
-      margin-top: 15px;
-      font-size: 20px;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-    .btn:hover {
-      background: red;
-      color: black;
-    }
-
-    /* ---------- INVENTORY ---------- */
-    #invToggle {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      padding: 8px 16px;
-      border: 2px solid red;
-      background: black;
-      color: red;
-      cursor: pointer;
-      z-index: 20;
-    }
-
-    #inventory {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      min-width: 200px;
-      padding: 10px;
-      background: rgba(0,0,0,0.85);
-      border: 2px solid red;
-      color: red;
-      font-family: 'Underdog';
-      font-size: 18px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      transform: translateY(150px);
-      opacity: 0;
-      transition: 0.35s ease;
-      z-index: 19;
-    }
-    #inventory.visible {
-      transform: translateY(0);
-      opacity: 1;
-    }
-    .inv-item {
-      border: 1px solid red;
-      padding: 5px 8px;
-      background: rgba(255,0,0,0.1);
-    }
-    .hidden { display: none; }
-  </style>
 </head>
-<body data-audio="../sounds/noon.mp3">
+<body data-audio="noon.mp3">
 
   <!-- BACKGROUND IMAGES CONTAINER -->
   <div id="bgContainer">
     <img src="../images/road.png" alt="road">
-
   </div>
 
   <!-- INVENTORY -->
@@ -118,14 +19,19 @@
 
   <!-- CENTERED ROOM CONTENT -->
   <div class="center-box">
-    <h1>Well..</h1>
-    <p>You walk back and flag the taxi that dropped you here, nothing happens, he speeds off, you never caught his name nor face..</p>
+    <h1 class="title glitch" data-text="Room Title">Well..</h1>
+    <p class="subtitle">You walk back and flag the taxi that dropped you here, nothing happens, he speeds off, you never caught his name nor face..</p>
     <p>now that you think about it, he didn't have one.. It's getting dark very quick now that you look.</p>
 
-    <!-- Navigation -->
-    <button class="btn" data-jump="door.html">Go to the front of the house.</button>
+    <!-- Navigation / Pickups -->
+    <button class="btn" data-jump="door.html">Go to the door.</button>
     <button class="btn" data-pickup="Silver Key">Pick up Silver Key</button>
   </div>
+
+  <!-- LIGHT OVERLAYS (Optional visual effects) -->
+  <div class="vignette"></div>
+  <div class="scanlines"></div>
+  <div class="grain"></div>
 
   <!-- ROOM SCRIPT -->
   <script src="../rooms/script.js"></script>
