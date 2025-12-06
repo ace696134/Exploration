@@ -122,7 +122,7 @@ html, body {
 }
 
 /* ---------- FADES (GLOBAL) ---------- */
-html, body {
+body {
   opacity: 1;
   transition: opacity 1.8s ease-in-out;
 }
