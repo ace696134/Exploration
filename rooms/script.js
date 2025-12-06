@@ -183,31 +183,31 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
-  /* ---------------- USE ITEM TO UNLOCK ---------------- */
-  document.querySelectorAll("[data-use]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const neededRaw = btn.dataset.use;
-      const needed = neededRaw.trim().toLowerCase();
-      const next = btn.dataset.jump;
+   document.querySelectorAll("[data-use]").forEach(btn => {
+     btn.addEventListener("click", (e) => {
+       e.stopPropagation(); // Prevent the [data-jump] listener from firing
+       const neededRaw = btn.dataset.use;
+       const needed = neededRaw.trim().toLowerCase();
+       const next = btn.dataset.jump;
+   
+       const inv = loadInventory().map(i => i.trim().toLowerCase());
+   
+       if (!inv.includes(needed)) {
+         showMessage(`You don’t have “${neededRaw}”.`);
+         return;
+       }
 
-      const inv = loadInventory().map(i => i.trim().toLowerCase());
+       removeItem(neededRaw);
+       renderInventory();
+       showMessage(`Used: ${neededRaw}`);
 
-      if (!inv.includes(needed)) {
-        showMessage(`You don’t have “${neededRaw}”.`);
-        return;
-      }
-
-      removeItem(neededRaw);
-      renderInventory();
-      showMessage(`Used: ${neededRaw}`);
-
-      body.style.transition = "opacity 0.8s ease-out";
-      body.style.opacity = 0;
-
-      fadeAudioOut(() => {
-        setTimeout(() => window.location.href = next, 750);
-      });
-    });
-  });
+       body.style.transition = "opacity 0.8s ease-out";
+       body.style.opacity = 0;
+   
+       fadeAudioOut(() => {
+         setTimeout(() => window.location.href = next, 750);
+       });
+     });
+   });
 
 });
