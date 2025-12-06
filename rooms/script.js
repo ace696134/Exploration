@@ -1,17 +1,18 @@
 /* Endless Requium - Room Handler
-   Autoplay-safe audio, fade, background, navigation,
-   AND carries over mute state from index.html.
+   Handles background, autoplay-safe audio, fade transitions,
+   and mute state carried over from title screen.
 */
 
 document.addEventListener("DOMContentLoaded", function () {
+
   const body = document.body;
   const audioName = body.dataset.audio;
   const bg = body.dataset.bg;
 
   /* ---------------- LOAD MUTE STATE ---------------- */
-  const muteState = localStorage.getItem("gameMuted") === "1";
+  const isMuted = localStorage.getItem("gameMuted") === "1";
 
-  /* ---------------- BACKGROUND ---------------- */
+  /* ---------------- BACKGROUND SET ---------------- */
   if (bg) {
     if (bg.startsWith("file:///")) {
       body.style.backgroundImage = `url("${bg}")`;
@@ -21,12 +22,14 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   /* ---------------- FADE IN ---------------- */
+  body.style.opacity = 0;
   requestAnimationFrame(() => {
+    body.style.transition = "opacity 1s ease-out";
     body.style.opacity = 1;
   });
 
-  /* ---------------- AUDIO AUTOPLAY ---------------- */
-  let ambient;
+  /* ---------------- AUDIO ---------------- */
+  let ambient = null;
 
   if (audioName) {
     const audioPath = audioName.startsWith("file:///")
@@ -36,31 +39,32 @@ document.addEventListener("DOMContentLoaded", function () {
     ambient = new Audio(audioPath);
     ambient.loop = true;
 
-    // Respect mute setting
-    ambient.muted = muteState;
+    // Respect global mute state
+    ambient.muted = isMuted;
 
-    // Start silent to satisfy autoplay
+    // Start volume silent for autoplay to work
     ambient.volume = 0;
 
     ambient.play().then(() => {
-      if (!muteState) {
-        setTimeout(() => fadeAudioIn(), 200);
-      }
-    }).catch(() => {
-      // Autoplay blocked → fallback interaction
-      window.addEventListener("click", startAudioFallback);
-      window.addEventListener("keydown", startAudioFallback);
+      if (!isMuted) fadeAudioIn();
+    })
+    .catch(() => {
+      // Autoplay blocked → wait for gesture
+      window.addEventListener("click", userGestureStart);
+      window.addEventListener("keydown", userGestureStart);
     });
   }
 
-  function startAudioFallback() {
-    ambient.play();
-    if (!muteState) fadeAudioIn();
-    window.removeEventListener("click", startAudioFallback);
-    window.removeEventListener("keydown", startAudioFallback);
+  function userGestureStart() {
+    if (ambient) {
+      ambient.play();
+      if (!isMuted) fadeAudioIn();
+    }
+    window.removeEventListener("click", userGestureStart);
+    window.removeEventListener("keydown", userGestureStart);
   }
 
-  /* ---------------- FADE IN ---------------- */
+  /* ---------------- VOLUME FADE IN ---------------- */
   function fadeAudioIn() {
     let v = 0;
     const fade = setInterval(() => {
@@ -70,11 +74,11 @@ document.addEventListener("DOMContentLoaded", function () {
     }, 50);
   }
 
-  /* ---------------- FADE OUT ---------------- */
+  /* ---------------- VOLUME FADE OUT ---------------- */
   function fadeAudioOut(callback) {
     if (!ambient) return callback();
 
-    if (muteState) {
+    if (isMuted) {
       ambient.pause();
       return callback();
     }
@@ -83,6 +87,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const fade = setInterval(() => {
       v -= 0.03;
       ambient.volume = Math.max(0, v);
+
       if (v <= 0) {
         clearInterval(fade);
         ambient.pause();
@@ -96,15 +101,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
   buttons.forEach(btn => {
     btn.addEventListener("click", () => {
-      const nextRoom = btn.dataset.jump;
+      const next = btn.dataset.jump;
 
+      // Start fade-out
       body.style.transition = "opacity 0.8s ease-out";
       body.style.opacity = 0;
 
       fadeAudioOut(() => {
         setTimeout(() => {
-          window.location.href = nextRoom;
-        }, 800);
+          window.location.href = next;
+        }, 750);
       });
     });
   });
