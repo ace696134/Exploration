@@ -9,7 +9,8 @@
     const enableBtn = document.getElementById('enableAudio');
     const muteBtn = document.getElementById('toggleMute');
     const playBtn = document.getElementById('playButton');
-
+    playBtn.classList.remove('hidden');
+    
     // Safety: abort if required elements are missing
     if (!titleEl || !subtitleEl || !enableBtn || !playBtn) {
       console.error('Missing UI elements. Check index.html IDs (title, subtitle, enableAudio, playButton).');
@@ -35,7 +36,6 @@
 
       enableBtn.classList.add('hidden');
       muteBtn.classList.remove('hidden');
-      playBtn.classList.remove('hidden'); // show Play only after we enable audio
     }
 
     function toggleMute() {
