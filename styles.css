@@ -151,3 +151,20 @@ body.fade-out { animation: fadeToBlack 1s forwards; }
   .subtitle { font-size: 0.95rem; }
   .btn { font-size: 0.95rem; padding: 8px 14px; }
 }
+
+.popup-message {
+  position: fixed;
+  top: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.85);
+  color: red;
+  padding: 12px 24px;
+  border: 2px solid red;
+  font-family: 'Underdog', sans-serif;
+  font-size: 1.1rem;
+  z-index: 2000;
+  opacity: 0;
+  pointer-events: none;
+}
+
