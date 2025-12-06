@@ -159,5 +159,36 @@ document.addEventListener("DOMContentLoaded", function () {
       fadeAudioOut(() => setTimeout(() => window.location.href = next, 750));
     });
   });
+  /* ---------------- USE ITEM TO UNLOCK NEXT ROOM ---------------- */
+  document.querySelectorAll("[data-use]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const needed = btn.dataset.use;
+      const next = btn.dataset.jump;
+
+      const inv = loadInventory();
+
+      if (!inv.includes(needed)) {
+        console.warn("Missing required item:", needed);
+        return; // No item → block action
+      }
+
+      // Remove used item
+      const updated = inv.filter(i => i !== needed);
+      saveInventory(updated);
+      renderInventory();
+
+      // Fade → go to next room
+      body.style.transition = "opacity 0.8s ease-out";
+      body.style.opacity = 0;
+
+      fadeAudioOut(() => {
+        setTimeout(() => {
+          window.location.href = next;
+        }, 800);
+      });
+    });
+  });
 
 });
+
+
