@@ -61,7 +61,7 @@
 
       setTimeout(() => {
         window.location.href = 'rooms/lore.html';
-      }, 2000);
+      }, 500);
     }
 
     enableBtn.addEventListener('click', () => {
