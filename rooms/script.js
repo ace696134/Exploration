@@ -39,7 +39,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   /* ---------------- BODY FADE-IN ---------------- */
   requestAnimationFrame(() => {
-    body.style.opacity = 1;
+    body.style.opacity = 0;
   });
 
   /* ---------------- AMBIENT AUDIO ---------------- */
