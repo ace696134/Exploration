@@ -1,4 +1,4 @@
-/* GENERAL */
+/* ---------- GENERAL ---------- */
 * { box-sizing: border-box; }
 html, body {
   height: 100%;
@@ -15,7 +15,7 @@ html, body {
 
 .hidden { display: none; }
 
-/* CENTER LAYOUT */
+/* ---------- CENTER LAYOUT ---------- */
 .center-box {
   text-align: center;
   display: flex;
@@ -25,7 +25,7 @@ html, body {
   z-index: 50; /* above backgrounds */
 }
 
-/* TITLE */
+/* ---------- TITLE / SUBTITLE ---------- */
 .title {
   font-size: clamp(2rem, 6vw, 5rem);
   margin: 0;
@@ -34,7 +34,6 @@ html, body {
   line-height: 0.95;
 }
 
-/* SUBTITLE */
 .subtitle {
   font-size: clamp(0.9rem, 2.4vw, 1.4rem);
   color: #ffd9d6;
@@ -42,7 +41,7 @@ html, body {
   opacity: 0.9;
 }
 
-/* BUTTONS */
+/* ---------- BUTTONS ---------- */
 .btn {
   background: transparent;
   color: #e33;
@@ -55,50 +54,7 @@ html, body {
 .btn:not(.hidden) { margin-top: 8px; }
 .btn:hover { background: #e33; color: #000; }
 
-/* GLITCH EFFECT */
-.title.glitch::before,
-.title.glitch::after {
-  content: attr(data-text);
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  opacity: 0.95;
-  mix-blend-mode: screen;
-}
-.title.glitch::before { transform: translateX(-4px); color: rgba(255,90,90,0.95); }
-.title.glitch::after  { transform: translateX(4px); color: rgba(120,220,255,0.95); }
-.glitch-spike { animation: glitchSpike 0.56s steps(2,end) 1; }
-@keyframes glitchSpike {
-  0% { transform: translate(0,0); filter: none; }
-  30% { transform: translate(-12px,-6px) skewX(-6deg); filter: blur(.6px) saturate(1.4); }
-  70% { transform: translate(12px,6px) skewX(6deg); filter: blur(.8px) saturate(.6); }
-  100% { transform: translate(0,0); filter:none; }
-}
-
-/* FLASH */
-.flash { animation: flashPulse 2.6s ease-in-out infinite; }
-@keyframes flashPulse {
-  0%,100%{ color:#ffd9d6; opacity:0.95; text-shadow:none; }
-  50%{ color:#ff4a4a; text-shadow:0 0 12px rgba(255,70,70,0.35); transform: translateY(-1px); }
-}
-
-/* LIGHT OVERLAYS */
-.vignette { position:fixed; inset:0; pointer-events:none; box-shadow: inset 0 0 200px rgba(0,0,0,.85); z-index:10; }
-.scanlines { position:fixed; inset:0; pointer-events:none; background-image: linear-gradient(rgba(0,0,0,0.12) 50%, rgba(255,255,255,0.02) 50%); background-size:100% 4px; opacity:0.08; z-index:12; }
-.grain { position:fixed; inset:0; pointer-events:none; background-image: radial-gradient(circle, rgba(255,255,255,0.03) 1px, transparent 1px); background-size:4px 4px; opacity:0.04; z-index:11; }
-
-/* FLICKER */
-.flicker { animation: flickerAnim .22s steps(3) 1; }
-@keyframes flickerAnim { 0%{opacity:1} 50%{opacity:.2} 100%{opacity:1} }
-
-/* TRANSITION */
-body.fade-out { animation: fadeToBlack 1s forwards; }
-@keyframes fadeToBlack { from{opacity:1} to{opacity:0; background:#000;} }
-
-/* INVENTORY TOGGLE */
+/* ---------- INVENTORY ---------- */
 #invToggle {
   position: fixed;
   top: 20px;
@@ -107,12 +63,10 @@ body.fade-out { animation: fadeToBlack 1s forwards; }
   border: 2px solid red;
   background: black;
   color: red;
-  font-family: 'Underdog';
   cursor: pointer;
   z-index: 1000;
 }
 
-/* INVENTORY BOX */
 #inventory {
   position: fixed;
   bottom: 20px;
@@ -133,25 +87,17 @@ body.fade-out { animation: fadeToBlack 1s forwards; }
   transition: 0.35s ease;
   z-index: 1000;
 }
-
 #inventory.visible {
   transform: translateY(0);
   opacity: 1;
 }
-
 .inv-item {
   border: 1px solid red;
   padding: 5px 8px;
   background: rgba(255,0,0,0.1);
 }
 
-/* RESPONSIVE */
-@media (max-width:600px) {
-  .title { font-size: clamp(1.6rem, 12vw, 3rem); }
-  .subtitle { font-size: 0.95rem; }
-  .btn { font-size: 0.95rem; padding: 8px 14px; }
-}
-
+/* ---------- POPUP MESSAGE ---------- */
 .popup-message {
   position: fixed;
   top: 20%;
@@ -168,3 +114,9 @@ body.fade-out { animation: fadeToBlack 1s forwards; }
   pointer-events: none;
 }
 
+/* ---------- RESPONSIVE ---------- */
+@media (max-width:600px) {
+  .title { font-size: clamp(1.6rem, 12vw, 3rem); }
+  .subtitle { font-size: 0.95rem; }
+  .btn { font-size: 0.95rem; padding: 8px 14px; }
+}
