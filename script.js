@@ -50,19 +50,33 @@
       localStorage.setItem("gameMuted", isMuted ? "1" : "0");
     }
 
-    function startGame() {
-      // Fade out
-      document.body.classList.add('fade-out');
+function startGame() {
+  // Trigger fade-out animation
+  document.body.classList.add('fade-out');
 
-      const door = new Audio('sounds/car_door_shut.mp3');
-      door.volume = 1;
-      door.muted = isMuted; // respect mute setting
-      door.play().catch(e => console.warn('Door sound blocked', e));
+  const door = new Audio('sounds/car_door_shut.mp3');
+  door.volume = 1;
+  door.muted = isMuted;
+  door.play().catch(e => console.warn('Door sound blocked', e));
 
-      setTimeout(() => {
-        window.location.href = 'rooms/lore.html';
-      }, 500);
-    }
+  let hasTransitioned = false;
+
+  function finish() {
+    if (hasTransitioned) return;
+    hasTransitioned = true;
+    document.body.removeEventListener('transitionend', onEnd);
+    window.location.href = 'rooms/lore.html';
+  }
+
+  function onEnd(e) {
+    if (e.propertyName === 'opacity') finish();
+  }
+
+  document.body.addEventListener('transitionend', onEnd);
+
+  // Safety fallback in case transitionend never fires
+  setTimeout(finish, 2200);
+}
 
     enableBtn.addEventListener('click', () => {
       // If user enables audio, unmute globally
