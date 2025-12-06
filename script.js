@@ -54,7 +54,7 @@
       // Fade out
       document.body.classList.add('fade-out');
 
-      const door = new Audio('sounds/creaky_door.mp3');
+      const door = new Audio('sounds/car_door_shut.mp3');
       door.volume = 1;
       door.muted = isMuted; // respect mute setting
       door.play().catch(e => console.warn('Door sound blocked', e));
