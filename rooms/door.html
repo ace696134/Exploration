@@ -3,26 +3,39 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Endless Requium — Door</title>
-
-  <!-- Main global stylesheet -->
+  <title>Endless Requium - Door</title>
   <link rel="stylesheet" href="../styles.css">
-
-  <!-- Room-specific layout -->
   <style>
-    /* Room specific styles */
-
+    /* ---------- GENERAL ---------- */
     body {
       margin: 0;
       font-family: 'Underdog', sans-serif;
       color: red;
-      background-color: black;
+      background: black;
       opacity: 0;
-      transition: opacity 1s ease-out;
       overflow: hidden;
+      transition: opacity 1s ease-out;
     }
 
+    /* ---------- BACKGROUND LAYER ---------- */
+    #bgContainer {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+    }
+    #bgContainer img {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* ---------- CENTERED CONTENT ---------- */
     .center-box {
+      position: relative;
+      z-index: 10;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -42,13 +55,12 @@
       cursor: pointer;
       transition: 0.2s;
     }
-
     .btn:hover {
       background: red;
       color: black;
     }
 
-    /* Inventory */
+    /* ---------- INVENTORY ---------- */
     #invToggle {
       position: fixed;
       top: 20px;
@@ -58,7 +70,7 @@
       background: black;
       color: red;
       cursor: pointer;
-      z-index: 1000;
+      z-index: 20;
     }
 
     #inventory {
@@ -78,41 +90,43 @@
       transform: translateY(150px);
       opacity: 0;
       transition: 0.35s ease;
-      z-index: 999;
+      z-index: 19;
     }
-
     #inventory.visible {
       transform: translateY(0);
       opacity: 1;
     }
-
     .inv-item {
       border: 1px solid red;
       padding: 5px 8px;
       background: rgba(255,0,0,0.1);
     }
-
-    .hidden {
-      display: none;
-    }
+    .hidden { display: none; }
   </style>
 </head>
+<body data-audio="night.mp3">
 
-<!-- Example: This room plays hallway.mp3 -->
-<body class="room" 
-      data-audio="outside.mp3"
-      data-bg="../images/door.png">
+  <!-- BACKGROUND IMAGES CONTAINER -->
+  <div id="bgContainer">
+    <img src="../images/door.png" alt="door">
 
-  <div class="room-box">
-    <h1 class="room-title">Front Door..</h1>
-    <p class="room-desc">
-      There's a door to the house..
-    </p>
-
-    <button class="room-btn" data-jump="room2.html">Continue Forward</button>
-    <button class="room-btn" data-jump="room1.html">Go Back</button>
   </div>
 
-  <script src="script.js"></script>
+  <!-- INVENTORY -->
+  <button id="invToggle">Inventory</button>
+  <div id="inventory" class="hidden"></div>
+
+  <!-- CENTERED ROOM CONTENT -->
+  <div class="center-box">
+    <h1>There's a door..</h1>
+    <p>I wonder who owns this house.. I cant get in though..</p>
+
+    <!-- Navigation -->
+    <button class="btn" data-jump="room2.html">Go to Next Room</button>
+    <button class="btn" data-pickup="Silver Key">Pick up Silver Key</button>
+  </div>
+
+  <!-- ROOM SCRIPT -->
+  <script src="../rooms/script.js"></script>
 </body>
 </html>
