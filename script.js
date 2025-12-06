@@ -1,7 +1,8 @@
-/* script.js - robust title screen: hum only, glitches, play transition */
+/* script.js - robust title screen: hum only, glitches, play transition
+   + persistent mute-saving for room pages
+*/
 
 (function () {
-  // Wait for DOM to be ready
   window.addEventListener('DOMContentLoaded', () => {
     const stage = document.getElementById('stage');
     const titleEl = document.getElementById('title');
@@ -10,60 +11,72 @@
     const muteBtn = document.getElementById('toggleMute');
     const playBtn = document.getElementById('playButton');
     playBtn.classList.remove('hidden');
-    
-    // Safety: abort if required elements are missing
+
     if (!titleEl || !subtitleEl || !enableBtn || !playBtn) {
-      console.error('Missing UI elements. Check index.html IDs (title, subtitle, enableAudio, playButton).');
+      console.error('Missing UI elements. Check index.html IDs.');
       return;
     }
 
-    // Make sure data-text is set for pseudo elements
+    // Required for glitch layers
     if (!titleEl.getAttribute('data-text')) {
       titleEl.setAttribute('data-text', titleEl.textContent.trim());
     }
 
-    // Audio setup (relative path, works with file:// if folder structure is correct)
+    // Restore saved mute state (default: unmuted)
+    let isMuted = localStorage.getItem("gameMuted") === "1";
+
+    // Title hum
     const titleAudio = new Audio('sounds/hum.mp3');
     titleAudio.loop = true;
     titleAudio.volume = 0.45;
-    let isMuted = false;
+    titleAudio.muted = isMuted; // apply saved mute state
 
     function initAudio() {
-      // Play and ignore possible promise rejection (blocked until gesture)
       titleAudio.play().catch(err => {
-        console.warn('Audio play was blocked or failed:', err);
+        console.warn('Audio blocked:', err);
       });
 
       enableBtn.classList.add('hidden');
       muteBtn.classList.remove('hidden');
+      muteBtn.textContent = isMuted ? 'Unmute' : 'Mute';
     }
 
     function toggleMute() {
       isMuted = !isMuted;
       titleAudio.muted = isMuted;
       muteBtn.textContent = isMuted ? 'Unmute' : 'Mute';
+
+      // Save state globally for all rooms
+      localStorage.setItem("gameMuted", isMuted ? "1" : "0");
     }
 
     function startGame() {
-      // fade out and play creaky door, then navigate to lore
+      // Fade out
       document.body.classList.add('fade-out');
 
       const door = new Audio('sounds/creaky_door.mp3');
       door.volume = 1;
+      door.muted = isMuted; // respect mute setting
       door.play().catch(e => console.warn('Door sound blocked', e));
 
       setTimeout(() => {
-        // ensure folder "rooms/lore.html" exists - adjust path if yours differs
         window.location.href = 'rooms/lore.html';
       }, 2000);
     }
 
-    // Attach listeners
-    enableBtn.addEventListener('click', initAudio);
+    enableBtn.addEventListener('click', () => {
+      // If user enables audio, unmute globally
+      localStorage.setItem("gameMuted", "0");
+      isMuted = false;
+      titleAudio.muted = false;
+
+      initAudio();
+    });
+
     muteBtn.addEventListener('click', toggleMute);
     playBtn.addEventListener('click', startGame);
 
-    // Autoplay workaround: also respond to first click/keypress
+    // Autoplay fallback gesture
     function firstGestureHandler() {
       initAudio();
       window.removeEventListener('click', firstGestureHandler);
@@ -72,7 +85,7 @@
     window.addEventListener('click', firstGestureHandler);
     window.addEventListener('keydown', firstGestureHandler);
 
-    // Lightweight glitch/flicker scheduling
+    // Glitch logic
     function rand(min, max) { return Math.random() * (max - min) + min; }
 
     function glitchSpike() {
@@ -84,13 +97,12 @@
       }, 600);
     }
 
-    function flickerStage(shake = false) {
+    function flickerStage() {
       if (!stage) return;
       stage.classList.add('flicker');
       setTimeout(() => stage.classList.remove('flicker'), 520);
     }
 
-    // schedule (light weight)
     setTimeout(() => {
       setInterval(() => { if (Math.random() < 0.55) glitchSpike(); }, rand(2500, 4000));
       setInterval(() => { if (Math.random() < 0.18) flickerStage(); }, rand(8000, 16000));
