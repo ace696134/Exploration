@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const layers = Array.from(bgContainer.querySelectorAll("img"));
     let current = 0;
 
-    layers.forEach((img, i) => {
+    layers.forEach((img) => {
       img.style.opacity = 0;
       img.style.transition = "opacity 1.5s ease";
       img.style.position = "absolute";
@@ -26,15 +26,12 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     function showNextBg() {
-      layers.forEach((img, i) => img.style.opacity = 0);
+      layers.forEach((img) => (img.style.opacity = 0));
       layers[current].style.opacity = 1;
       current = (current + 1) % layers.length;
     }
 
-    // Show first image immediately
     showNextBg();
-
-    // Change background every 5 seconds
     setInterval(showNextBg, 5000);
   }
 
@@ -51,12 +48,15 @@ document.addEventListener("DOMContentLoaded", function () {
     ambient.volume = 0;
     ambient.muted = isMuted;
 
-    ambient.play().then(() => {
-      if (!isMuted) fadeAudioIn();
-    }).catch(() => {
-      window.addEventListener("click", startAudioFallback);
-      window.addEventListener("keydown", startAudioFallback);
-    });
+    ambient
+      .play()
+      .then(() => {
+        if (!isMuted) fadeAudioIn();
+      })
+      .catch(() => {
+        window.addEventListener("click", startAudioFallback);
+        window.addEventListener("keydown", startAudioFallback);
+      });
   }
 
   function startAudioFallback() {
@@ -118,7 +118,7 @@ document.addEventListener("DOMContentLoaded", function () {
   function renderInventory() {
     if (!invBox) return;
     invBox.innerHTML = "";
-    loadInventory().forEach(item => {
+    loadInventory().forEach((item) => {
       const div = document.createElement("div");
       div.className = "inv-item";
       div.textContent = item;
@@ -141,8 +141,27 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  /* ---------------- POPUP MESSAGE ---------------- */
+  function showMessage(text, duration = 2000) {
+    let msg = document.createElement("div");
+    msg.className = "popup-message";
+    msg.textContent = text;
+    document.body.append(msg);
+
+    msg.style.opacity = 0;
+    requestAnimationFrame(() => {
+      msg.style.transition = "opacity 0.3s ease-out";
+      msg.style.opacity = 1;
+    });
+
+    setTimeout(() => {
+      msg.style.opacity = 0;
+      msg.addEventListener("transitionend", () => msg.remove());
+    }, duration);
+  }
+
   /* ---------------- PICKUP ITEMS ---------------- */
-  document.querySelectorAll("[data-pickup]").forEach(btn => {
+  document.querySelectorAll("[data-pickup]").forEach((btn) => {
     btn.addEventListener("click", () => {
       addToInventory(btn.dataset.pickup);
       btn.remove();
@@ -151,16 +170,19 @@ document.addEventListener("DOMContentLoaded", function () {
 
   /* ---------------- ROOM NAVIGATION ---------------- */
   const buttons = document.querySelectorAll("[data-jump]");
-  buttons.forEach(btn => {
+  buttons.forEach((btn) => {
     btn.addEventListener("click", () => {
       const next = btn.dataset.jump;
       body.style.transition = "opacity 0.8s ease-out";
       body.style.opacity = 0;
-      fadeAudioOut(() => setTimeout(() => window.location.href = next, 750));
+      fadeAudioOut(() =>
+        setTimeout(() => (window.location.href = next), 750)
+      );
     });
   });
+
   /* ---------------- USE ITEM TO UNLOCK NEXT ROOM ---------------- */
-  document.querySelectorAll("[data-use]").forEach(btn => {
+  document.querySelectorAll("[data-use]").forEach((btn) => {
     btn.addEventListener("click", () => {
       const needed = btn.dataset.use;
       const next = btn.dataset.jump;
@@ -168,16 +190,14 @@ document.addEventListener("DOMContentLoaded", function () {
       const inv = loadInventory();
 
       if (!inv.includes(needed)) {
-        console.warn("Missing required item:", needed);
-        return; // No item → block action
+        showMessage(`You don’t have the “${needed}”.`);
+        return;
       }
 
-      // Remove used item
-      const updated = inv.filter(i => i !== needed);
+      const updated = inv.filter((i) => i !== needed);
       saveInventory(updated);
       renderInventory();
 
-      // Fade → go to next room
       body.style.transition = "opacity 0.8s ease-out";
       body.style.opacity = 0;
 
@@ -188,7 +208,4 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     });
   });
-
 });
-
-
