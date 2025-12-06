@@ -123,21 +123,15 @@ html, body {
 
 /* ---------- FADES (GLOBAL) ---------- */
 body {
-  opacity: 1;
-  transition: opacity 1.8s ease-in-out;
-}
-
-body.fade-out {
-  opacity: 0 !important;
-}
-
-/* ---------- FADE IN ON PAGE LOAD ---------- */
-body {
-  opacity: 0;
-  transition: opacity 1.5s ease-in-out;
+  opacity: 0; /* start invisible for fade-in */
+  transition: opacity 1.8s ease-in-out; /* ONE transition for both in/out */
 }
 
 body.fade-in {
-  opacity: 1;
+  opacity: 1; /* fade in target */
+}
+
+body.fade-out {
+  opacity: 0 !important; /* fade out target */
 }
 
