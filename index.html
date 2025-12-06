@@ -24,11 +24,27 @@
         <button id="enableAudio" class="btn">Enable Audio</button>
         <button id="toggleMute" class="btn hidden">Mute</button>
         <button id="playButton" class="btn hidden">Play</button>
+        <button id="clearLS" class="btn" style="position:fixed; bottom:20px; left:20px; z-index:9999;">
+  Clear Save Data
+</button>
+
       </div>
     </main>
   </div>
 
   <!-- script placed at end but script.js also waits for DOMContentLoaded, safe either way -->
+  <script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const clearBtn = document.getElementById("clearLS");
+    if (clearBtn) {
+      clearBtn.addEventListener("click", () => {
+        localStorage.clear();
+        alert("LocalStorage cleared.");
+      });
+    }
+  });
+</script>
+
   <script>
   document.addEventListener("DOMContentLoaded", () => {
     document.body.classList.add("fade-in");
