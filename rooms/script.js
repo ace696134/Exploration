@@ -15,8 +15,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const layers = Array.from(bgContainer.querySelectorAll("img"));
     let current = 0;
 
-    layers.forEach(img => {
-      img.style.opacity = 0;
+    layers.forEach((img, i) => {
+      img.style.opacity = i === 0 ? 1 : 0;
       img.style.transition = "opacity 1.5s ease";
       img.style.position = "absolute";
       img.style.top = "0";
@@ -24,22 +24,22 @@ document.addEventListener("DOMContentLoaded", function () {
       img.style.width = "100%";
       img.style.height = "100%";
       img.style.objectFit = "cover";
-      img.style.pointerEvents = "none";   // prevents clicking blocking buttons
+      img.style.pointerEvents = "none";   // prevent clicking blocking buttons
     });
 
     function showNextBg() {
-      layers.forEach(img => img.style.opacity = 0);
-      layers[current].style.opacity = 1;
+      const prev = current;
       current = (current + 1) % layers.length;
+      layers[prev].style.opacity = 0;
+      layers[current].style.opacity = 1;
     }
 
-    showNextBg();
     setInterval(showNextBg, 5000);
   }
 
   /* ---------------- BODY FADE-IN ---------------- */
   requestAnimationFrame(() => {
-    body.style.opacity = 0.8;
+    body.classList.add("fade-in");
   });
 
   /* ---------------- AMBIENT AUDIO ---------------- */
@@ -98,14 +98,18 @@ document.addEventListener("DOMContentLoaded", function () {
 
   /* ---------------- INVENTORY FUNCTIONS ---------------- */
   function loadInventory() {
-    return JSON.parse(localStorage.getItem("inventory") || "[]");
+    return JSON.parse(localStorage.getItem("inventory") || "[]").map(i => i.trim());
   }
+
   function saveInventory(inv) {
     localStorage.setItem("inventory", JSON.stringify(inv));
   }
+
   function removeItem(name) {
-    saveInventory(loadInventory().filter(i => i !== name));
+    const updatedInv = loadInventory().filter(i => i.toLowerCase() !== name.trim().toLowerCase());
+    saveInventory(updatedInv);
   }
+
   function renderInventory() {
     const invBox = document.querySelector("#inventory");
     if (!invBox) return;
@@ -125,16 +129,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   if (toggleBtn && invBox) {
     toggleBtn.addEventListener("click", () => {
-      const isOpen = invBox.classList.contains("visible");
-      if (isOpen) {
-        invBox.classList.remove("visible");
-        setTimeout(() => invBox.classList.add("hidden"), 300);
-      } else {
-        invBox.classList.remove("hidden");
-        requestAnimationFrame(() => {
-          invBox.classList.add("visible");
-        });
-      }
+      invBox.classList.toggle("visible");
     });
   }
 
@@ -153,15 +148,18 @@ document.addEventListener("DOMContentLoaded", function () {
 
     setTimeout(() => {
       msg.style.opacity = 0;
-      msg.addEventListener("transitionend", () => msg.remove());
+      msg.addEventListener("transitionend", function handler() {
+        msg.remove();
+        msg.removeEventListener("transitionend", handler);
+      });
     }, duration);
   }
 
   /* ---------------- PICKUP ITEMS ---------------- */
   document.querySelectorAll("[data-pickup]").forEach(btn => {
     btn.addEventListener("click", () => {
-      const item = btn.dataset.pickup;
-      const inv = loadInventory();
+      const item = btn.dataset.pickup.trim();
+      const inv = loadInventory().map(i => i.trim());
       if (!inv.includes(item)) {
         inv.push(item);
         saveInventory(inv);
@@ -188,18 +186,20 @@ document.addEventListener("DOMContentLoaded", function () {
   /* ---------------- USE ITEM TO UNLOCK ---------------- */
   document.querySelectorAll("[data-use]").forEach(btn => {
     btn.addEventListener("click", () => {
-      const needed = btn.dataset.use;
+      const neededRaw = btn.dataset.use;
+      const needed = neededRaw.trim().toLowerCase();
       const next = btn.dataset.jump;
 
-      const inv = loadInventory();
+      const inv = loadInventory().map(i => i.trim().toLowerCase());
+
       if (!inv.includes(needed)) {
-        showMessage(`You don’t have “${needed}”.`);
+        showMessage(`You don’t have “${neededRaw}”.`);
         return;
       }
 
-      removeItem(needed);
+      removeItem(neededRaw);
       renderInventory();
-      showMessage(`Used: ${needed}`);
+      showMessage(`Used: ${neededRaw}`);
 
       body.style.transition = "opacity 0.8s ease-out";
       body.style.opacity = 0;
