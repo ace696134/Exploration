@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Endless Requium - Room</title>
-  <link rel="stylesheet" href="../styles.css">
+
+  <link rel="stylesheet" href="../styles.css" />
+
   <style>
     /* ---------- GENERAL ---------- */
     body {
@@ -30,6 +32,8 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
+      opacity: 0;
+      transition: opacity 1.5s ease;
     }
 
     /* ---------- CENTERED CONTENT ---------- */
@@ -42,7 +46,9 @@
       align-items: center;
       height: 100vh;
       text-align: center;
-      padding: 20px;
+      padding: 25px;
+      max-width: 800px;
+      margin: 0 auto;
     }
 
     .btn {
@@ -79,7 +85,7 @@
       right: 20px;
       min-width: 200px;
       padding: 10px;
-      background: rgba(0,0,0,0.85);
+      background: rgba(0, 0, 0, 0.85);
       border: 2px solid red;
       color: red;
       font-family: 'Underdog';
@@ -99,33 +105,60 @@
     .inv-item {
       border: 1px solid red;
       padding: 5px 8px;
-      background: rgba(255,0,0,0.1);
+      background: rgba(255, 0, 0, 0.1);
     }
     .hidden { display: none; }
+
+    /* ---------- POPUP TEXT (missing item, etc.) ---------- */
+    .popup-message {
+      position: fixed;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.9);
+      border: 2px solid red;
+      padding: 12px 20px;
+      color: red;
+      font-size: 20px;
+      z-index: 50;
+      opacity: 0;
+    }
   </style>
 </head>
+
 <body data-audio="ambient.mp3">
 
   <!-- BACKGROUND IMAGES CONTAINER -->
   <div id="bgContainer">
-    <img src="../images/bg1.jpg" alt="BG1">
-    <img src="../images/bg2.jpg" alt="BG2">
-    <img src="../images/bg3.jpg" alt="BG3">
-    <img src="../images/bg4.jpg" alt="BG4">
+    <img src="../images/bg1.jpg" alt="">
+    <img src="../images/bg2.jpg" alt="">
+    <img src="../images/bg3.jpg" alt="">
+    <img src="../images/bg4.jpg" alt="">
   </div>
 
   <!-- INVENTORY -->
   <button id="invToggle">Inventory</button>
   <div id="inventory" class="hidden"></div>
 
-  <!-- CENTERED ROOM CONTENT -->
+  <!-- MAIN CONTENT -->
   <div class="center-box">
     <h1>Room Title</h1>
-    <p>Room description or lore here.</p>
 
-    <!-- Navigation -->
+    <p>
+      This is room text. It wraps automatically.<br>
+      Add <code>&lt;br&gt;</code> for manual line breaks.
+    </p>
+
+    <!-- Normal Navigation -->
     <button class="btn" data-jump="room2.html">Go to Next Room</button>
+
+    <!-- Pickup Item -->
     <button class="btn" data-pickup="Silver Key">Pick up Silver Key</button>
+
+    <!-- Use Item (requires item to proceed) -->
+    <button class="btn" data-use="Silver Key" data-jump="lockedRoom.html">
+      Unlock the Door (Needs Silver Key)
+    </button>
   </div>
 
   <!-- ROOM SCRIPT -->
