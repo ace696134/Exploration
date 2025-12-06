@@ -1,5 +1,5 @@
 /* Endless Requium - Room Handler
-   Autoplay-safe audio + fade, background, navigation
+   Handles: fade-in, fade-out, ambient audio, background images, navigation.
 */
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -9,6 +9,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   /* ---------------- BACKGROUND SET ---------------- */
   if (bg) {
+    // If absolute file URL, use directly
     if (bg.startsWith("file:///")) {
       body.style.backgroundImage = `url("${bg}")`;
     } else {
@@ -21,41 +22,28 @@ document.addEventListener("DOMContentLoaded", function () {
     body.style.opacity = 1;
   });
 
-  /* ---------------- AUDIO AUTOPLAY ---------------- */
+  /* ---------------- AUDIO SETUP ---------------- */
   let ambient;
 
   if (audioName) {
+    // Support full file paths directly
     const audioPath = audioName.startsWith("file:///")
       ? audioName
       : `../sounds/${audioName}`;
 
     ambient = new Audio(audioPath);
     ambient.loop = true;
-
-    // REQUIRED for autoplay to work
-    ambient.muted = true;
     ambient.volume = 0;
 
-    // Try to autoplay immediately
-    ambient.play().then(() => {
-      // Now fade in and unmute shortly after
-      setTimeout(() => {
-        ambient.muted = false;
-        fadeAudioIn();
-      }, 200);
-    }).catch(err => {
-      console.warn("Autoplay blocked, fallback:", err);
-      // Fallback: enable playback on first click/keypress
-      window.addEventListener("click", startAudioFallback);
-      window.addEventListener("keydown", startAudioFallback);
-    });
-  }
+    function startAudio() {
+      ambient.play().catch(() => {});
+      fadeAudioIn();
+      window.removeEventListener("click", startAudio);
+      window.removeEventListener("keydown", startAudio);
+    }
 
-  function startAudioFallback() {
-    ambient.play();
-    fadeAudioIn();
-    window.removeEventListener("click", startAudioFallback);
-    window.removeEventListener("keydown", startAudioFallback);
+    window.addEventListener("click", startAudio);
+    window.addEventListener("keydown", startAudio);
   }
 
   /* ---------------- AUDIO FADE IN ---------------- */
@@ -63,7 +51,7 @@ document.addEventListener("DOMContentLoaded", function () {
     let v = 0;
     const fade = setInterval(() => {
       v += 0.02;
-      ambient.volume = v;
+      if (ambient) ambient.volume = v;
       if (v >= 0.6) clearInterval(fade);
     }, 50);
   }
@@ -75,7 +63,7 @@ document.addEventListener("DOMContentLoaded", function () {
     let v = ambient.volume;
     const fade = setInterval(() => {
       v -= 0.03;
-      ambient.volume = Math.max(0, v);
+      ambient.volume = Math.max(v, 0);
       if (v <= 0) {
         clearInterval(fade);
         ambient.pause();
@@ -91,6 +79,7 @@ document.addEventListener("DOMContentLoaded", function () {
     btn.addEventListener("click", () => {
       const nextRoom = btn.dataset.jump;
 
+      // Fade-out effect
       body.style.transition = "opacity 0.8s ease-out";
       body.style.opacity = 0;
 
