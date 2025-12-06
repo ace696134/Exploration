@@ -94,3 +94,54 @@ body.fade-out { animation: fadeToBlack 1s forwards; }
   .subtitle { font-size: 0.95rem; }
   .btn { font-size: 0.95rem; padding: 8px 14px; }
 }
+<style>
+#invToggle {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 8px 16px;
+  border: 2px solid red;
+  background: black;
+  color: red;
+  font-family: 'Underdog';
+  cursor: pointer;
+  z-index: 1000;
+}
+
+#inventory {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  min-width: 200px;
+  padding: 10px;
+  background: rgba(0,0,0,0.85);
+  border: 2px solid red;
+  color: red;
+  font-family: 'Underdog';
+  font-size: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  /* Slide animation */
+  transform: translateY(150px);
+  opacity: 0;
+  transition: 0.35s ease;
+}
+
+#inventory.visible {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.inv-item {
+  border: 1px solid red;
+  padding: 5px 8px;
+  background: rgba(255,0,0,0.1);
+}
+
+.hidden {
+  display: none;
+}
+</style>
+
