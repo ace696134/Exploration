@@ -4,13 +4,22 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Endless Requium — Room</title>
-  <!-- Go up one folder to get the root styles.css -->
+
+  <!-- Main global stylesheet -->
   <link rel="stylesheet" href="../styles.css">
+
+  <!-- Room-specific layout -->
   <style>
-    /* Room-specific styles */
     body.room {
-      background: black url('../images/room_bg.jpg') no-repeat center center;
+      margin: 0;
+      width: 100vw;
+      height: 100vh;
+      background: black;
       background-size: cover;
+      background-position: center;
+      opacity: 0; /* fade-in start */
+      transition: opacity 1.2s ease-in-out;
+      overflow: hidden;
     }
 
     .room-box {
@@ -20,38 +29,59 @@
       width: 90%;
       max-width: 900px;
       text-align: center;
-      color: #ffd9d6;
-      text-shadow: 0 0 6px black;
+      color: #ffdfdf;
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 20px;
+      text-shadow: 0 0 10px black;
+      padding: 20px;
     }
 
-    .room-box h1 {
+    .room-title {
+      margin: 0;
       font-size: clamp(2rem, 6vw, 4rem);
-      margin: 0;
-      position: relative;
     }
 
-    .room-box p {
-      font-size: clamp(1rem, 2.5vw, 1.3rem);
+    .room-desc {
       margin: 0;
+      font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+      opacity: 0.85;
     }
 
-    .room-box .btn {
+    .room-btn {
+      background: transparent;
+      color: red;
+      border: 2px solid red;
+      padding: 10px 28px;
+      font-size: 22px;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: 0.2s;
       width: fit-content;
       align-self: center;
     }
+
+    .room-btn:hover {
+      background: red;
+      color: black;
+    }
   </style>
 </head>
-<body class="room">
-  <div class="room-box">
-    <h1>Lore:</h1>
-    <p>You have one task.. Find a way out, or become one of them.</p>
 
-    <!-- Choices / navigation -->
-    <button class="btn" onclick="location.href='road.html'">Walk back and say "fuck this shit!"</button>
-    <button class="btn" onclick="location.href='door.html'">Start this journey.</button>
+<!-- Example: This room plays hallway.mp3 -->
+<body class="room" 
+      data-audio="hallway.mp3"
+      data-bg="../images/hallway.png">
+
+  <div class="room-box">
+    <h1 class="room-title">Objective:</h1>
+    <p class="room-desc">
+    You have one task.. Find a way out, or become one of them.
+    </p>
+    <button class="room-btn" data-jump="road.html">fuck this shit!</button>
+    <button class="room-btn" data-jump="door.html">Start this journey.</button>
   </div>
+
+  <script src="script.js"></script>
 </body>
 </html>
