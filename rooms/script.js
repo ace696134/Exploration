@@ -115,3 +115,83 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 });
+
+/* ---------------- INVENTORY SYSTEM ---------------- */
+
+function loadInventory() {
+  const stored = localStorage.getItem("inventory");
+  return stored ? JSON.parse(stored) : [];
+}
+
+function saveInventory(inv) {
+  localStorage.setItem("inventory", JSON.stringify(inv));
+}
+
+function addToInventory(item) {
+  const inv = loadInventory();
+  if (!inv.includes(item)) inv.push(item);
+  saveInventory(inv);
+  renderInventory();
+}
+
+function removeFromInventory(item) {
+  saveInventory(loadInventory().filter(i => i !== item));
+  renderInventory();
+}
+
+function renderInventory() {
+  const invContainer = document.querySelector("#inventory");
+  if (!invContainer) return;
+
+  const inv = loadInventory();
+  invContainer.innerHTML = "";
+
+  inv.forEach(item => {
+    const slot = document.createElement("div");
+    slot.className = "inv-item";
+    slot.textContent = item;
+    invContainer.appendChild(slot);
+  });
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+
+  /* Auto render */
+  renderInventory();
+
+  /* Item pickups */
+  document.querySelectorAll("[data-pickup]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      addToInventory(btn.dataset.pickup);
+      btn.remove();
+    });
+  });
+
+  /* Item removes */
+  document.querySelectorAll("[data-remove]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      removeFromInventory(btn.dataset.remove);
+    });
+  });
+
+  /* --------- INVENTORY TOGGLE ----------- */
+  const invBox = document.querySelector("#inventory");
+  const toggleBtn = document.querySelector("#invToggle");
+
+  if (toggleBtn && invBox) {
+    toggleBtn.addEventListener("click", () => {
+      const open = invBox.classList.contains("visible");
+
+      if (open) {
+        invBox.classList.remove("visible");
+        setTimeout(() => invBox.classList.add("hidden"), 300);
+      } else {
+        invBox.classList.remove("hidden");
+        requestAnimationFrame(() => {
+          invBox.classList.add("visible");
+        });
+      }
+    });
+  }
+
+});
