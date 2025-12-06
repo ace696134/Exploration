@@ -3,85 +3,32 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Endless Requium — Room</title>
-
-  <!-- Main global stylesheet -->
+  <title>Endless Requium - Lore</title>
   <link rel="stylesheet" href="../styles.css">
-
-  <!-- Room-specific layout -->
-  <style>
-    body.room {
-      margin: 0;
-      width: 100vw;
-      height: 100vh;
-      background: black;
-      background-size: cover;
-      background-position: center;
-      opacity: 0; /* fade-in start */
-      transition: opacity 1.2s ease-in-out;
-      overflow: hidden;
-    }
-
-    .room-box {
-      position: absolute;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      width: 90%;
-      max-width: 900px;
-      text-align: center;
-      color: #ffdfdf;
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-      text-shadow: 0 0 10px black;
-      padding: 20px;
-    }
-
-    .room-title {
-      margin: 0;
-      font-size: clamp(2rem, 6vw, 4rem);
-    }
-
-    .room-desc {
-      margin: 0;
-      font-size: clamp(1.1rem, 2.5vw, 1.4rem);
-      opacity: 0.85;
-    }
-
-    .room-btn {
-      background: transparent;
-      color: red;
-      border: 2px solid red;
-      padding: 10px 28px;
-      font-size: 22px;
-      cursor: pointer;
-      margin-top: 10px;
-      transition: 0.2s;
-      width: fit-content;
-      align-self: center;
-    }
-
-    .room-btn:hover {
-      background: red;
-      color: black;
-    }
-  </style>
 </head>
+<body data-audio="ambient.mp3">
 
-<!-- Example: This room plays hallway.mp3 -->
-<body class="room" 
-      data-audio="hallway.mp3"
-      data-bg="../images/hallway.png">
+  <!-- INVENTORY -->
+  <button id="invToggle">Inventory</button>
+  <div id="inventory" class="hidden"></div>
 
-  <div class="room-box">
-    <h1 class="room-title">Objective:</h1>
-    <p class="room-desc">
-    You have one task.. Find a way out, or become one of them.
-    </p>
-    <button class="room-btn" data-jump="road.html">fuck this shit!</button>
-    <button class="room-btn" data-jump="door.html">Start this journey.</button>
+  <!-- CENTERED ROOM CONTENT -->
+  <div class="center-box">
+    <h1 class="title glitch" data-text="Room Title">Endless Requium</h1>
+    <p class="subtitle">Try to get out.. If you wanna hear the sounds for any room, click anywhere or press a key.</p>
+
+    <!-- Navigation / Pickups -->
+    <button class="btn" data-jump="road.html">Walk back to the car.</button>
+    <button class="btn" data-jump="door.html">Go to the door.</button>
+
   </div>
 
-  <script src="script.js"></script>
+  <!-- LIGHT OVERLAYS (Optional visual effects) -->
+  <div class="vignette"></div>
+  <div class="scanlines"></div>
+  <div class="grain"></div>
+
+  <!-- ROOM SCRIPT -->
+  <script src="../rooms/script.js"></script>
 </body>
 </html>
