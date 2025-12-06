@@ -1,33 +1,46 @@
 /* GENERAL */
 * { box-sizing: border-box; }
-html,body { height:100%; margin:0; padding:0; background:#000; color:#e33; font-family: 'Underdog', sans-serif; }
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: #000;
+  color: #e33;
+  font-family: 'Underdog', sans-serif;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .hidden { display: none; }
 
 /* CENTER LAYOUT */
 .center-box {
-  position: absolute;
-  left: 50%; top: 50%;
-  transform: translate(-50%,-50%);
-  width: 90%;
-  max-width: 900px;
   text-align: center;
   display: flex;
   flex-direction: column;
   gap: 14px;
   align-items: center;
+  z-index: 50; /* above backgrounds */
 }
 
 /* TITLE */
 .title {
   font-size: clamp(2rem, 6vw, 5rem);
   margin: 0;
-  position: relative;     /* anchor for pseudo elements */
-  display: inline-block;  /* keeps width tight so pseudo elements overlap exactly */
+  position: relative;
+  display: inline-block;
   line-height: 0.95;
 }
 
 /* SUBTITLE */
-.subtitle { font-size: clamp(0.9rem, 2.4vw, 1.4rem); color:#ffd9d6; margin:0; opacity:0.9; }
+.subtitle {
+  font-size: clamp(0.9rem, 2.4vw, 1.4rem);
+  color: #ffd9d6;
+  margin: 0;
+  opacity: 0.9;
+}
 
 /* BUTTONS */
 .btn {
@@ -42,29 +55,26 @@ html,body { height:100%; margin:0; padding:0; background:#000; color:#e33; font-
 .btn:not(.hidden) { margin-top: 8px; }
 .btn:hover { background: #e33; color: #000; }
 
-/* GLITCH: only two ghost layers (::before and ::after) + main text */
+/* GLITCH EFFECT */
 .title.glitch::before,
 .title.glitch::after {
   content: attr(data-text);
   position: absolute;
-  top: 0; left: 0;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
   pointer-events: none;
   opacity: 0.95;
   mix-blend-mode: screen;
 }
-
-/* chromatic offsets */
 .title.glitch::before { transform: translateX(-4px); color: rgba(255,90,90,0.95); }
-.title.glitch::after  { transform: translateX(4px);  color: rgba(120,220,255,0.95); }
-
-/* quick spike (added/removed by JS) */
-.glitch-spike { animation: glitchSpike 0.56s steps(2, end) 1; }
+.title.glitch::after  { transform: translateX(4px); color: rgba(120,220,255,0.95); }
+.glitch-spike { animation: glitchSpike 0.56s steps(2,end) 1; }
 @keyframes glitchSpike {
   0% { transform: translate(0,0); filter: none; }
-  30% { transform: translate(-12px, -6px) skewX(-6deg); filter: blur(.6px) saturate(1.4); }
-  70% { transform: translate(12px, 6px) skewX(6deg); filter: blur(.8px) saturate(.6); }
+  30% { transform: translate(-12px,-6px) skewX(-6deg); filter: blur(.6px) saturate(1.4); }
+  70% { transform: translate(12px,6px) skewX(6deg); filter: blur(.8px) saturate(.6); }
   100% { transform: translate(0,0); filter:none; }
 }
 
@@ -75,7 +85,7 @@ html,body { height:100%; margin:0; padding:0; background:#000; color:#e33; font-
   50%{ color:#ff4a4a; text-shadow:0 0 12px rgba(255,70,70,0.35); transform: translateY(-1px); }
 }
 
-/* LIGHT OVERLAYS (low cost) */
+/* LIGHT OVERLAYS */
 .vignette { position:fixed; inset:0; pointer-events:none; box-shadow: inset 0 0 200px rgba(0,0,0,.85); z-index:10; }
 .scanlines { position:fixed; inset:0; pointer-events:none; background-image: linear-gradient(rgba(0,0,0,0.12) 50%, rgba(255,255,255,0.02) 50%); background-size:100% 4px; opacity:0.08; z-index:12; }
 .grain { position:fixed; inset:0; pointer-events:none; background-image: radial-gradient(circle, rgba(255,255,255,0.03) 1px, transparent 1px); background-size:4px 4px; opacity:0.04; z-index:11; }
@@ -88,13 +98,7 @@ html,body { height:100%; margin:0; padding:0; background:#000; color:#e33; font-
 body.fade-out { animation: fadeToBlack 1s forwards; }
 @keyframes fadeToBlack { from{opacity:1} to{opacity:0; background:#000;} }
 
-/* Responsive tweaks */
-@media (max-width:600px) {
-  .title { font-size: clamp(1.6rem, 12vw, 3rem); }
-  .subtitle { font-size: 0.95rem; }
-  .btn { font-size: 0.95rem; padding: 8px 14px; }
-}
-<style>
+/* INVENTORY TOGGLE */
 #invToggle {
   position: fixed;
   top: 20px;
@@ -108,6 +112,7 @@ body.fade-out { animation: fadeToBlack 1s forwards; }
   z-index: 1000;
 }
 
+/* INVENTORY BOX */
 #inventory {
   position: fixed;
   bottom: 20px;
@@ -123,10 +128,10 @@ body.fade-out { animation: fadeToBlack 1s forwards; }
   flex-direction: column;
   gap: 6px;
 
-  /* Slide animation */
   transform: translateY(150px);
   opacity: 0;
   transition: 0.35s ease;
+  z-index: 1000;
 }
 
 #inventory.visible {
@@ -140,8 +145,9 @@ body.fade-out { animation: fadeToBlack 1s forwards; }
   background: rgba(255,0,0,0.1);
 }
 
-.hidden {
-  display: none;
+/* RESPONSIVE */
+@media (max-width:600px) {
+  .title { font-size: clamp(1.6rem, 12vw, 3rem); }
+  .subtitle { font-size: 0.95rem; }
+  .btn { font-size: 0.95rem; padding: 8px 14px; }
 }
-</style>
-
