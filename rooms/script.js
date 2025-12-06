@@ -1,23 +1,41 @@
 /* Endless Requium - Room Handler
-   Handles: stacked background fade-in, ambient audio, inventory toggle,
+   Handles: sequential background fade, ambient audio, inventory toggle,
    pickups, and room navigation with fade transitions.
 */
 
 document.addEventListener("DOMContentLoaded", function () {
-
   const body = document.body;
   const audioName = body.dataset.audio;
   const bgContainer = document.getElementById("bgContainer");
   const isMuted = localStorage.getItem("gameMuted") === "1";
 
-  /* ---------------- BACKGROUND FADE-IN ---------------- */
+  /* ---------------- BACKGROUND SEQUENTIAL FADE ---------------- */
   if (bgContainer) {
     const layers = Array.from(bgContainer.querySelectorAll("img"));
+    let current = 0;
+
     layers.forEach((img, i) => {
       img.style.opacity = 0;
-      img.style.transition = "opacity 1.2s ease";
-      setTimeout(() => img.style.opacity = 1, i * 600); // stagger fade
+      img.style.transition = "opacity 1.5s ease";
+      img.style.position = "absolute";
+      img.style.top = 0;
+      img.style.left = 0;
+      img.style.width = "100%";
+      img.style.height = "100%";
+      img.style.objectFit = "cover";
     });
+
+    function showNextBg() {
+      layers.forEach((img, i) => img.style.opacity = 0);
+      layers[current].style.opacity = 1;
+      current = (current + 1) % layers.length;
+    }
+
+    // Show first image immediately
+    showNextBg();
+
+    // Change background every 5 seconds
+    setInterval(showNextBg, 5000);
   }
 
   /* ---------------- BODY FADE-IN ---------------- */
@@ -27,7 +45,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
   /* ---------------- AMBIENT AUDIO ---------------- */
   let ambient = null;
-
   if (audioName) {
     ambient = new Audio(`../sounds/${audioName}`);
     ambient.loop = true;
@@ -37,7 +54,6 @@ document.addEventListener("DOMContentLoaded", function () {
     ambient.play().then(() => {
       if (!isMuted) fadeAudioIn();
     }).catch(() => {
-      // Autoplay blocked → fallback to first gesture
       window.addEventListener("click", startAudioFallback);
       window.addEventListener("keydown", startAudioFallback);
     });
@@ -79,7 +95,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }, 40);
   }
 
-  /* ---------------- INVENTORY SYSTEM ---------------- */
+  /* ---------------- INVENTORY ---------------- */
   const invBox = document.querySelector("#inventory");
   const toggleBtn = document.querySelector("#invToggle");
 
@@ -99,26 +115,19 @@ document.addEventListener("DOMContentLoaded", function () {
     renderInventory();
   }
 
-  function removeFromInventory(item) {
-    const inv = loadInventory().filter(i => i !== item);
-    saveInventory(inv);
-    renderInventory();
-  }
-
   function renderInventory() {
     if (!invBox) return;
     invBox.innerHTML = "";
     loadInventory().forEach(item => {
-      const slot = document.createElement("div");
-      slot.className = "inv-item";
-      slot.textContent = item;
-      invBox.appendChild(slot);
+      const div = document.createElement("div");
+      div.className = "inv-item";
+      div.textContent = item;
+      invBox.appendChild(div);
     });
   }
 
   renderInventory();
 
-  /* Toggle button for inventory */
   if (toggleBtn && invBox) {
     toggleBtn.addEventListener("click", () => {
       const open = invBox.classList.contains("visible");
@@ -132,17 +141,11 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  /* ---------------- PICKUP / REMOVE ITEMS ---------------- */
+  /* ---------------- PICKUP ITEMS ---------------- */
   document.querySelectorAll("[data-pickup]").forEach(btn => {
     btn.addEventListener("click", () => {
       addToInventory(btn.dataset.pickup);
-      btn.remove(); // optional: remove from screen after pickup
-    });
-  });
-
-  document.querySelectorAll("[data-remove]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      removeFromInventory(btn.dataset.remove);
+      btn.remove();
     });
   });
 
@@ -153,12 +156,8 @@ document.addEventListener("DOMContentLoaded", function () {
       const next = btn.dataset.jump;
       body.style.transition = "opacity 0.8s ease-out";
       body.style.opacity = 0;
-
-      fadeAudioOut(() => {
-        setTimeout(() => {
-          window.location.href = next;
-        }, 750);
-      });
+      fadeAudioOut(() => setTimeout(() => window.location.href = next, 750));
     });
   });
+
 });
