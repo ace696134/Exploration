@@ -1,9 +1,12 @@
 /* ---------- GENERAL ---------- */
-* { box-sizing: border-box; }
-html, body {
-  height: 100%;
+* {
+  box-sizing: border-box;
   margin: 0;
   padding: 0;
+}
+
+html, body {
+  height: 100%;
   background: #000;
   color: #e33;
   font-family: 'Underdog', sans-serif;
@@ -13,6 +16,7 @@ html, body {
   align-items: center;
 }
 
+/* ---------- HIDDEN ELEMENT ---------- */
 .hidden { display: none; }
 
 /* ---------- CENTER LAYOUT ---------- */
@@ -37,7 +41,6 @@ html, body {
 .subtitle {
   font-size: clamp(0.9rem, 2.4vw, 1.4rem);
   color: #ffd9d6;
-  margin: 0;
   opacity: 0.9;
 }
 
@@ -50,9 +53,17 @@ html, body {
   font-size: 1rem;
   cursor: pointer;
   border-radius: 6px;
+  transition: 0.25s ease;
 }
-.btn:not(.hidden) { margin-top: 8px; }
-.btn:hover { background: #e33; color: #000; }
+
+.btn:not(.hidden) {
+  margin-top: 8px;
+}
+
+.btn:hover {
+  background: #e33;
+  color: #000;
+}
 
 /* ---------- INVENTORY ---------- */
 #invToggle {
@@ -71,36 +82,38 @@ html, body {
   position: fixed;
   bottom: 20px;
   right: 20px;
-  min-width: 200px;
-  padding: 10px;
-  background: rgba(0,0,0,0.85);
+  min-width: 220px;
+  max-width: 300px;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.85);
   border: 2px solid red;
   color: red;
-  font-family: 'Underdog';
+  font-family: 'Underdog', sans-serif;
   font-size: 18px;
   display: flex;
   flex-direction: column;
   gap: 6px;
-
   transform: translateY(150px);
   opacity: 0;
-  transition: 0.35s ease;
+  transition: transform 0.35s ease, opacity 0.35s ease;
   z-index: 1000;
 }
+
 #inventory.visible {
   transform: translateY(0);
   opacity: 1;
 }
+
 .inv-item {
   display: flex;
   align-items: center;
   gap: 10px;
   border: 2px solid red;
   padding: 6px 10px;
-  margin-bottom: 6px;
   background: rgba(0,0,0,0.6);
   color: white;
-  font-size: 20px;
+  font-size: 18px;
+  border-radius: 4px;
 }
 
 .inv-icon {
@@ -108,7 +121,6 @@ html, body {
   height: 32px;
   object-fit: contain;
 }
-
 
 /* ---------- POPUP MESSAGE ---------- */
 .popup-message {
@@ -125,27 +137,41 @@ html, body {
   z-index: 2000;
   opacity: 0;
   pointer-events: none;
+  border-radius: 6px;
+  transition: opacity 0.3s ease;
 }
 
 /* ---------- RESPONSIVE ---------- */
-@media (max-width:600px) {
-  .title { font-size: clamp(1.6rem, 12vw, 3rem); }
-  .subtitle { font-size: 0.95rem; }
-  .btn { font-size: 0.95rem; padding: 8px 14px; }
+@media (max-width: 600px) {
+  .title {
+    font-size: clamp(1.6rem, 12vw, 3rem);
+  }
+  .subtitle {
+    font-size: 0.95rem;
+  }
+  .btn {
+    font-size: 0.95rem;
+    padding: 8px 14px;
+  }
+  #inventory {
+    min-width: 180px;
+    font-size: 16px;
+  }
+  .inv-item {
+    font-size: 16px;
+  }
 }
 
-/* ---------- FADES (GLOBAL) ---------- */
+/* ---------- GLOBAL FADES ---------- */
 body {
-  opacity: 0; /* start invisible for fade-in */
-  transition: opacity 1.8s ease-in-out; /* ONE transition for both in/out */
+  opacity: 0;
+  transition: opacity 1.8s ease-in-out;
 }
 
 body.fade-in {
-  opacity: 1; /* fade in target */
+  opacity: 1;
 }
 
 body.fade-out {
-  opacity: 0 !important; /* fade out target */
+  opacity: 0 !important;
 }
-
-
