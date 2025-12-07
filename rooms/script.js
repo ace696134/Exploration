@@ -5,6 +5,8 @@
    - custom color
 */
 
+
+
 document.addEventListener("DOMContentLoaded", () => {
 
   const body = document.body;
@@ -88,6 +90,50 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 40);
   }
 
+/* ---------------- CRAFTING RECIPES ---------------- */
+// Format:
+// "Result Item": { requires: { "Item A": qty, "Item B": qty }, icon: "path/to/icon.png", color: "#hex" }
+
+const RECIPES = {
+  "Locked Box": {
+    requires: {
+      "Metal Scrap": 2,
+      "Screws": 4
+    },
+    icon: "../images/items/lockedbox.png",
+    color: "#b4b4b4"
+  },
+
+  "Silver Key": {
+    requires: {
+      "Metal Scrap": 1,
+      "Key Mold": 1
+    },
+    icon: "../images/items/silverkey.png",
+    color: "#c0c0ff"
+  },
+
+  "Torch": {
+    requires: {
+      "Stick": 1,
+      "Cloth": 1,
+      "Oil": 1
+    },
+    icon: "../images/items/torch.png",
+    color: "#ffcc66"
+  }
+};
+
+  "Key Mold": {
+    requires: {
+      "Rubber": 1,
+      "Lighter": 1,
+      "Fake Key": 1
+    },
+    icon: "../images/items/key_mold.png",
+    color: "#ffcc66"
+  }
+};
   /* ---------------- INVENTORY SYSTEM ---------------- */
 
   function loadInventory() {
@@ -212,20 +258,26 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  /* ---------------- ROOM NAVIGATION ---------------- */
-  document.querySelectorAll("[data-jump]").forEach(btn => {
-    btn.addEventListener("click", (e) => {
-      if (btn.hasAttribute("data-use")) return;
+/* ---------------- ROOM NAVIGATION ---------------- */
+document.querySelectorAll("[data-jump]").forEach(btn => {
+  btn.addEventListener("click", (e) => {
 
-      const next = btn.dataset.jump;
+    // Prevent double-activation if it's also a use-item button
+    if (btn.hasAttribute("data-use")) return;
 
-      body.style.transition = "opacity 0.8s ease-out";
-      body.style.opacity = 0;
+    // Save previous room
+    localStorage.setItem("lastRoom", window.location.href);
 
-      fadeAudioOut(() => {
-        setTimeout(() => window.location.href = next, 750);
-      });
+    const next = btn.dataset.jump;
+
+    body.style.transition = "opacity 0.8s ease-out";
+    body.style.opacity = 0;
+
+    fadeAudioOut(() => {
+      setTimeout(() => window.location.href = next, 750);
     });
   });
+});
+
 
 });
