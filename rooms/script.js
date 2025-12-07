@@ -2,10 +2,9 @@
    Fully robust version:
    - Sequential background fade
    - Ambient audio with fade in/out
-   - Inventory pickup/use with normalization
+   - Inventory with images + colors
    - Popup messages
    - Room navigation
-   - Fade transitions
 */
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -45,18 +44,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
   /* ---------------- AMBIENT AUDIO ---------------- */
   let ambient = null;
+
   if (audioName) {
     ambient = new Audio(`../sounds/${audioName}`);
     ambient.loop = true;
     ambient.volume = 0;
     ambient.muted = isMuted;
 
-    ambient.play()
-      .then(() => { if (!isMuted) fadeAudioIn(); })
-      .catch(() => {
-        window.addEventListener("click", startAudioFallback);
-        window.addEventListener("keydown", startAudioFallback);
-      });
+    ambient.play().then(() => {
+      if (!isMuted) fadeAudioIn();
+    }).catch(() => {
+      window.addEventListener("click", startAudioFallback);
+      window.addEventListener("keydown", startAudioFallback);
+    });
   }
 
   function startAudioFallback() {
@@ -72,7 +72,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let v = 0;
     const fade = setInterval(() => {
       v += 0.02;
-      if (ambient) ambient.volume = v;
+      ambient.volume = v;
       if (v >= 0.6) clearInterval(fade);
     }, 50);
   }
@@ -80,36 +80,63 @@ document.addEventListener("DOMContentLoaded", () => {
   function fadeAudioOut(callback) {
     if (!ambient) return callback();
     if (isMuted) { ambient.pause(); return callback(); }
+
     let v = ambient.volume;
     const fade = setInterval(() => {
       v -= 0.03;
       ambient.volume = Math.max(0, v);
-      if (v <= 0) { clearInterval(fade); ambient.pause(); callback(); }
+      if (v <= 0) {
+        clearInterval(fade);
+        ambient.pause();
+        callback();
+      }
     }, 40);
   }
 
   /* ---------------- INVENTORY ---------------- */
+
+  // New format: [{name:"Silver Key", img:"...", color:"#fff"}]
   function loadInventory() {
-    return JSON.parse(localStorage.getItem("inventory") || "[]").map(i => i.trim());
+    return JSON.parse(localStorage.getItem("inventory") || "[]");
   }
 
   function saveInventory(inv) {
     localStorage.setItem("inventory", JSON.stringify(inv));
   }
 
+  function addItem(itemObj) {
+    const inv = loadInventory();
+    if (!inv.some(i => i.name.toLowerCase() === itemObj.name.toLowerCase())) {
+      inv.push(itemObj);
+      saveInventory(inv);
+    }
+  }
+
   function removeItem(name) {
-    const updatedInv = loadInventory().filter(i => i.toLowerCase() !== name.trim().toLowerCase());
-    saveInventory(updatedInv);
+    saveInventory(
+      loadInventory().filter(i => i.name.toLowerCase() !== name.toLowerCase())
+    );
   }
 
   function renderInventory() {
     const invBox = document.querySelector("#inventory");
     if (!invBox) return;
+
     invBox.innerHTML = "";
+
     loadInventory().forEach(item => {
       const div = document.createElement("div");
       div.className = "inv-item";
-      div.textContent = item;
+
+      if (item.color) {
+        div.style.backgroundColor = item.color;
+      }
+
+      div.innerHTML = `
+        <img src="${item.img}" class="inv-icon">
+        <span>${item.name}</span>
+      `;
+
       invBox.appendChild(div);
     });
   }
@@ -140,24 +167,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
     setTimeout(() => {
       msg.style.opacity = 0;
-      msg.addEventListener("transitionend", function handler() {
-        msg.remove();
-        msg.removeEventListener("transitionend", handler);
-      });
+      msg.addEventListener("transitionend", () => msg.remove());
     }, duration);
   }
 
-  /* ---------------- PICKUP ITEMS ---------------- */
+  /* ---------------- PICKUP ITEMS (JSON inside attribute) ---------------- */
   document.querySelectorAll("[data-pickup]").forEach(btn => {
     btn.addEventListener("click", () => {
-      const item = btn.dataset.pickup.trim();
-      const inv = loadInventory().map(i => i.trim());
-      if (!inv.includes(item)) {
-        inv.push(item);
-        saveInventory(inv);
-        renderInventory();
-        showMessage(`Picked up: ${item}`);
-      }
+
+      const itemObj = JSON.parse(btn.dataset.pickup);
+
+      addItem(itemObj);
+      renderInventory();
+      showMessage(`Picked up: ${itemObj.name}`);
+
       btn.remove();
     });
   });
@@ -165,21 +188,21 @@ document.addEventListener("DOMContentLoaded", () => {
   /* ---------------- USE ITEM TO UNLOCK ---------------- */
   document.querySelectorAll("[data-use]").forEach(btn => {
     btn.addEventListener("click", (e) => {
-      e.stopPropagation(); // prevent [data-jump] click
-      const neededRaw = btn.dataset.use;
-      const needed = neededRaw.trim().toLowerCase();
+      e.stopPropagation();
+
+      const neededName = btn.dataset.use.trim(); // string
       const next = btn.dataset.jump;
 
-      const inv = loadInventory().map(i => i.trim().toLowerCase());
+      const inv = loadInventory().map(i => i.name.toLowerCase());
 
-      if (!inv.includes(needed)) {
-        showMessage(`You don’t have “${neededRaw}”.`);
+      if (!inv.includes(neededName.toLowerCase())) {
+        showMessage(`You don't have "${neededName}".`);
         return;
       }
 
-      removeItem(neededRaw);
+      removeItem(neededName);
       renderInventory();
-      showMessage(`Used: ${neededRaw}`);
+      showMessage(`Used: ${neededName}`);
 
       body.style.transition = "opacity 0.8s ease-out";
       body.style.opacity = 0;
@@ -192,10 +215,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
   /* ---------------- ROOM NAVIGATION ---------------- */
   document.querySelectorAll("[data-jump]").forEach(btn => {
-    btn.addEventListener("click", (e) => {
-      // Only trigger navigation if the button does NOT have data-use
+    btn.addEventListener("click", () => {
+
       if (btn.hasAttribute("data-use")) return;
+
       const next = btn.dataset.jump;
+
       body.style.transition = "opacity 0.8s ease-out";
       body.style.opacity = 0;
 
