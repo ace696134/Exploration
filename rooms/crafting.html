@@ -3,21 +3,37 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Endless Requium – Crafting</title>
+  <title>Endless Requium - Crafting</title>
   <link rel="stylesheet" href="../styles.css">
 </head>
-<body>
+<body data-audio="ambient.mp3">
 
-  <h1 class="title">Crafting Table</h1>
-  <p>Select an item to craft from your available materials.</p>
+  <div id="bgContainer"></div>
 
-  <!-- Craftable items will be dynamically inserted here -->
-  <div id="craftList" class="craft-list"></div>
+  <!-- INVENTORY -->
+  <button id="invToggle">Inventory</button>
+  <div id="inventory" class="hidden"></div>
 
-  <!-- Back button -->
-  <button id="backBtn" class="btn">Back</button>
+  <!-- CENTERED CRAFTING CONTENT -->
+  <div class="center-box">
+    <h1 class="title">Crafting Table</h1>
+    <p class="subtitle">Select a recipe to craft (requires items in inventory)</p>
+    
+    <div id="recipesContainer" style="display:flex; flex-direction:column; gap:12px;"></div>
 
+    <button id="backBtn" class="btn">⬅ Back</button>
+  </div>
+
+  <script src="../rooms/script.js"></script>
   <script src="../rooms/recipe.js"></script>
   <script src="../rooms/crafting.js"></script>
+
+  <script>
+    // Go back to previous room
+    document.querySelector("#backBtn").addEventListener("click", () => {
+      const lastRoom = localStorage.getItem("lastRoom") || "index.html";
+      window.location.href = lastRoom;
+    });
+  </script>
 </body>
 </html>
