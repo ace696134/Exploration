@@ -17,7 +17,6 @@ document.addEventListener("DOMContentLoaded", () => {
   if (bgContainer) {
     const layers = Array.from(bgContainer.querySelectorAll("img"));
     let current = 0;
-
     layers.forEach((img, i) => {
       img.style.opacity = i === 0 ? 1 : 0;
       img.style.transition = "opacity 1.5s ease";
@@ -48,20 +47,14 @@ document.addEventListener("DOMContentLoaded", () => {
     ambient.loop = true;
     ambient.volume = 0;
     ambient.muted = isMuted;
-
-    ambient.play()
-      .then(() => { if (!isMuted) fadeAudioIn(); })
-      .catch(() => {
-        window.addEventListener("click", startAudioFallback);
-        window.addEventListener("keydown", startAudioFallback);
-      });
+    ambient.play().then(() => { if (!isMuted) fadeAudioIn(); }).catch(() => {
+      window.addEventListener("click", startAudioFallback);
+      window.addEventListener("keydown", startAudioFallback);
+    });
   }
 
   function startAudioFallback() {
-    if (ambient) {
-      ambient.play();
-      if (!isMuted) fadeAudioIn();
-    }
+    if (ambient) { ambient.play(); if (!isMuted) fadeAudioIn(); }
     window.removeEventListener("click", startAudioFallback);
     window.removeEventListener("keydown", startAudioFallback);
   }
@@ -82,23 +75,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const fade = setInterval(() => {
       v -= 0.03;
       ambient.volume = Math.max(0, v);
-      if (v <= 0) {
-        clearInterval(fade);
-        ambient.pause();
-        callback();
-      }
+      if (v <= 0) { clearInterval(fade); ambient.pause(); callback(); }
     }, 40);
   }
 
   /* ---------------- INVENTORY ---------------- */
-  function loadInventory() {
-    return JSON.parse(localStorage.getItem("inventory") || "[]");
-  }
-
-  function saveInventory(inv) {
-    localStorage.setItem("inventory", JSON.stringify(inv));
-  }
-
+  function loadInventory() { return JSON.parse(localStorage.getItem("inventory") || "[]"); }
+  function saveInventory(inv) { localStorage.setItem("inventory", JSON.stringify(inv)); }
   function removeItem(name) {
     const inv = loadInventory();
     const lower = name.trim().toLowerCase();
@@ -109,38 +92,35 @@ document.addEventListener("DOMContentLoaded", () => {
   function renderInventory() {
     const box = document.querySelector("#inventory");
     if (!box) return;
-
     box.innerHTML = "";
 
     loadInventory().forEach(item => {
       const row = document.createElement("div");
       row.className = "inv-item";
-
       if (item.color) row.style.borderColor = item.color;
-
       if (item.img) {
         const img = document.createElement("img");
         img.src = item.img;
         img.className = "inv-icon";
         row.appendChild(img);
       }
-
       const text = document.createElement("span");
       text.textContent = item.name;
       row.appendChild(text);
-
       box.appendChild(row);
     });
 
-    // Add Crafting Table button if there are craftable recipes
-    const craftBtn = document.createElement("button");
-    craftBtn.className = "btn";
-    craftBtn.textContent = "Crafting Table";
-    craftBtn.addEventListener("click", () => {
-      localStorage.setItem("lastRoom", window.location.href);
-      window.location.href = "crafting.html";
-    });
-    box.appendChild(craftBtn);
+    // Crafting button
+    if (!document.querySelector("#craftingBtn")) {
+      const craftBtn = document.createElement("button");
+      craftBtn.id = "craftingBtn";
+      craftBtn.textContent = "🛠️ Crafting Table";
+      craftBtn.addEventListener("click", () => {
+        localStorage.setItem("lastRoom", window.location.href);
+        window.location.href = "crafting.html";
+      });
+      box.appendChild(craftBtn);
+    }
   }
 
   renderInventory();
@@ -148,11 +128,9 @@ document.addEventListener("DOMContentLoaded", () => {
   /* ---------------- INVENTORY TOGGLE ---------------- */
   const invBox = document.querySelector("#inventory");
   const toggleBtn = document.querySelector("#invToggle");
-
   if (toggleBtn && invBox) {
     toggleBtn.addEventListener("click", () => {
       invBox.classList.toggle("visible");
-      // re-render inventory to ensure Crafting button is always present
       renderInventory();
     });
   }
@@ -163,17 +141,9 @@ document.addEventListener("DOMContentLoaded", () => {
     msg.className = "popup-message";
     msg.textContent = text;
     document.body.append(msg);
-
     msg.style.opacity = 0;
-    requestAnimationFrame(() => {
-      msg.style.transition = "opacity 0.3s ease-out";
-      msg.style.opacity = 1;
-    });
-
-    setTimeout(() => {
-      msg.style.opacity = 0;
-      msg.addEventListener("transitionend", () => msg.remove());
-    }, duration);
+    requestAnimationFrame(() => { msg.style.transition = "opacity 0.3s ease-out"; msg.style.opacity = 1; });
+    setTimeout(() => { msg.style.opacity = 0; msg.addEventListener("transitionend", () => msg.remove()); }, duration);
   }
 
   /* ---------------- PICKUP ITEMS ---------------- */
@@ -182,10 +152,8 @@ document.addEventListener("DOMContentLoaded", () => {
       const name = btn.dataset.pickup.trim();
       const img = btn.dataset.img || null;
       const color = btn.dataset.color || null;
-
       const inv = loadInventory();
-      const exists = inv.some(i => i.name.toLowerCase() === name.toLowerCase());
-      if (!exists) {
+      if (!inv.some(i => i.name.toLowerCase() === name.toLowerCase())) {
         inv.push({ name, img, color });
         saveInventory(inv);
         renderInventory();
@@ -197,49 +165,32 @@ document.addEventListener("DOMContentLoaded", () => {
 
   /* ---------------- USE ITEMS ---------------- */
   document.querySelectorAll("[data-use]").forEach(btn => {
-    btn.addEventListener("click", (e) => {
+    btn.addEventListener("click", e => {
       e.stopPropagation();
-
       const neededRaw = btn.dataset.use;
       const needed = neededRaw.trim().toLowerCase();
       const next = btn.dataset.jump;
-
       const inv = loadInventory();
       const match = inv.find(i => i.name.toLowerCase() === needed);
-
-      if (!match) {
-        showMessage(`You don't have "${neededRaw}".`);
-        return;
-      }
-
+      if (!match) { showMessage(`You don't have "${neededRaw}".`); return; }
       removeItem(neededRaw);
       renderInventory();
       showMessage(`Used: ${neededRaw}`);
-
       body.style.transition = "opacity 0.8s ease-out";
       body.style.opacity = 0;
-
-      fadeAudioOut(() => {
-        setTimeout(() => window.location.href = next, 750);
-      });
+      fadeAudioOut(() => { setTimeout(() => window.location.href = next, 750); });
     });
   });
 
   /* ---------------- ROOM NAVIGATION ---------------- */
   document.querySelectorAll("[data-jump]").forEach(btn => {
-    btn.addEventListener("click", (e) => {
-
+    btn.addEventListener("click", () => {
       if (btn.hasAttribute("data-use")) return;
-
       localStorage.setItem("lastRoom", window.location.href);
       const next = btn.dataset.jump;
-
       body.style.transition = "opacity 0.8s ease-out";
       body.style.opacity = 0;
-
-      fadeAudioOut(() => {
-        setTimeout(() => window.location.href = next, 750);
-      });
+      fadeAudioOut(() => { setTimeout(() => window.location.href = next, 750); });
     });
   });
 
