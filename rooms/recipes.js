@@ -14,7 +14,7 @@ const RECIPES = {
 
   "Silver Key": {
     requires: {
-      "Metal Scrap": 1,
+      "Silver Scrap": 2,
       "Key Mold": 1
     },
     icon: "../images/items/silver_key.png",
