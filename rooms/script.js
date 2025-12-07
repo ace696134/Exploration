@@ -1,10 +1,8 @@
-/* Endless Requium - Room Handler
-   Fully robust version:
-   - Sequential background fade
-   - Ambient audio with fade in/out
-   - Inventory with images + colors
-   - Popup messages
-   - Room navigation
+/* Endless Requium – Room Handler
+   Inventory now supports:
+   - item name
+   - item image
+   - custom color
 */
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -39,24 +37,22 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 5000);
   }
 
-  /* ---------------- BODY FADE-IN ---------------- */
   requestAnimationFrame(() => body.classList.add("fade-in"));
 
-  /* ---------------- AMBIENT AUDIO ---------------- */
+  /* ---------------- AUDIO ---------------- */
   let ambient = null;
-
   if (audioName) {
     ambient = new Audio(`../sounds/${audioName}`);
     ambient.loop = true;
     ambient.volume = 0;
     ambient.muted = isMuted;
 
-    ambient.play().then(() => {
-      if (!isMuted) fadeAudioIn();
-    }).catch(() => {
-      window.addEventListener("click", startAudioFallback);
-      window.addEventListener("keydown", startAudioFallback);
-    });
+    ambient.play()
+      .then(() => { if (!isMuted) fadeAudioIn(); })
+      .catch(() => {
+        window.addEventListener("click", startAudioFallback);
+        window.addEventListener("keydown", startAudioFallback);
+      });
   }
 
   function startAudioFallback() {
@@ -72,7 +68,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let v = 0;
     const fade = setInterval(() => {
       v += 0.02;
-      ambient.volume = v;
+      if (ambient) ambient.volume = v;
       if (v >= 0.6) clearInterval(fade);
     }, 50);
   }
@@ -80,7 +76,6 @@ document.addEventListener("DOMContentLoaded", () => {
   function fadeAudioOut(callback) {
     if (!ambient) return callback();
     if (isMuted) { ambient.pause(); return callback(); }
-
     let v = ambient.volume;
     const fade = setInterval(() => {
       v -= 0.03;
@@ -93,9 +88,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 40);
   }
 
-  /* ---------------- INVENTORY ---------------- */
+  /* ---------------- INVENTORY SYSTEM ---------------- */
 
-  // New format: [{name:"Silver Key", img:"...", color:"#fff"}]
   function loadInventory() {
     return JSON.parse(localStorage.getItem("inventory") || "[]");
   }
@@ -104,42 +98,40 @@ document.addEventListener("DOMContentLoaded", () => {
     localStorage.setItem("inventory", JSON.stringify(inv));
   }
 
-  function addItem(itemObj) {
-    const inv = loadInventory();
-    if (!inv.some(i => i.name.toLowerCase() === itemObj.name.toLowerCase())) {
-      inv.push(itemObj);
-      saveInventory(inv);
-    }
-  }
-
   function removeItem(name) {
-    saveInventory(
-      loadInventory().filter(i => i.name.toLowerCase() !== name.toLowerCase())
-    );
+    const inv = loadInventory();
+    const lower = name.trim().toLowerCase();
+    const filtered = inv.filter(i => i.name.toLowerCase() !== lower);
+    saveInventory(filtered);
   }
 
   function renderInventory() {
-    const invBox = document.querySelector("#inventory");
-    if (!invBox) return;
+    const box = document.querySelector("#inventory");
+    if (!box) return;
 
-    invBox.innerHTML = "";
+    box.innerHTML = "";
 
     loadInventory().forEach(item => {
-      const div = document.createElement("div");
-      div.className = "inv-item";
+      const row = document.createElement("div");
+      row.className = "inv-item";
 
-      if (item.color) {
-        div.style.backgroundColor = item.color;
+      if (item.color) row.style.borderColor = item.color;
+
+      if (item.img) {
+        const img = document.createElement("img");
+        img.src = item.img;
+        img.className = "inv-icon";
+        row.appendChild(img);
       }
 
-      div.innerHTML = `
-        <img src="${item.img}" class="inv-icon">
-        <span>${item.name}</span>
-      `;
+      const text = document.createElement("span");
+      text.textContent = item.name;
+      row.appendChild(text);
 
-      invBox.appendChild(div);
+      box.appendChild(row);
     });
   }
+
   renderInventory();
 
   /* ---------------- INVENTORY TOGGLE ---------------- */
@@ -171,38 +163,45 @@ document.addEventListener("DOMContentLoaded", () => {
     }, duration);
   }
 
-  /* ---------------- PICKUP ITEMS (JSON inside attribute) ---------------- */
+  /* ---------------- PICKUP ITEMS ---------------- */
   document.querySelectorAll("[data-pickup]").forEach(btn => {
     btn.addEventListener("click", () => {
+      const name = btn.dataset.pickup.trim();
+      const img = btn.dataset.img || null;
+      const color = btn.dataset.color || null;
 
-      const itemObj = JSON.parse(btn.dataset.pickup);
-
-      addItem(itemObj);
-      renderInventory();
-      showMessage(`Picked up: ${itemObj.name}`);
-
+      const inv = loadInventory();
+      const exists = inv.some(i => i.name.toLowerCase() === name.toLowerCase());
+      if (!exists) {
+        inv.push({ name, img, color });
+        saveInventory(inv);
+        renderInventory();
+        showMessage(`Picked up: ${name}`);
+      }
       btn.remove();
     });
   });
 
-  /* ---------------- USE ITEM TO UNLOCK ---------------- */
+  /* ---------------- USE ITEMS ---------------- */
   document.querySelectorAll("[data-use]").forEach(btn => {
     btn.addEventListener("click", (e) => {
       e.stopPropagation();
 
-      const neededName = btn.dataset.use.trim(); // string
+      const neededRaw = btn.dataset.use;
+      const needed = neededRaw.trim().toLowerCase();
       const next = btn.dataset.jump;
 
-      const inv = loadInventory().map(i => i.name.toLowerCase());
+      const inv = loadInventory();
+      const match = inv.find(i => i.name.toLowerCase() === needed);
 
-      if (!inv.includes(neededName.toLowerCase())) {
-        showMessage(`You don't have "${neededName}".`);
+      if (!match) {
+        showMessage(`You don't have "${neededRaw}".`);
         return;
       }
 
-      removeItem(neededName);
+      removeItem(neededRaw);
       renderInventory();
-      showMessage(`Used: ${neededName}`);
+      showMessage(`Used: ${neededRaw}`);
 
       body.style.transition = "opacity 0.8s ease-out";
       body.style.opacity = 0;
@@ -215,8 +214,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   /* ---------------- ROOM NAVIGATION ---------------- */
   document.querySelectorAll("[data-jump]").forEach(btn => {
-    btn.addEventListener("click", () => {
-
+    btn.addEventListener("click", (e) => {
       if (btn.hasAttribute("data-use")) return;
 
       const next = btn.dataset.jump;
