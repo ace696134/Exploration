@@ -5,8 +5,6 @@
    - custom color
 */
 
-
-
 document.addEventListener("DOMContentLoaded", () => {
 
   const body = document.body;
@@ -39,9 +37,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 5000);
   }
 
+  /* ---------------- BODY FADE-IN ---------------- */
   requestAnimationFrame(() => body.classList.add("fade-in"));
 
-  /* ---------------- AUDIO ---------------- */
+  /* ---------------- AMBIENT AUDIO ---------------- */
   let ambient = null;
   if (audioName) {
     ambient = new Audio(`../sounds/${audioName}`);
@@ -82,16 +81,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const fade = setInterval(() => {
       v -= 0.03;
       ambient.volume = Math.max(0, v);
-      if (v <= 0) {
-        clearInterval(fade);
-        ambient.pause();
-        callback();
-      }
+      if (v <= 0) { clearInterval(fade); ambient.pause(); callback(); }
     }, 40);
   }
 
-  /* ---------------- INVENTORY SYSTEM ---------------- */
-
+  /* ---------------- INVENTORY ---------------- */
   function loadInventory() {
     return JSON.parse(localStorage.getItem("inventory") || "[]");
   }
@@ -214,26 +208,23 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-/* ---------------- ROOM NAVIGATION ---------------- */
-document.querySelectorAll("[data-jump]").forEach(btn => {
-  btn.addEventListener("click", (e) => {
+  /* ---------------- ROOM NAVIGATION ---------------- */
+  document.querySelectorAll("[data-jump]").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      if (btn.hasAttribute("data-use")) return;
 
-    // Prevent double-activation if it's also a use-item button
-    if (btn.hasAttribute("data-use")) return;
+      // Save previous room
+      localStorage.setItem("lastRoom", window.location.href);
 
-    // Save previous room
-    localStorage.setItem("lastRoom", window.location.href);
+      const next = btn.dataset.jump;
 
-    const next = btn.dataset.jump;
+      body.style.transition = "opacity 0.8s ease-out";
+      body.style.opacity = 0;
 
-    body.style.transition = "opacity 0.8s ease-out";
-    body.style.opacity = 0;
-
-    fadeAudioOut(() => {
-      setTimeout(() => window.location.href = next, 750);
+      fadeAudioOut(() => {
+        setTimeout(() => window.location.href = next, 750);
+      });
     });
   });
-});
-
 
 });
