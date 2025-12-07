@@ -3,6 +3,7 @@
    - item name
    - item image
    - custom color
+   - crafting table button integration
 */
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -40,7 +41,7 @@ document.addEventListener("DOMContentLoaded", () => {
   /* ---------------- BODY FADE-IN ---------------- */
   requestAnimationFrame(() => body.classList.add("fade-in"));
 
-  /* ---------------- AMBIENT AUDIO ---------------- */
+  /* ---------------- AUDIO ---------------- */
   let ambient = null;
   if (audioName) {
     ambient = new Audio(`../sounds/${audioName}`);
@@ -81,7 +82,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const fade = setInterval(() => {
       v -= 0.03;
       ambient.volume = Math.max(0, v);
-      if (v <= 0) { clearInterval(fade); ambient.pause(); callback(); }
+      if (v <= 0) {
+        clearInterval(fade);
+        ambient.pause();
+        callback();
+      }
     }, 40);
   }
 
@@ -126,6 +131,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
       box.appendChild(row);
     });
+
+    // Add Crafting Table button if there are craftable recipes
+    const craftBtn = document.createElement("button");
+    craftBtn.className = "btn";
+    craftBtn.textContent = "Crafting Table";
+    craftBtn.addEventListener("click", () => {
+      localStorage.setItem("lastRoom", window.location.href);
+      window.location.href = "crafting.html";
+    });
+    box.appendChild(craftBtn);
   }
 
   renderInventory();
@@ -137,6 +152,8 @@ document.addEventListener("DOMContentLoaded", () => {
   if (toggleBtn && invBox) {
     toggleBtn.addEventListener("click", () => {
       invBox.classList.toggle("visible");
+      // re-render inventory to ensure Crafting button is always present
+      renderInventory();
     });
   }
 
@@ -211,11 +228,10 @@ document.addEventListener("DOMContentLoaded", () => {
   /* ---------------- ROOM NAVIGATION ---------------- */
   document.querySelectorAll("[data-jump]").forEach(btn => {
     btn.addEventListener("click", (e) => {
+
       if (btn.hasAttribute("data-use")) return;
 
-      // Save previous room
       localStorage.setItem("lastRoom", window.location.href);
-
       const next = btn.dataset.jump;
 
       body.style.transition = "opacity 0.8s ease-out";
