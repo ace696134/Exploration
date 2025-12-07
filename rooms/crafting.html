@@ -2,17 +2,22 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Crafting</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Endless Requium – Crafting</title>
   <link rel="stylesheet" href="../styles.css">
 </head>
-<body data-audio="ambient.mp3">
+<body>
 
-  <h1 class="title glitch" data-text="Crafting">Crafting</h1>
+  <h1 class="title">Crafting Table</h1>
+  <p>Select an item to craft from your available materials.</p>
 
-  <div id="crafting-container"></div>
+  <!-- Craftable items will be dynamically inserted here -->
+  <div id="craftList" class="craft-list"></div>
 
-  <button class="btn" id="backBtn">Back</button>
+  <!-- Back button -->
+  <button id="backBtn" class="btn">Back</button>
 
+  <script src="../rooms/recipe.js"></script>
   <script src="../rooms/crafting.js"></script>
 </body>
 </html>
