@@ -17,7 +17,7 @@ const RECIPES = {
       "Metal Scrap": 1,
       "Key Mold": 1
     },
-    icon: "../images/items/silver-key.png",
+    icon: "../images/items/silver_key.png",
     color: "#c0c0ff"
   },
 
@@ -38,7 +38,7 @@ const RECIPES = {
       "Lighter": 1,
       "Fake Key": 1
     },
-    icon: "../images/items/key-mold.png",
+    icon: "../images/items/key_mold.png",
     color: "#ffcc66"
   }
 };
