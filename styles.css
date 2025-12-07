@@ -175,3 +175,24 @@ body.fade-in {
 body.fade-out {
   opacity: 0 !important;
 }
+
+/* ---------- CRAFTING BUTTON IN INVENTORY ---------- */
+#craftingBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 2px solid #ff9900;
+  background: black;
+  color: #ff9900;
+  padding: 6px 10px;
+  font-size: 18px;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: 0.25s ease;
+}
+
+#craftingBtn:hover {
+  background: #ff9900;
+  color: black;
+}
