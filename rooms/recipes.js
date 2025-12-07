@@ -1,79 +1,44 @@
-/* Endless Requium – Crafting System */
+/* ---------------- CRAFTING RECIPES ---------------- */
+// Format:
+// "Result Item": { requires: { "Item A": qty, "Item B": qty }, icon: "path/to/icon.png", color: "#hex" }
 
-document.addEventListener("DOMContentLoaded", () => {
+const RECIPES = {
+  "Locked Box": {
+    requires: {
+      "Metal Scrap": 2,
+      "Screws": 4
+    },
+    icon: "../images/items/lockedbox.png",
+    color: "#b4b4b4"
+  },
 
-  const container = document.getElementById("craftList");
-  const backBtn = document.getElementById("backBtn");
-  const lastRoom = localStorage.getItem("lastRoom") || "index.html";
+  "Silver Key": {
+    requires: {
+      "Metal Scrap": 1,
+      "Key Mold": 1
+    },
+    icon: "../images/items/silver-key.png",
+    color: "#c0c0ff"
+  },
 
-  function loadInventory() {
-    return JSON.parse(localStorage.getItem("inventory") || "[]");
+  "Torch": {
+    requires: {
+      "Stick": 1,
+      "Cloth": 1,
+      "Oil": 1
+    },
+    icon: "../images/items/torch.png",
+    color: "#ffcc66"
   }
+};
 
-  function saveInventory(inv) {
-    localStorage.setItem("inventory", JSON.stringify(inv));
+  "Key Mold": {
+    requires: {
+      "Rubber": 1,
+      "Lighter": 1,
+      "Fake Key": 1
+    },
+    icon: "../images/items/key-mold.png",
+    color: "#ffcc66"
   }
-
-  function hasIngredients(recipe, inventory) {
-    const invMap = {};
-    inventory.forEach(item => {
-      const n = item.name;
-      if (!invMap[n]) invMap[n] = 0;
-      invMap[n]++;
-    });
-
-    for (let key in recipe.needs) {
-      if (!invMap[key] || invMap[key] < recipe.needs[key]) return false;
-    }
-    return true;
-  }
-
-  function craft(recipe) {
-    let inventory = loadInventory();
-
-    // Remove ingredients
-    for (let key in recipe.needs) {
-      for (let i = 0; i < recipe.needs[key]; i++) {
-        const index = inventory.findIndex(x => x.name === key);
-        if (index !== -1) inventory.splice(index, 1);
-      }
-    }
-
-    // Add output
-    for (let key in recipe.output) {
-      for (let i = 0; i < recipe.output[key]; i++) {
-        inventory.push({
-          name: key,
-          img: recipe.img || null,
-          color: recipe.color || null
-        });
-      }
-    }
-
-    saveInventory(inventory);
-    alert(`${recipe.name} crafted!`);
-    location.reload();
-  }
-
-  // Render craftable recipes
-  const inventory = loadInventory();
-  if (!container) return;
-
-  RECIPES.forEach(recipe => {
-    if (hasIngredients(recipe, inventory)) {
-      const btn = document.createElement("button");
-      btn.textContent = `Craft ${recipe.name}`;
-      btn.className = "btn";
-      btn.addEventListener("click", () => craft(recipe));
-      container.appendChild(btn);
-    }
-  });
-
-  // Back button
-  if (backBtn) {
-    backBtn.addEventListener("click", () => {
-      window.location.href = lastRoom;
-    });
-  }
-
-});
+};
