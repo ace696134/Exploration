@@ -18,7 +18,7 @@ const RECIPES = {
       "Key Mold": 1
     },
     icon: "../images/items/silver_key.png",
-    color: "#c0c0ff"
+    color: "#C0C0C0"
   },
 
   "Torch": {
@@ -39,6 +39,6 @@ const RECIPES = {
       "Fake Key": 1
     },
     icon: "../images/items/key_mold.png",
-    color: "#ffcc66"
+    color: "#C0C0C0"
   }
 };
