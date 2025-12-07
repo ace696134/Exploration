@@ -1,6 +1,32 @@
+/* Endless Requium – Crafting System */
+
 document.addEventListener("DOMContentLoaded", () => {
 
-  /* Load inventory */
+  const recipes = [
+    {
+      id: "torch",
+      name: "Torch",
+      needs: { Stick: 1, Coal: 1 },
+      output: { Torch: 1 },
+      img: "../images/torch.png",
+      color: "#ff5500"
+    },
+    {
+      id: "bandage",
+      name: "Bandage",
+      needs: { Cloth: 2 },
+      output: { Bandage: 1 },
+      img: "../images/bandage.png",
+      color: "#fff"
+    }
+  ];
+
+  const lastRoom = localStorage.getItem("lastRoom") || "index.html";
+
+  const invBox = document.querySelector("#inventory");
+  const container = document.getElementById("craftList");
+  const backBtn = document.getElementById("backBtn");
+
   function loadInventory() {
     return JSON.parse(localStorage.getItem("inventory") || "[]");
   }
@@ -9,74 +35,64 @@ document.addEventListener("DOMContentLoaded", () => {
     localStorage.setItem("inventory", JSON.stringify(inv));
   }
 
-  /* Recipes */
-  const recipes = [
-    {
-      result: "Clockwork Key",
-      color: "#ffcc00",
-      img: "../images/items/clockkey.png",
-      ingredients: ["Silver Key", "Rusted Gear"]
-    },
-    {
-      result: "Torch",
-      color: "#ffa500",
-      img: "../images/items/torch.png",
-      ingredients: ["Stick", "Cloth"]
-    }
-  ];
-
-  const container = document.getElementById("crafting-container");
-  const inv = loadInventory().map(i => i.trim());
-  
-  /* Render recipes */
-  recipes.forEach(recipe => {
-    const card = document.createElement("div");
-    card.className = "recipe-card";
-
-    const hasAll = recipe.ingredients.every(i =>
-      inv.map(x => x.toLowerCase()).includes(i.toLowerCase())
-    );
-
-    card.innerHTML = `
-      <h2>${recipe.result}</h2>
-      <img src="${recipe.img}" class="recipe-img">
-      <p>Needs: ${recipe.ingredients.join(", ")}</p>
-      <button class="btn craft-btn" ${hasAll ? "" : "disabled"}>
-        Craft
-      </button>
-    `;
-
-    container.appendChild(card);
-
-    const btn = card.querySelector(".craft-btn");
-    if (!hasAll) return;
-
-    btn.addEventListener("click", () => {
-      let newInv = loadInventory();
-
-      // Remove ingredients
-      recipe.ingredients.forEach(i => {
-        const index = newInv.findIndex(x => x.toLowerCase() === i.toLowerCase());
-        if (index !== -1) newInv.splice(index, 1);
-      });
-
-      // Add crafted item
-      newInv.push(recipe.result);
-
-      saveInventory(newInv);
-
-      alert(`Crafted ${recipe.result}!`);
-
-      window.location.reload();
+  function hasIngredients(recipe, inventory) {
+    const invMap = {};
+    inventory.forEach(item => {
+      const n = item.name;
+      if (!invMap[n]) invMap[n] = 0;
+      invMap[n]++;
     });
+
+    for (let key in recipe.needs) {
+      if (!invMap[key] || invMap[key] < recipe.needs[key]) return false;
+    }
+    return true;
+  }
+
+  function craft(recipe) {
+    let inventory = loadInventory();
+
+    // Remove ingredients
+    for (let key in recipe.needs) {
+      for (let i = 0; i < recipe.needs[key]; i++) {
+        const index = inventory.findIndex(x => x.name === key);
+        if (index !== -1) inventory.splice(index, 1);
+      }
+    }
+
+    // Add output
+    for (let key in recipe.output) {
+      for (let i = 0; i < recipe.output[key]; i++) {
+        inventory.push({
+          name: key,
+          img: recipe.img || null,
+          color: recipe.color || null
+        });
+      }
+    }
+
+    saveInventory(inventory);
+    alert(`${recipe.name} crafted!`);
+    location.reload();
+  }
+
+  // Render craftable recipes
+  const inventory = loadInventory();
+  recipes.forEach(recipe => {
+    if (hasIngredients(recipe, inventory)) {
+      const btn = document.createElement("button");
+      btn.textContent = `Craft ${recipe.name}`;
+      btn.className = "btn";
+      btn.addEventListener("click", () => craft(recipe));
+      container.appendChild(btn);
+    }
   });
 
-  /* BACK BUTTON */
-  const backBtn = document.getElementById("backBtn");
-  const previousRoom = localStorage.getItem("lastRoom") || "index.html";
-
-  backBtn.addEventListener("click", () => {
-    window.location.href = previousRoom;
-  });
+  // Back button
+  if (backBtn) {
+    backBtn.addEventListener("click", () => {
+      window.location.href = lastRoom;
+    });
+  }
 
 });
