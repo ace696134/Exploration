@@ -25,13 +25,17 @@
     <h1 class="title glitch" data-text="Room Title">Room Title</h1>
     <p class="subtitle">Room description, lore, or instructions go here.</p>
 
-    <!-- Navigation / Pickups -->
-    <button class="btn" data-jump="room2.html">Go to Next Room</button>
-    <button class="btn" data-pickup="Silver Key">Pick up Silver Key</button>
+    <!-- PICKUP ITEMS -->
+    <button class="btn" data-pickup="Silver Key" data-img="../images/silver-key.png" data-color="#ccc">Pick up Silver Key</button>
+
+    <!-- USE ITEMS -->
     <button class="btn" data-use="Silver Key" data-jump="lockedRoom.html">Use Silver Key</button>
+
+    <!-- ROOM NAVIGATION -->
+    <button class="btn" data-jump="room2.html">Go to Next Room</button>
   </div>
 
-  <!-- LIGHT OVERLAYS (Optional visual effects) -->
+  <!-- OPTIONAL VISUAL EFFECTS -->
   <div class="vignette"></div>
   <div class="scanlines"></div>
   <div class="grain"></div>
@@ -39,7 +43,7 @@
   <!-- ROOM SCRIPT -->
   <script src="../rooms/script.js"></script>
   <script>
-    // Ensure body fades in using your CSS fade classes
+    // Fade-in effect
     document.addEventListener("DOMContentLoaded", () => {
       document.body.classList.add("fade-in");
     });
