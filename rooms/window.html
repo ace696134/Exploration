@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Endless Requium - window</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body data-audio="ambient.mp3">
+
+  <!-- BACKGROUND IMAGES CONTAINER -->
+  <div id="bgContainer">
+    <img src="../images/window.html" alt="window">
+  </div>
+
+  <!-- INVENTORY -->
+  <button id="invToggle">Inventory</button>
+  <div id="inventory" class="hidden"></div>
+
+  <!-- CENTERED ROOM CONTENT -->
+  <div class="center-box">
+    <h1 class="title glitch" data-text="Room Title">A window..</h1>
+    <p class="subtitle">"When did it start snowing.. that wasnt on forecast.." you wonder.. you look through the other windows, it's NOT snowing.</p>
+
+    <!-- Navigation / Pickups -->
+    <button class="btn" data-jump="room2.html">Go to Next Room</button>
+    <button class="btn" data-pickup="Silver Key">Pick up Silver Key</button>
+    <button class="btn" data-use="Silver Key" data-jump="lockedRoom.html">Use Silver Key</button>
+  </div>
+
+  <!-- LIGHT OVERLAYS (Optional visual effects) -->
+  <div class="vignette"></div>
+  <div class="scanlines"></div>
+  <div class="grain"></div>
+
+  <!-- ROOM SCRIPT -->
+  <script src="../rooms/script.js"></script>
+  <script>
+    // Ensure body fades in using your CSS fade classes
+    document.addEventListener("DOMContentLoaded", () => {
+      document.body.classList.add("fade-in");
+    });
+  </script>
+</body>
+</html>
