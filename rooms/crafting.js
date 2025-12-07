@@ -1,98 +1,61 @@
-/* Endless Requium – Crafting System */
-
+/* ---------------- CRAFTING SYSTEM ---------------- */
 document.addEventListener("DOMContentLoaded", () => {
-
-  const recipes = [
-    {
-      id: "torch",
-      name: "Torch",
-      needs: { Stick: 1, Coal: 1 },
-      output: { Torch: 1 },
-      img: "../images/torch.png",
-      color: "#ff5500"
-    },
-    {
-      id: "bandage",
-      name: "Bandage",
-      needs: { Cloth: 2 },
-      output: { Bandage: 1 },
-      img: "../images/bandage.png",
-      color: "#fff"
-    }
-  ];
-
-  const lastRoom = localStorage.getItem("lastRoom") || "index.html";
-
-  const invBox = document.querySelector("#inventory");
-  const container = document.getElementById("craftList");
+  const container = document.getElementById("recipesContainer");
   const backBtn = document.getElementById("backBtn");
 
-  function loadInventory() {
-    return JSON.parse(localStorage.getItem("inventory") || "[]");
+  if (!container) return;
+
+  // Load inventory
+  let inventory = JSON.parse(localStorage.getItem("inventory") || "[]");
+
+  // Helper: check if required items are in inventory
+  function hasItems(required) {
+    return required.every(req => inventory.some(i => i.name.toLowerCase() === req.toLowerCase()));
   }
 
-  function saveInventory(inv) {
-    localStorage.setItem("inventory", JSON.stringify(inv));
-  }
+  // Render recipes
+  function renderRecipes() {
+    container.innerHTML = "";
 
-  function hasIngredients(recipe, inventory) {
-    const invMap = {};
-    inventory.forEach(item => {
-      const n = item.name;
-      if (!invMap[n]) invMap[n] = 0;
-      invMap[n]++;
-    });
-
-    for (let key in recipe.needs) {
-      if (!invMap[key] || invMap[key] < recipe.needs[key]) return false;
-    }
-    return true;
-  }
-
-  function craft(recipe) {
-    let inventory = loadInventory();
-
-    // Remove ingredients
-    for (let key in recipe.needs) {
-      for (let i = 0; i < recipe.needs[key]; i++) {
-        const index = inventory.findIndex(x => x.name === key);
-        if (index !== -1) inventory.splice(index, 1);
-      }
-    }
-
-    // Add output
-    for (let key in recipe.output) {
-      for (let i = 0; i < recipe.output[key]; i++) {
-        inventory.push({
-          name: key,
-          img: recipe.img || null,
-          color: recipe.color || null
-        });
-      }
-    }
-
-    saveInventory(inventory);
-    alert(`${recipe.name} crafted!`);
-    location.reload();
-  }
-
-  // Render craftable recipes
-  const inventory = loadInventory();
-  recipes.forEach(recipe => {
-    if (hasIngredients(recipe, inventory)) {
+    recipes.forEach(recipe => {
       const btn = document.createElement("button");
-      btn.textContent = `Craft ${recipe.name}`;
       btn.className = "btn";
-      btn.addEventListener("click", () => craft(recipe));
-      container.appendChild(btn);
-    }
-  });
+      btn.textContent = recipe.name;
 
-  // Back button
+      if (!hasItems(recipe.requires)) {
+        btn.disabled = true;
+        btn.style.opacity = 0.5;
+      }
+
+      btn.addEventListener("click", () => {
+        // Remove required items from inventory
+        recipe.requires.forEach(itemName => {
+          const index = inventory.findIndex(i => i.name.toLowerCase() === itemName.toLowerCase());
+          if (index !== -1) inventory.splice(index, 1);
+        });
+
+        // Add crafted item
+        inventory.push(recipe.result);
+        localStorage.setItem("inventory", JSON.stringify(inventory));
+
+        // Feedback
+        alert(`Crafted: ${recipe.result.name}`);
+
+        // Re-render recipes to update buttons
+        renderRecipes();
+      });
+
+      container.appendChild(btn);
+    });
+  }
+
+  renderRecipes();
+
+  // ---------------- BACK BUTTON ----------------
   if (backBtn) {
     backBtn.addEventListener("click", () => {
+      const lastRoom = localStorage.getItem("lastRoom") || "index.html";
       window.location.href = lastRoom;
     });
   }
-
 });
