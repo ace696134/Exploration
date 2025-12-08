@@ -147,21 +147,35 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   /* ---------------- PICKUP ITEMS ---------------- */
-  document.querySelectorAll("[data-pickup]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const name = btn.dataset.pickup.trim();
-      const img = btn.dataset.img || null;
-      const color = btn.dataset.color || null;
-      const inv = loadInventory();
-      if (!inv.some(i => i.name.toLowerCase() === name.toLowerCase())) {
-        inv.push({ name, img, color });
-        saveInventory(inv);
-        renderInventory();
-        showMessage(`Picked up: ${name}`);
-      }
-      btn.remove();
+document.querySelectorAll("[data-pickup]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    
+    const itemName = btn.dataset.pickup;
+    const itemData = ITEMS[itemName];
+
+    if (!itemData) {
+      console.error("Item not found in ITEMS:", itemName);
+      return;
+    }
+
+    // Load existing inventory from localStorage
+    let inv = JSON.parse(localStorage.getItem("inventory") || "[]");
+
+    // Add this item
+    inv.push({
+      id: itemData.id,
+      name: itemData.name,
+      icon: itemData.icon,
+      color: itemData.color,
+      description: itemData.description,
+      stack: itemData.stack
     });
+
+    localStorage.setItem("inventory", JSON.stringify(inv));
+
+    showPopup(`Picked up ${itemName}!`);
   });
+});
 
   /* ---------------- USE ITEMS ---------------- */
   document.querySelectorAll("[data-use]").forEach(btn => {
