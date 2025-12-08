@@ -17,6 +17,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (bgContainer) {
     const layers = Array.from(bgContainer.querySelectorAll("img"));
     let current = 0;
+
     layers.forEach((img, i) => {
       img.style.opacity = i === 0 ? 1 : 0;
       img.style.transition = "opacity 1.5s ease";
@@ -29,12 +30,14 @@ document.addEventListener("DOMContentLoaded", () => {
       img.style.pointerEvents = "none";
     });
 
-    setInterval(() => {
-      const prev = current;
-      current = (current + 1) % layers.length;
-      layers[prev].style.opacity = 0;
-      layers[current].style.opacity = 1;
-    }, 5000);
+    if (layers.length > 1) {
+      setInterval(() => {
+        const prev = current;
+        current = (current + 1) % layers.length;
+        layers[prev].style.opacity = 0;
+        layers[current].style.opacity = 1;
+      }, 5000);
+    }
   }
 
   /* ---------------- BODY FADE-IN ---------------- */
@@ -47,14 +50,20 @@ document.addEventListener("DOMContentLoaded", () => {
     ambient.loop = true;
     ambient.volume = 0;
     ambient.muted = isMuted;
-    ambient.play().then(() => { if (!isMuted) fadeAudioIn(); }).catch(() => {
+
+    ambient.play().then(() => {
+      if (!isMuted) fadeAudioIn();
+    }).catch(() => {
       window.addEventListener("click", startAudioFallback);
       window.addEventListener("keydown", startAudioFallback);
     });
   }
 
   function startAudioFallback() {
-    if (ambient) { ambient.play(); if (!isMuted) fadeAudioIn(); }
+    if (ambient) {
+      ambient.play();
+      if (!isMuted) fadeAudioIn();
+    }
     window.removeEventListener("click", startAudioFallback);
     window.removeEventListener("keydown", startAudioFallback);
   }
@@ -71,42 +80,53 @@ document.addEventListener("DOMContentLoaded", () => {
   function fadeAudioOut(callback) {
     if (!ambient) return callback();
     if (isMuted) { ambient.pause(); return callback(); }
+
     let v = ambient.volume;
     const fade = setInterval(() => {
       v -= 0.03;
       ambient.volume = Math.max(0, v);
-      if (v <= 0) { clearInterval(fade); ambient.pause(); callback(); }
+      if (v <= 0) {
+        clearInterval(fade);
+        ambient.pause();
+        callback();
+      }
     }, 40);
   }
 
-  /* ---------------- INVENTORY ---------------- */
-  function loadInventory() { return JSON.parse(localStorage.getItem("inventory") || "[]"); }
-  function saveInventory(inv) { localStorage.setItem("inventory", JSON.stringify(inv)); }
-  function removeItem(name) {
-    const inv = loadInventory();
-    const lower = name.trim().toLowerCase();
-    const filtered = inv.filter(i => i.name.toLowerCase() !== lower);
-    saveInventory(filtered);
-  }
+  /* ---------------- INVENTORY HELPERS ---------------- */
+  const loadInventory = () => JSON.parse(localStorage.getItem("inventory") || "[]");
+  const saveInventory = (inv) => localStorage.setItem("inventory", JSON.stringify(inv));
 
+  const removeItem = (name) => {
+    const inv = loadInventory();
+    const filtered = inv.filter(i => i.name.toLowerCase() !== name.toLowerCase());
+    saveInventory(filtered);
+  };
+
+  /* ---------------- INVENTORY RENDER ---------------- */
   function renderInventory() {
     const box = document.querySelector("#inventory");
     if (!box) return;
+
     box.innerHTML = "";
 
     loadInventory().forEach(item => {
       const row = document.createElement("div");
       row.className = "inv-item";
+
       if (item.color) row.style.borderColor = item.color;
-      if (item.img) {
+
+      if (item.icon) {
         const img = document.createElement("img");
-        img.src = item.img;
+        img.src = item.icon;
         img.className = "inv-icon";
         row.appendChild(img);
       }
+
       const text = document.createElement("span");
       text.textContent = item.name;
       row.appendChild(text);
+
       box.appendChild(row);
     });
 
@@ -115,10 +135,14 @@ document.addEventListener("DOMContentLoaded", () => {
       const craftBtn = document.createElement("button");
       craftBtn.id = "craftingBtn";
       craftBtn.textContent = "🛠️ Crafting Table";
+      craftBtn.className = "btn";
+      craftBtn.style.marginTop = "10px";
+
       craftBtn.addEventListener("click", () => {
         localStorage.setItem("lastRoom", window.location.href);
         window.location.href = "crafting.html";
       });
+
       box.appendChild(craftBtn);
     }
   }
@@ -128,6 +152,7 @@ document.addEventListener("DOMContentLoaded", () => {
   /* ---------------- INVENTORY TOGGLE ---------------- */
   const invBox = document.querySelector("#inventory");
   const toggleBtn = document.querySelector("#invToggle");
+
   if (toggleBtn && invBox) {
     toggleBtn.addEventListener("click", () => {
       invBox.classList.toggle("visible");
@@ -141,58 +166,74 @@ document.addEventListener("DOMContentLoaded", () => {
     msg.className = "popup-message";
     msg.textContent = text;
     document.body.append(msg);
-    msg.style.opacity = 0;
-    requestAnimationFrame(() => { msg.style.transition = "opacity 0.3s ease-out"; msg.style.opacity = 1; });
-    setTimeout(() => { msg.style.opacity = 0; msg.addEventListener("transitionend", () => msg.remove()); }, duration);
+
+    requestAnimationFrame(() => {
+      msg.style.transition = "opacity 0.3s ease-out";
+      msg.style.opacity = "1";
+    });
+
+    setTimeout(() => {
+      msg.style.opacity = "0";
+      msg.addEventListener("transitionend", () => msg.remove());
+    }, duration);
   }
 
   /* ---------------- PICKUP ITEMS ---------------- */
-document.querySelectorAll("[data-pickup]").forEach(btn => {
-  btn.addEventListener("click", () => {
-    
-    const itemName = btn.dataset.pickup;
-    const itemData = ITEMS[itemName];
+  document.querySelectorAll("[data-pickup]").forEach(btn => {
+    btn.addEventListener("click", () => {
 
-    if (!itemData) {
-      console.error("Item not found in ITEMS:", itemName);
-      return;
-    }
+      const itemName = btn.dataset.pickup;
+      const itemData = ITEMS[itemName];
 
-    // Load existing inventory from localStorage
-    let inv = JSON.parse(localStorage.getItem("inventory") || "[]");
+      if (!itemData) {
+        console.error("Item not found in ITEMS:", itemName);
+        return;
+      }
 
-    // Add this item
-    inv.push({
-      id: itemData.id,
-      name: itemData.name,
-      icon: itemData.icon,
-      color: itemData.color,
-      description: itemData.description,
-      stack: itemData.stack
+      let inv = loadInventory();
+      inv.push({
+        id: itemData.id,
+        name: itemData.name,
+        icon: itemData.icon,
+        color: itemData.color,
+        description: itemData.description,
+        stack: itemData.stack
+      });
+
+      saveInventory(inv);
+
+      showMessage(`Picked up ${itemName}!`);
+      renderInventory();
     });
-
-    localStorage.setItem("inventory", JSON.stringify(inv));
-
-    showPopup(`Picked up ${itemName}!`);
   });
-});
 
   /* ---------------- USE ITEMS ---------------- */
   document.querySelectorAll("[data-use]").forEach(btn => {
     btn.addEventListener("click", e => {
+
       e.stopPropagation();
+
       const neededRaw = btn.dataset.use;
       const needed = neededRaw.trim().toLowerCase();
-      const next = btn.dataset.jump;
+
       const inv = loadInventory();
       const match = inv.find(i => i.name.toLowerCase() === needed);
-      if (!match) { showMessage(`You don't have "${neededRaw}".`); return; }
+
+      if (!match) {
+        showMessage(`You don't have "${neededRaw}".`);
+        return;
+      }
+
       removeItem(neededRaw);
       renderInventory();
       showMessage(`Used: ${neededRaw}`);
-      body.style.transition = "opacity 0.8s ease-out";
+
+      const next = btn.dataset.jump;
       body.style.opacity = 0;
-      fadeAudioOut(() => { setTimeout(() => window.location.href = next, 750); });
+
+      fadeAudioOut(() => {
+        setTimeout(() => window.location.href = next, 750);
+      });
     });
   });
 
@@ -200,11 +241,15 @@ document.querySelectorAll("[data-pickup]").forEach(btn => {
   document.querySelectorAll("[data-jump]").forEach(btn => {
     btn.addEventListener("click", () => {
       if (btn.hasAttribute("data-use")) return;
+
       localStorage.setItem("lastRoom", window.location.href);
+
       const next = btn.dataset.jump;
-      body.style.transition = "opacity 0.8s ease-out";
       body.style.opacity = 0;
-      fadeAudioOut(() => { setTimeout(() => window.location.href = next, 750); });
+
+      fadeAudioOut(() =>
+        setTimeout(() => window.location.href = next, 750)
+      );
     });
   });
 
