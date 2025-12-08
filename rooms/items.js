@@ -45,7 +45,7 @@ window.ITEMS = {
     stack: 1
   },
 
-    "Metal Scrap": {
+  "Metal Scrap": {
     id: "metal_scrap",
     name: "Metal Scrap",
     icon: "../images/items/metal_scrap.png",
@@ -54,7 +54,7 @@ window.ITEMS = {
     stack: 128
   },
   
-    "Melted Metal Scrap": {
+  "Melted Metal Scrap": {
     id: "melted_metal_scrap",
     name: "Melted Metal Scrap",
     icon: "../images/items/melted_metal_scrap.png",
@@ -63,3 +63,12 @@ window.ITEMS = {
     stack: 5
   }
 };
+
+/* -------- ITEMS LOOKUP BY ID -------- */
+window.ITEMS_BY_ID = {};
+for (const key in ITEMS) {
+  if (ITEMS.hasOwnProperty(key)) {
+    const item = ITEMS[key];
+    ITEMS_BY_ID[item.id] = item;
+  }
+}
