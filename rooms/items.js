@@ -12,7 +12,7 @@ window.ITEMS = {
   "Silver Key": {
     id: "silver_key",
     name: "Silver Key",
-    icon: "../images/silver-key.png",
+    icon: "../images/silver_key.png",
     color: "#13469C",
     description: "A small metallic key. It looks old.",
     stack: 16
