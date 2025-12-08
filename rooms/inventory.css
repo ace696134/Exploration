@@ -1,0 +1,30 @@
+#inventoryPanel {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: rgba(0,0,0,0.9);
+  padding: 15px;
+  border: 2px solid red;
+  width: 260px;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.inv-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px;
+  border: 2px solid;
+  margin-bottom: 8px;
+}
+
+.inv-item img {
+  width: 32px;
+  height: 32px;
+}
+
+.inv-count {
+  margin-left: auto;
+  opacity: 0.8;
+}
