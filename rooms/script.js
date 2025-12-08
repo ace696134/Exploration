@@ -268,4 +268,40 @@ document.querySelectorAll("[data-pickup]").forEach(btn => {
     });
   });
 
+   /* ---------------- DEBUG / CONSOLE CHEATS ---------------- */
+window.giveItem = function(itemName, amount = 1) {
+  const itemData = ITEMS[itemName];
+  if (!itemData) {
+    console.error(`Item "${itemName}" does not exist in ITEMS.`);
+    return;
+  }
+
+  let inv = JSON.parse(localStorage.getItem("inventory") || "[]");
+
+  // Check for stacking
+  const existing = inv.find(i => i.id === itemData.id);
+  if (existing) {
+    if (itemData.stack && existing.quantity + amount > itemData.stack) {
+      console.warn(`Cannot exceed stack of ${itemData.stack}. Giving max possible.`);
+      existing.quantity = itemData.stack;
+    } else {
+      existing.quantity = (existing.quantity || 1) + amount;
+    }
+  } else {
+    inv.push({
+      id: itemData.id,
+      name: itemData.name,
+      icon: itemData.icon,
+      color: itemData.color,
+      description: itemData.description,
+      quantity: amount,
+      stack: itemData.stack || 1
+    });
+  }
+
+  localStorage.setItem("inventory", JSON.stringify(inv));
+  if (window.refreshInventoryUI) window.refreshInventoryUI(); // update UI if available
+  console.log(`Gave ${amount}x ${itemName} to yourself.`);
+};
+
 });
