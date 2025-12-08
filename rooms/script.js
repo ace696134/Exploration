@@ -178,34 +178,49 @@ document.addEventListener("DOMContentLoaded", () => {
     }, duration);
   }
 
-  /* ---------------- PICKUP ITEMS ---------------- */
-  document.querySelectorAll("[data-pickup]").forEach(btn => {
-    btn.addEventListener("click", () => {
+/* ---------------- PICKUP ITEMS (stacking) ---------------- */
+document.querySelectorAll("[data-pickup]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const itemName = btn.dataset.pickup;
+    const itemData = ITEMS[itemName];
 
-      const itemName = btn.dataset.pickup;
-      const itemData = ITEMS[itemName];
+    if (!itemData) {
+      console.error("Item not found in ITEMS:", itemName);
+      return;
+    }
 
-      if (!itemData) {
-        console.error("Item not found in ITEMS:", itemName);
+    // Load existing inventory
+    let inv = loadInventory();
+
+    // Check if item already exists in inventory
+    const existing = inv.find(i => i.id === itemData.id);
+    if (existing) {
+      // If stack limit exists, respect it
+      if (itemData.stack && existing.quantity + 1 > itemData.stack) {
+        showMessage(`Cannot carry more than ${itemData.stack} ${itemName}!`);
         return;
       }
-
-      let inv = loadInventory();
+      existing.quantity = (existing.quantity || 1) + 1;
+    } else {
+      // Add new item
       inv.push({
         id: itemData.id,
         name: itemData.name,
         icon: itemData.icon,
         color: itemData.color,
         description: itemData.description,
-        stack: itemData.stack
+        quantity: 1,
+        stack: itemData.stack || 1
       });
+    }
 
-      saveInventory(inv);
-
-      showMessage(`Picked up ${itemName}!`);
-      renderInventory();
-    });
+    saveInventory(inv);
+    showMessage(`Picked up ${itemName}!`);
+    renderInventory();
+    btn.remove(); // Remove pickup button from room
   });
+});
+
 
   /* ---------------- USE ITEMS ---------------- */
   document.querySelectorAll("[data-use]").forEach(btn => {
