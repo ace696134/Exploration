@@ -12,7 +12,7 @@ window.ITEMS = {
   "Silver Key": {
     id: "silver_key",
     name: "Silver Key",
-    icon: "../images/silver_key.png",
+    icon: "../images/items/silver_key.png",
     color: "#13469C",
     description: "A small metallic key. It looks old.",
     stack: 16
@@ -21,7 +21,7 @@ window.ITEMS = {
   "Key Mold": {
     id: "key_mold",
     name: "Key Mold",
-    icon: "../images/key_mold.png",
+    icon: "../images/items/key_mold.png",
     color: "#13469C",
     description: "A small mold.. You could probably make a key with this.",
     stack: 1
@@ -30,7 +30,7 @@ window.ITEMS = {
   "Lighter": {
     id: "lighter",
     name: "Lighter",
-    icon: "../images/lighter.png",
+    icon: "../images/items/lighter.png",
     color: "#35D413",
     description: "A standard lighter with a print of fire under blue skies.",
     stack: 1
@@ -39,7 +39,7 @@ window.ITEMS = {
   "Music Box": {
     id: "music_box",
     name: "Music Box",
-    icon: "../images/music_box.png",
+    icon: "../images/items/music_box.png",
     color: "#13469C",
     description: "A small music box playing a tune. You feel like something is attached to it..",
     stack: 1
@@ -48,7 +48,7 @@ window.ITEMS = {
     "Metal Scrap": {
     id: "metal_scrap",
     name: "Metal Scrap",
-    icon: "../images/metal_scrap.png",
+    icon: "../images/items/metal_scrap.png",
     color: "#A3A3A3",
     description: "A small piece of metal scrap.. Could probably be melted and put into a mold if you had 5.",
     stack: 128
@@ -57,7 +57,7 @@ window.ITEMS = {
     "Melted Metal Scrap": {
     id: "melted_metal_scrap",
     name: "Melted Metal Scrap",
-    icon: "../images/melted_metal_scrap.png",
+    icon: "../images/items/melted_metal_scrap.png",
     color: "#A3A3A3",
     description: "A small piece of metal scrap you melted.. Could probably be put into a mold if you had 5.",
     stack: 5
