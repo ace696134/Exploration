@@ -27,7 +27,7 @@ window.Inventory = {
   },
 
   has(itemId, amount = 1) {
-    return this.data[itemId] >= amount;
+    return (this.data[itemId] || 0) >= amount;
   }
 };
 
