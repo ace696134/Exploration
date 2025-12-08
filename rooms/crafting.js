@@ -1,61 +1,84 @@
-/* ---------------- CRAFTING SYSTEM ---------------- */
+/* -------- Crafting System for Endless Requium -------- */
+
 document.addEventListener("DOMContentLoaded", () => {
-  const container = document.getElementById("recipesContainer");
-  const backBtn = document.getElementById("backBtn");
 
-  if (!container) return;
+  const recipesContainer = document.getElementById("recipesContainer");
+  const invBox = document.querySelector("#inventory");
+  const toggleBtn = document.querySelector("#invToggle");
 
-  // Load inventory
-  let inventory = JSON.parse(localStorage.getItem("inventory") || "[]");
+  if (!recipesContainer) return;
 
-  // Helper: check if required items are in inventory
-  function hasItems(required) {
-    return required.every(req => inventory.some(i => i.name.toLowerCase() === req.toLowerCase()));
+  /* ---------------- INVENTORY TOGGLE ---------------- */
+  if (toggleBtn && invBox) {
+    toggleBtn.addEventListener("click", () => {
+      invBox.classList.toggle("visible");
+      if (window.refreshInventoryUI) window.refreshInventoryUI();
+    });
   }
 
-  // Render recipes
+  /* ---------------- RENDER RECIPES ---------------- */
   function renderRecipes() {
-    container.innerHTML = "";
+    recipesContainer.innerHTML = "";
 
-    recipes.forEach(recipe => {
-      const btn = document.createElement("button");
-      btn.className = "btn";
-      btn.textContent = recipe.name;
-
-      if (!hasItems(recipe.requires)) {
-        btn.disabled = true;
-        btn.style.opacity = 0.5;
-      }
-
-      btn.addEventListener("click", () => {
-        // Remove required items from inventory
-        recipe.requires.forEach(itemName => {
-          const index = inventory.findIndex(i => i.name.toLowerCase() === itemName.toLowerCase());
-          if (index !== -1) inventory.splice(index, 1);
-        });
-
-        // Add crafted item
-        inventory.push(recipe.result);
-        localStorage.setItem("inventory", JSON.stringify(inventory));
-
-        // Feedback
-        alert(`Crafted: ${recipe.result.name}`);
-
-        // Re-render recipes to update buttons
-        renderRecipes();
+    RECIPES.forEach(recipe => {
+      const canCraft = recipe.ingredients.every(ing => {
+        const invItem = Inventory.data[ing.id] || 0;
+        return invItem >= ing.amount;
       });
 
-      container.appendChild(btn);
+      const recipeBtn = document.createElement("button");
+      recipeBtn.className = "btn";
+      recipeBtn.style.display = "flex";
+      recipeBtn.style.justifyContent = "space-between";
+      recipeBtn.style.alignItems = "center";
+      recipeBtn.style.padding = "8px";
+      recipeBtn.disabled = !canCraft;
+
+      const nameSpan = document.createElement("span");
+      nameSpan.textContent = recipe.output.name;
+
+      const detailSpan = document.createElement("span");
+      detailSpan.style.fontSize = "0.9em";
+      detailSpan.style.color = "#aaa";
+      detailSpan.textContent = recipe.ingredients
+        .map(i => `${i.amount}x ${ITEMS[i.id].name}`)
+        .join(", ");
+
+      recipeBtn.appendChild(nameSpan);
+      recipeBtn.appendChild(detailSpan);
+
+      recipeBtn.addEventListener("click", () => {
+        craftRecipe(recipe);
+      });
+
+      recipesContainer.appendChild(recipeBtn);
     });
+  }
+
+  /* ---------------- CRAFTING LOGIC ---------------- */
+  function craftRecipe(recipe) {
+    // Check again in case inventory changed
+    const canCraft = recipe.ingredients.every(ing => Inventory.has(ing.id, ing.amount));
+    if (!canCraft) {
+      alert("You do not have the required items.");
+      return;
+    }
+
+    // Remove ingredients
+    recipe.ingredients.forEach(ing => {
+      Inventory.remove(ing.id, ing.amount);
+    });
+
+    // Add crafted item
+    Inventory.add(recipe.output.id, recipe.output.amount || 1);
+
+    if (window.refreshInventoryUI) window.refreshInventoryUI();
+    alert(`Crafted: ${recipe.output.name}`);
+
+    // Refresh recipe buttons (to enable/disable based on new inventory)
+    renderRecipes();
   }
 
   renderRecipes();
 
-  // ---------------- BACK BUTTON ----------------
-  if (backBtn) {
-    backBtn.addEventListener("click", () => {
-      const lastRoom = localStorage.getItem("lastRoom") || "index.html";
-      window.location.href = lastRoom;
-    });
-  }
 });
