@@ -1,44 +1,49 @@
 /* ---------------- CRAFTING RECIPES ---------------- */
 // Format:
-// "Result Item": { requires: { "Item A": qty, "Item B": qty }, icon: "path/to/icon.png", color: "#hex" }
+// window.RECIPES = [
+//   {
+//     output: { id: "item_id", name: "Item Name", amount: 1 },
+//     ingredients: [ { id: "ingredient_id", amount: 1 }, ... ]
+//   }
+// ];
 
-const RECIPES = {
-  "Locked Box": {
-    requires: {
-      "Metal Scrap": 2,
-      "Screws": 4
-    },
+window.RECIPES = [
+  {
+    output: { id: "locked_box", name: "Locked Box", amount: 1 },
+    ingredients: [
+      { id: "metal_scrap", amount: 2 },
+      { id: "screws", amount: 4 }
+    ],
     icon: "../images/items/lockedbox.png",
     color: "#b4b4b4"
   },
-
-  "Silver Key": {
-    requires: {
-      "Silver Scrap": 2,
-      "Key Mold": 1
-    },
+  {
+    output: { id: "silver_key", name: "Silver Key", amount: 1 },
+    ingredients: [
+      { id: "silver_scrap", amount: 2 },
+      { id: "key_mold", amount: 1 }
+    ],
     icon: "../images/items/silver_key.png",
     color: "#C0C0C0"
   },
-
-  "Torch": {
-    requires: {
-      "Stick": 1,
-      "Cloth": 1,
-      "Oil": 1
-    },
+  {
+    output: { id: "torch", name: "Torch", amount: 1 },
+    ingredients: [
+      { id: "stick", amount: 1 },
+      { id: "cloth", amount: 1 },
+      { id: "oil", amount: 1 }
+    ],
     icon: "../images/items/torch.png",
     color: "#ffcc66"
-  }
-};
-
-  "Key Mold": {
-    requires: {
-      "Rubber": 1,
-      "Lighter": 1,
-      "Fake Key": 1
-    },
+  },
+  {
+    output: { id: "key_mold", name: "Key Mold", amount: 1 },
+    ingredients: [
+      { id: "rubber", amount: 1 },
+      { id: "lighter", amount: 1 },
+      { id: "fake_key", amount: 1 }
+    ],
     icon: "../images/items/key_mold.png",
     color: "#C0C0C0"
   }
-};
+];
