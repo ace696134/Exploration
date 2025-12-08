@@ -20,7 +20,7 @@ window.RECIPES = [
   {
     output: { id: "silver_key", name: "Silver Key", amount: 1 },
     ingredients: [
-      { id: "silver_scrap", amount: 2 },
+      { id: "metal_scrap", amount: 2 },
       { id: "key_mold", amount: 1 }
     ],
     icon: "../images/items/silver_key.png",
@@ -41,7 +41,7 @@ window.RECIPES = [
     ingredients: [
       { id: "rubber", amount: 1 },
       { id: "lighter", amount: 1 },
-      { id: "fake_key", amount: 1 }
+      { id: "master_key", amount: 1 }
     ],
     icon: "../images/items/key_mold.png",
     color: "#C0C0C0"
