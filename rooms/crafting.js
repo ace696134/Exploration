@@ -13,6 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
     toggleBtn.addEventListener("click", () => {
       invBox.classList.toggle("visible");
       if (window.refreshInventoryUI) window.refreshInventoryUI();
+      renderRecipes(); // update recipe buttons whenever inventory panel toggled
     });
   }
 
@@ -21,10 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
     recipesContainer.innerHTML = "";
 
     RECIPES.forEach(recipe => {
-      const canCraft = recipe.ingredients.every(ing => {
-        const invItem = Inventory.data[ing.id] || 0;
-        return invItem >= ing.amount;
-      });
+      const canCraft = recipe.ingredients.every(ing => Inventory.has(ing.id, ing.amount));
 
       const recipeBtn = document.createElement("button");
       recipeBtn.className = "btn";
@@ -57,10 +55,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   /* ---------------- CRAFTING LOGIC ---------------- */
   function craftRecipe(recipe) {
-    // Check again in case inventory changed
     const canCraft = recipe.ingredients.every(ing => Inventory.has(ing.id, ing.amount));
     if (!canCraft) {
-      alert("You do not have the required items.");
+      if (window.showMessage) showMessage("You do not have the required items.");
       return;
     }
 
@@ -72,13 +69,19 @@ document.addEventListener("DOMContentLoaded", () => {
     // Add crafted item
     Inventory.add(recipe.output.id, recipe.output.amount || 1);
 
+    // Update inventory UI
     if (window.refreshInventoryUI) window.refreshInventoryUI();
-    alert(`Crafted: ${recipe.output.name}`);
 
-    // Refresh recipe buttons (to enable/disable based on new inventory)
+    // Show popup message
+    if (window.showMessage) showMessage(`Crafted: ${recipe.output.name}!`);
+
+    // Refresh recipe buttons
     renderRecipes();
   }
 
   renderRecipes();
+
+  // Optional: refresh recipes whenever inventory changes externally
+  window.refreshCraftingUI = renderRecipes;
 
 });
