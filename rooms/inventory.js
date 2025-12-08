@@ -44,27 +44,32 @@ document.addEventListener("DOMContentLoaded", () => {
 
   invBtn.addEventListener("click", () => {
     invPanel.classList.toggle("hidden");
-    renderInventory();
+    refreshInventoryUI();
   });
-
-  function renderInventory() {
-    invList.innerHTML = "";
-
-    for (const id in Inventory.data) {
-      const item = ITEMS_BY_ID[id];
-      const count = Inventory.data[id];
-
-      const row = document.createElement("div");
-      row.className = "inv-item";
-      row.style.borderColor = item.color;
-
-      row.innerHTML = `
-        <img src="${item.icon}">
-        <span>${item.name}</span>
-        <span class="inv-count">x${count}</span>
-      `;
-
-      invList.appendChild(row);
-    }
-  }
 });
+
+/* -------- GLOBAL UI REFRESH FUNCTION -------- */
+
+window.refreshInventoryUI = function () {
+  const invList = document.getElementById("inventoryList");
+  if (!invList) return;
+
+  invList.innerHTML = "";
+
+  for (const id in Inventory.data) {
+    const item = ITEMS_BY_ID[id];
+    const count = Inventory.data[id];
+
+    const row = document.createElement("div");
+    row.className = "inv-item";
+    row.style.borderColor = item.color;
+
+    row.innerHTML = `
+      <img src="${item.icon}">
+      <span>${item.name}</span>
+      <span class="inv-count">x${count}</span>
+    `;
+
+    invList.appendChild(row);
+  }
+};
