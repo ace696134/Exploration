@@ -131,7 +131,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // Crafting button
-    if (!document.querySelector("#craftingBtn")) {
+    if (!box.querySelector("#craftingBtn")) {
       const craftBtn = document.createElement("button");
       craftBtn.id = "craftingBtn";
       craftBtn.textContent = "🛠️ Crafting Table";
