@@ -1,41 +1,77 @@
-/* ---------------- SANITY SYSTEM ---------------- */
+/* rooms/sanity.js — Sanity engine + UI bar */
+window.SanitySystem = (function () {
+  const KEY = "sanity";
+  const MAX = 100;
 
-window.Sanity = {
-  value: parseInt(localStorage.getItem("sanity")) || 100,
-  max: 100,
-
-  save() {
-    localStorage.setItem("sanity", String(this.value));
-  },
-
-  set(v) {
-    this.value = Math.max(0, Math.min(this.max, v));
-    this.save();
-    this.applyVisualEffects();
-    if (this.value <= 0) {
-      // death from sanity
-      if (window.playerDied) playerDied("sanity");
-    }
-    if (window.updateSanityUI) window.updateSanityUI();
-  },
-
-  change(amount) {
-    this.set(this.value + amount);
-  },
-
-  applyVisualEffects() {
-    // Put a data-state on body for CSS to handle filters/animations
-    const body = document.body;
-    if (!body) return;
-
-    if (this.value >= 70) body.dataset.sanity = "high";
-    else if (this.value >= 30) body.dataset.sanity = "mid";
-    else if (this.value > 0) body.dataset.sanity = "low";
-    else body.dataset.sanity = "broken";
+  function load() {
+    const v = parseInt(localStorage.getItem(KEY));
+    return Number.isInteger(v) ? v : MAX;
   }
-};
+  function save(v) { localStorage.setItem(KEY, String(v)); }
 
-document.addEventListener("DOMContentLoaded", () => {
-  // ensure effects applied on page load
-  Sanity.applyVisualEffects();
-});
+  function clamp(v) { return Math.max(0, Math.min(MAX, Math.round(v))); }
+
+  function applyVisuals(v) {
+    document.body.dataset.sanity = v >= 70 ? "high"
+      : v >= 30 ? "mid" : v > 0 ? "low" : "broken";
+    // update bar
+    const bar = document.getElementById("sanityBarFill");
+    if (bar) bar.style.width = `${(v / MAX) * 100}%`;
+  }
+
+  function set(v, reason) {
+    const nv = clamp(v);
+    save(nv);
+    applyVisuals(nv);
+    if (window.updateSanityUI) window.updateSanityUI(nv);
+    if (nv <= 0) {
+      // death
+      if (window.playerDied) playerDied(reason || "sanity");
+    }
+    return nv;
+  }
+
+  function change(delta, reason) {
+    return set(load() + delta, reason);
+  }
+
+  // Public API
+  return {
+    init() {
+      const v = load();
+      applyVisuals(v);
+      ensureBar();
+    },
+    get: load,
+    set,
+    change
+  };
+
+  function ensureBar() {
+    if (document.getElementById("sanityBar")) return;
+    const div = document.createElement("div");
+    div.id = "sanityBar";
+    div.innerHTML = `
+      <div id="sanityBarLabel">Sanity</div>
+      <div id="sanityBarTrack"><div id="sanityBarFill"></div></div>
+    `;
+    div.style.position = "fixed";
+    div.style.left = "20px";
+    div.style.bottom = "20px";
+    div.style.zIndex = 2000;
+    div.style.width = "220px";
+    div.style.fontFamily = "Underdog, sans-serif";
+    document.body.appendChild(div);
+    // minimal styles (can be overridden in CSS)
+    const css = document.createElement("style");
+    css.textContent = `
+      #sanityBar { color: #ffd9d6; font-size: 12px; }
+      #sanityBarLabel { margin-bottom:6px; }
+      #sanityBarTrack { background: rgba(255,255,255,0.06); border:2px solid #e33; height:12px; border-radius:8px; overflow:hidden; }
+      #sanityBarFill { height:100%; width:100%; background: linear-gradient(90deg,#8af,#6bf); transition: width .35s ease; }
+    `;
+    document.head.appendChild(css);
+  }
+
+})();
+document.addEventListener("DOMContentLoaded", () => window.SanitySystem.init());
