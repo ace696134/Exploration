@@ -196,3 +196,15 @@ body.fade-out {
   background: #ff9900;
   color: black;
 }
+
+/* Sanity visual states already referenced by Sanity.applyVisualEffects via data attributes */
+/* small helper for enemy visual effects */
+
+body.enemy-bg-flash #bgContainer {
+  filter: hue-rotate(40deg) saturate(150%) contrast(1.4) blur(3px);
+}
+
+body.ui-distort {
+  filter: contrast(1.3) saturate(140%);
+  transform: translateZ(0) scale(1.01);
+}
