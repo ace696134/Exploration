@@ -303,5 +303,79 @@ window.giveItem = function(itemName, amount = 1) {
   if (window.refreshInventoryUI) window.refreshInventoryUI(); // update UI if available
   console.log(`Gave ${amount}x ${itemName} to yourself.`);
 };
+/* ---------------- SANITY SYSTEM ---------------- */
+
+function loadSanity() {
+  let s = Number(localStorage.getItem("sanity"));
+  if (isNaN(s)) s = 100; 
+  localStorage.setItem("sanity", s);
+  return s;
+}
+
+function saveSanity(v) {
+  localStorage.setItem("sanity", v);
+}
+
+function loadUnlockedEnemies() {
+  return JSON.parse(localStorage.getItem("unlockedEnemies") || "[]");
+}
+
+function saveUnlockedEnemies(list) {
+  localStorage.setItem("unlockedEnemies", JSON.stringify(list));
+}
+
+window.getSanity = loadSanity;
+
+window.changeSanity = function(amount, reason = "unknown") {
+  let sanity = loadSanity();
+  sanity = Math.max(0, Math.min(100, sanity + amount));
+  saveSanity(sanity);
+  applySanityEffects(sanity);
+
+  // death
+  if (sanity <= 0) {
+    handleDeath(reason);
+  }
+};
+
+function handleDeath(reason) {
+  console.warn("Player died due to:", reason);
+
+  // save “cause of death”
+  localStorage.setItem("lastDeathCause", reason);
+
+  // unlock enemy based on cause
+  const unlocked = loadUnlockedEnemies();
+  if (!unlocked.includes(reason)) {
+    unlocked.push(reason);
+    saveUnlockedEnemies(unlocked);
+  }
+
+  // send them to death screen (you can change this page)
+  window.location.href = "../rooms/death.html";
+}
+
+/* ------------ SANITY VISUAL EFFECTS ---------------- */
+
+function applySanityEffects(sanity) {
+  const s = document.body.style;
+
+  // clear first
+  s.filter = "";
+  document.body.classList.remove("low-sanity-1","low-sanity-2","low-sanity-3");
+
+  if (sanity <= 60 && sanity > 35) {
+    document.body.classList.add("low-sanity-1"); // blur-only
+  }
+  if (sanity <= 35 && sanity > 15) {
+    document.body.classList.add("low-sanity-2"); // blur + vignette
+  }
+  if (sanity <= 15) {
+    document.body.classList.add("low-sanity-3"); // distortion
+  }
+}
+
+/* Run sanity effects on room load */
+applySanityEffects(loadSanity());
 
 });
