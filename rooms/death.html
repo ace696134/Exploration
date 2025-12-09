@@ -8,24 +8,27 @@
 <body>
   <div class="center-box">
     <h1 class="title">You Died</h1>
-    <p class="subtitle" id="deathText"></p>
-    <button id="mainMenu" class="btn">Main Menu</button>
-    <button id="continue" class="btn">Try Again</button>
+    <p class="subtitle" id="deathText">...</p>
+    <div style="display:flex;gap:12px;margin-top:12px;">
+      <button id="mainMenu" class="btn">Main Menu</button>
+      <button id="continue" class="btn">Try Again</button>
+    </div>
   </div>
 
-<script src="../rooms/death_unlocks.js"></script>
-<script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const cause = localStorage.getItem("lastDeathCause") || "unknown";
-    document.getElementById("deathText").textContent = `Cause: ${cause}`;
-    document.getElementById("mainMenu").addEventListener("click", () => { window.location.href="../index.html"; });
-    document.getElementById("continue").addEventListener("click", () => {
-      // start new run but keep death unlocks
-      localStorage.removeItem("inventory");
-      localStorage.setItem("sanity", 100);
-      window.location.href = "lore.html";
+  <script src="death_unlocks.js"></script>
+  <script src="../utils.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const cause = localStorage.getItem("lastDeathCause") || "unknown";
+      document.getElementById("deathText").textContent = `Cause: ${cause}`;
+      document.getElementById("mainMenu").addEventListener("click", () => { window.location.href = "../index.html"; });
+      document.getElementById("continue").addEventListener("click", () => {
+        // reset run but keep unlocks
+        localStorage.removeItem("inventory");
+        localStorage.setItem("sanity_v1", "100");
+        window.location.href = "lore.html";
+      });
     });
-  });
-</script>
+  </script>
 </body>
 </html>
