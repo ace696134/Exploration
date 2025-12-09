@@ -1,40 +1,28 @@
-/* ---------------- DEATH-BASED ENEMY UNLOCKS ---------------- */
+/* rooms/death_unlocks.js */
+window.DeathUnlocks = (function () {
+  const KEY = "deathUnlocks_v1";
+  function load() { return JSON.parse(localStorage.getItem(KEY) || '{"unlocked":[], "deaths":0}'); }
+  function save(d) { localStorage.setItem(KEY, JSON.stringify(d)); }
 
-window.DeathUnlocks = {
-  data: JSON.parse(localStorage.getItem("deathUnlocks") || "{}"),
-  init() {
-    if (!this.data.unlocked) this.data = { unlocked: [], totalDeaths: 0 };
-  },
-  save() { localStorage.setItem("deathUnlocks", JSON.stringify(this.data)); },
+  const mapping = {
+    sanity: "wraith",
+    bleedout: "stalker",
+    starvation: "hollow",
+    ambush: "lurker",
+    unknown: "echo"
+  };
 
-  unlock(enemyId) {
-    if (!this.data.unlocked.includes(enemyId)) {
-      this.data.unlocked.push(enemyId);
-      this.save();
-      if (window.showMessage) showMessage(`New enemy unlocked: ${enemyId}`);
-      else console.log("Unlocked enemy:", enemyId);
-    }
-  },
-
-  addDeath(cause) {
-    this.data.totalDeaths = (this.data.totalDeaths || 0) + 1;
-
-    const unlockMap = {
-      sanity: "wraith",
-      bleedout: "stalker",
-      starvation: "hollow",
-      ambush: "lurker",
-      unknown: "echo"
-    };
-
-    const newEnemy = unlockMap[cause] || unlockMap["unknown"];
-    this.unlock(newEnemy);
-    this.save();
-  },
-
-  getUnlockedEnemies() {
-    return this.data.unlocked || [];
-  }
-};
-
-DeathUnlocks.init();
+  return {
+    addDeath(cause = "unknown") {
+      const d = load();
+      d.deaths = (d.deaths || 0) + 1;
+      const enemy = mapping[cause] || mapping.unknown;
+      if (!d.unlocked.includes(enemy)) d.unlocked.push(enemy);
+      save(d);
+      return enemy;
+    },
+    getUnlocked() { return load().unlocked || []; },
+    getAll() { return load(); },
+    reset() { localStorage.removeItem(KEY); }
+  };
+})();
