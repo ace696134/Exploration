@@ -1,0 +1,31 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>You Died</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <div class="center-box">
+    <h1 class="title">You Died</h1>
+    <p class="subtitle" id="deathText"></p>
+    <button id="mainMenu" class="btn">Main Menu</button>
+    <button id="continue" class="btn">Try Again</button>
+  </div>
+
+<script src="../rooms/death_unlocks.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const cause = localStorage.getItem("lastDeathCause") || "unknown";
+    document.getElementById("deathText").textContent = `Cause: ${cause}`;
+    document.getElementById("mainMenu").addEventListener("click", () => { window.location.href="../index.html"; });
+    document.getElementById("continue").addEventListener("click", () => {
+      // start new run but keep death unlocks
+      localStorage.removeItem("inventory");
+      localStorage.setItem("sanity", 100);
+      window.location.href = "lore.html";
+    });
+  });
+</script>
+</body>
+</html>
