@@ -1,19 +1,14 @@
 /* ---------------- GLOBAL UTILS (death handler) ---------------- */
 
+/* utils.js — global helpers */
 function playerDied(reason = "unknown") {
-  // Record the death cause and unlock enemy
-  if (window.DeathUnlocks && DeathUnlocks.addDeath) DeathUnlocks.addDeath(reason);
-
-  // Reset run-only data
+  // record death and unlock
+  const unlocked = DeathUnlocks.addDeath(reason);
+  if (window.showMessage) showMessage(`You died by ${reason}. ${unlocked} unlocked for next runs.`);
+  // clear run-only storage
   localStorage.removeItem("inventory");
   localStorage.removeItem("sanity");
   localStorage.removeItem("currentRoom");
-
-  // Optional: keep trophies and deathUnlocks persistent
-
-  // Redirect to main menu
-  // Provide a tiny delay so unlock toast can show
-  setTimeout(() => {
-    window.location.href = "index.html";
-  }, 350);
+  // small delay to allow toast
+  setTimeout(()=> window.location.href = "index.html", 600);
 }
