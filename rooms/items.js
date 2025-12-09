@@ -61,7 +61,30 @@ window.ITEMS = {
     color: "#A3A3A3",
     description: "A small piece of metal scrap you melted.. Could probably be put into a mold if you had 5.",
     stack: 5
-  }
+  },
+  /* add to window.ITEMS (examples) */
+"Cold Tea": {
+  id: "cold_tea",
+  name: "Cold Tea",
+  icon: "../images/items/cold_tea.png",
+  color: "#ffd9d6",
+  description: "A sip steadies you.",
+  stack: 4,
+  type: "consumable",
+  sanity: 8,
+  heal: 0
+},
+"Cracker": {
+  id: "cracker",
+  name: "Cracker",
+  icon: "../images/items/cracker.png",
+  color: "#A3A3A3",
+  description: "Small snack, tiny comfort.",
+  stack: 10,
+  type: "consumable",
+  sanity: 3,
+  heal: 0
+}
 };
 
 /* -------- ITEMS LOOKUP BY ID -------- */
