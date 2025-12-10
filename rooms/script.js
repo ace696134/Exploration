@@ -378,4 +378,49 @@ function applySanityEffects(sanity) {
 /* Run sanity effects on room load */
 applySanityEffects(loadSanity());
 
+   /* ---------------- DODGE SYSTEM ---------------- */
+
+let dodgeWindow = false;
+let dodgeTimeout = null;
+
+// Start a dodge prompt for X ms
+function startDodgeWindow(time = 800) {
+  dodgeWindow = true;
+
+  dodgeTimeout = setTimeout(() => {
+    dodgeWindow = false;
+    playerHit(); // Fail
+  }, time);
+}
+
+// Keyboard listener for "Dodge"
+document.addEventListener("keydown", (e) => {
+  if (dodgeWindow && e.key.toLowerCase() === "d") {
+    dodgeSuccess();
+  }
+});
+
+// When dodge succeeds
+function dodgeSuccess() {
+  dodgeWindow = false;
+  clearTimeout(dodgeTimeout);
+  showDodgeFlash();
+  console.log("DODGED!");
+  
+  // Optional: enemy stagger animation later
+}
+
+// When dodge fails
+function playerHit() {
+  console.log("HIT!");
+  reduceSanity(15); // You can change this
+}
+
+/* Visual Feedback */
+function showDodgeFlash() {
+  const flash = document.getElementById("dodgeFlash");
+  flash.classList.add("active");
+  setTimeout(() => flash.classList.remove("active"), 150);
+}
+
 });
