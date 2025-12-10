@@ -256,3 +256,18 @@ body[data-sanity="broken"]::after {
   top: 0; left: 0; right: 0; bottom: 0;
   pointer-events: none;
   background: radial-gradient(circle, transparent 40%, rg
+                              }
+
+/* Dodge Flash Effect */
+#dodgeFlash {
+  position: fixed;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(8px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease-out;
+}
+#dodgeFlash.active {
+  opacity: 1;
+}
