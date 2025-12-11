@@ -4,39 +4,55 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Endless Requium</title>
+
   <link rel="stylesheet" href="styles.css">
 
-  <!-- anime.js -->
+  <!-- Anime.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+
+  <style>
+    /* Safety: ensure title screen shows even if styles.css has opacity fades */
+    body {
+      opacity: 1 !important;
+    }
+  </style>
 </head>
 
 <body>
 
-  <!-- TITLE SCREEN -->
+  <!-- ============================
+       TITLE SCREEN
+  ============================= -->
   <div id="titleScreen">
+
     <div class="bg-fade"></div>
 
-    <h1 class="title">ENDLESS REQUIUM</h1>
-    <p class="subtitle">A mind that breaks… remembers.</p>
+    <h1 class="title" id="mainTitle">ENDLESS REQUIUM</h1>
+    <p class="subtitle" id="mainSubtitle">A mind that breaks… remembers.</p>
 
-    <div class="menu-buttons">
+    <div class="menu-buttons" id="menuButtons">
       <button class="btn" id="continueBtn">Continue</button>
       <button class="btn" id="newBtn">New Run</button>
       <button class="btn" id="settingsBtn">Settings</button>
       <button class="btn" id="extrasBtn">Extras</button>
     </div>
+
   </div>
 
+  <!-- ============================
+       TITLE SCREEN LOGIC
+  ============================= -->
   <script>
     document.addEventListener("DOMContentLoaded", () => {
 
-      /* --------- ENSURE SCREEN IS VISIBLE --------- */
-      const title = document.querySelector(".title");
-      const subtitle = document.querySelector(".subtitle");
-      const menu = document.querySelector(".menu-buttons");
+      const title = document.getElementById("mainTitle");
+      const subtitle = document.getElementById("mainSubtitle");
+      const menu = document.getElementById("menuButtons");
       const bgFade = document.querySelector(".bg-fade");
 
-      // Dark BG fade-in
+      /* ---------------------------------------
+         Fade in background first
+      ---------------------------------------- */
       anime({
         targets: bgFade,
         opacity: [0, 1],
@@ -44,7 +60,9 @@
         easing: "easeOutQuad"
       });
 
-      // Title fade-in
+      /* ---------------------------------------
+         Title animation
+      ---------------------------------------- */
       anime({
         targets: title,
         opacity: [0, 1],
@@ -54,7 +72,9 @@
         easing: "easeOutExpo"
       });
 
-      // Subtitle
+      /* ---------------------------------------
+         Subtitle animation
+      ---------------------------------------- */
       anime({
         targets: subtitle,
         opacity: [0, 1],
@@ -64,7 +84,9 @@
         easing: "easeOutExpo"
       });
 
-      // Buttons
+      /* ---------------------------------------
+         Buttons appear
+      ---------------------------------------- */
       anime({
         targets: menu,
         opacity: [0, 1],
@@ -74,28 +96,45 @@
         easing: "easeOutExpo"
       });
 
-      /* --------- BUTTON LOGIC --------- */
+
+      /* =======================================
+          BUTTON LOGIC
+      ======================================= */
+
+      function fadeOut(callback) {
+        anime({
+          targets: "#titleScreen",
+          opacity: [1, 0],
+          duration: 900,
+          easing: "easeInQuad",
+          complete: callback
+        });
+      }
+
+      /* CONTINUE */
+      document.getElementById("continueBtn").addEventListener("click", () => {
+        fadeOut(() => {
+          window.location.href = "lore/lore.html"; // replace with actual save logic later
+        });
+      });
+
+      /* NEW RUN */
       document.getElementById("newBtn").addEventListener("click", () => {
         fadeOut(() => {
           window.location.href = "lore/lore.html";
         });
       });
 
-      document.getElementById("continueBtn").addEventListener("click", () => {
-        fadeOut(() => {
-          window.location.href = "lore/lore.html"; // replace later with save system
-        });
-      });
+      /* SETTINGS */
+      document.getElementById("settingsBtn").onclick = () => {
+        alert("Settings menu coming soon.");
+      };
 
-      function fadeOut(cb) {
-        anime({
-          targets: "#titleScreen",
-          opacity: [1, 0],
-          duration: 900,
-          easing: "easeInQuad",
-          complete: cb
-        });
-      }
+      /* EXTRAS */
+      document.getElementById("extrasBtn").onclick = () => {
+        alert("Extras menu coming soon.");
+      };
+
     });
   </script>
 
