@@ -1,68 +1,103 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Endless Requium</title>
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles.css">
+
+  <!-- anime.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
 </head>
+
 <body>
-  <!-- ===== TITLE SCREEN ===== -->
+
+  <!-- TITLE SCREEN -->
   <div id="titleScreen">
-    <div class="bg-overlay"></div>
+    <div class="bg-fade"></div>
 
     <h1 class="title">ENDLESS REQUIUM</h1>
-    <p class="subtitle">A Descent Into the Quiet</p>
+    <p class="subtitle">A mind that breaks… remembers.</p>
 
     <div class="menu-buttons">
-      <button id="btnContinue" class="btn">Continue</button>
-      <button id="btnNew" class="btn">New Run</button>
-      <button id="btnExtras" class="btn">Extras</button>
-      <button id="btnSettings" class="btn">Settings</button>
+      <button class="btn" id="continueBtn">Continue</button>
+      <button class="btn" id="newBtn">New Run</button>
+      <button class="btn" id="settingsBtn">Settings</button>
+      <button class="btn" id="extrasBtn">Extras</button>
     </div>
   </div>
 
-  <!-- Fade Container for transitions -->
-  <div class="bg-fade" id="fadeLayer"></div>
-
   <script>
-    // ====== BACKGROUND ANIMATION ======
-    const bg = document.querySelector('.bg-overlay');
-    bg.style.background = "url('./images/title_bg.png') center/cover no-repeat fixed";
+    document.addEventListener("DOMContentLoaded", () => {
 
-    // ====== ANIME.JS TITLE INTRO ======
-    window.addEventListener('DOMContentLoaded', () => {
-      anime({ targets: '.title', opacity: [0, 1], translateY: [-20, 0], duration: 1400, easing: 'easeOutExpo' });
-      anime({ targets: '.subtitle', opacity: [0, 1], delay: 400, duration: 1200, easing: 'easeOutExpo' });
-      anime({ targets: '.menu-buttons', opacity: [0, 1], translateY: [20, 0], delay: 900, duration: 1200, easing: 'easeOutExpo' });
-    });
+      /* --------- ENSURE SCREEN IS VISIBLE --------- */
+      const title = document.querySelector(".title");
+      const subtitle = document.querySelector(".subtitle");
+      const menu = document.querySelector(".menu-buttons");
+      const bgFade = document.querySelector(".bg-fade");
 
-    // ====== BUTTON HANDLERS ======
-    const fadeLayer = document.getElementById('fadeLayer');
+      // Dark BG fade-in
+      anime({
+        targets: bgFade,
+        opacity: [0, 1],
+        duration: 1200,
+        easing: "easeOutQuad"
+      });
 
-    function fadeOut(callback) {
-      fadeLayer.style.opacity = 1;
-      setTimeout(callback, 900);
-    }
+      // Title fade-in
+      anime({
+        targets: title,
+        opacity: [0, 1],
+        translateY: [-40, 0],
+        duration: 1400,
+        delay: 200,
+        easing: "easeOutExpo"
+      });
 
-    document.getElementById('btnNew').addEventListener('click', () => {
-      localStorage.removeItem('saveData');
-      fadeOut(() => { window.location.href = 'lore.html'; });
-    });
+      // Subtitle
+      anime({
+        targets: subtitle,
+        opacity: [0, 1],
+        translateY: [-20, 0],
+        duration: 1400,
+        delay: 400,
+        easing: "easeOutExpo"
+      });
 
-    document.getElementById('btnContinue').addEventListener('click', () => {
-      if (!localStorage.getItem('saveData')) return alert('No saved run found.');
-      fadeOut(() => { window.location.href = 'lore.html'; });
-    });
+      // Buttons
+      anime({
+        targets: menu,
+        opacity: [0, 1],
+        translateY: [20, 0],
+        duration: 1200,
+        delay: 800,
+        easing: "easeOutExpo"
+      });
 
-    document.getElementById('btnSettings').addEventListener('click', () => {
-      alert('Settings coming soon');
-    });
+      /* --------- BUTTON LOGIC --------- */
+      document.getElementById("newBtn").addEventListener("click", () => {
+        fadeOut(() => {
+          window.location.href = "lore/lore.html";
+        });
+      });
 
-    document.getElementById('btnExtras').addEventListener('click', () => {
-      alert('Extras coming soon');
+      document.getElementById("continueBtn").addEventListener("click", () => {
+        fadeOut(() => {
+          window.location.href = "lore/lore.html"; // replace later with save system
+        });
+      });
+
+      function fadeOut(cb) {
+        anime({
+          targets: "#titleScreen",
+          opacity: [1, 0],
+          duration: 900,
+          easing: "easeInQuad",
+          complete: cb
+        });
+      }
     });
   </script>
+
 </body>
 </html>
