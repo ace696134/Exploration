@@ -26,7 +26,7 @@ html, body {
   flex-direction: column;
   gap: 14px;
   align-items: center;
-  z-index: 50; /* above backgrounds */
+  z-index: 50;
 }
 
 /* ---------- TITLE / SUBTITLE ---------- */
@@ -36,12 +36,16 @@ html, body {
   position: relative;
   display: inline-block;
   line-height: 0.95;
+  opacity: 0; /* needed for Anime.js */
+  letter-spacing: 4px;
 }
 
 .subtitle {
   font-size: clamp(0.9rem, 2.4vw, 1.4rem);
   color: #ffd9d6;
   opacity: 0.9;
+  opacity: 0; /* anime.js fade-in */
+  margin-top: 10px;
 }
 
 /* ---------- BUTTONS ---------- */
@@ -88,7 +92,6 @@ html, body {
   background: rgba(0, 0, 0, 0.85);
   border: 2px solid red;
   color: red;
-  font-family: 'Underdog', sans-serif;
   font-size: 18px;
   display: flex;
   flex-direction: column;
@@ -132,7 +135,6 @@ html, body {
   color: red;
   padding: 12px 24px;
   border: 2px solid red;
-  font-family: 'Underdog', sans-serif;
   font-size: 1.1rem;
   z-index: 2000;
   opacity: 0;
@@ -168,13 +170,8 @@ body {
   transition: opacity 1.8s ease-in-out;
 }
 
-body.fade-in {
-  opacity: 1;
-}
-
-body.fade-out {
-  opacity: 0 !important;
-}
+body.fade-in    { opacity: 1; }
+body.fade-out   { opacity: 0 !important; }
 
 /* ---------- CRAFTING BUTTON IN INVENTORY ---------- */
 #craftingBtn {
@@ -201,22 +198,16 @@ body.fade-out {
    SANITY VISUAL EFFECTS
    ============================ */
 
-/* Default (high sanity) */
 body[data-sanity="high"] #bgContainer {
   filter: none;
 }
 
-/* ---- MID SANITY ---- */
+/* MID */
 body[data-sanity="mid"] #bgContainer {
   filter: blur(2px) brightness(0.95) saturate(110%);
 }
 
-body[data-sanity="mid"] {
-  transition: filter 0.3s ease;
-  filter: contrast(1.05);
-}
-
-/* ---- LOW SANITY ---- */
+/* LOW */
 body[data-sanity="low"] #bgContainer {
   filter: blur(4px) brightness(0.9) saturate(130%) contrast(1.15);
 }
@@ -231,7 +222,7 @@ body[data-sanity="low"] {
   100% { filter: contrast(1.0); }
 }
 
-/* ---- BROKEN SANITY ---- */
+/* BROKEN */
 body[data-sanity="broken"] #bgContainer {
   filter: blur(6px) hue-rotate(20deg) contrast(1.6) saturate(150%);
 }
@@ -249,16 +240,16 @@ body[data-sanity="broken"] {
   100% { transform: translate(1px, 2px); }
 }
 
-/* Optional vignette for broken sanity */
+/* Broken sanity vignette */
 body[data-sanity="broken"]::after {
   content: "";
   position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
+  inset: 0;
   pointer-events: none;
-  background: radial-gradient(circle, transparent 40%, rg
-                              }
+  background: radial-gradient(circle, transparent 40%, rgba(0,0,0,0.8) 100%);
+}
 
-/* Dodge Flash Effect */
+/* ---------- DODGE FLASH EFFECT ---------- */
 #dodgeFlash {
   position: fixed;
   inset: 0;
@@ -268,6 +259,33 @@ body[data-sanity="broken"]::after {
   pointer-events: none;
   transition: opacity 0.15s ease-out;
 }
+
 #dodgeFlash.active {
   opacity: 1;
+}
+
+/* ---------- TITLE SCREEN (Anime.js) ---------- */
+#titleScreen {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  pointer-events: auto;
+}
+
+.menu-buttons {
+  margin-top: 40px;
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.bg-fade {
+  position: absolute;
+  inset: 0;
+  background: black;
+  opacity: 0;
+  pointer-events: none;
 }
