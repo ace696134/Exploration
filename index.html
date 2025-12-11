@@ -1,56 +1,68 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Endless Requium</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
 </head>
 <body>
-  <div id="stage" class="stage">
-    <div class="vignette"></div>
-    <div class="grain"></div>
-    <div class="scanlines"></div>
+  <!-- ===== TITLE SCREEN ===== -->
+  <div id="titleScreen">
+    <div class="bg-overlay"></div>
 
-    <main class="center-box" id="centerBox">
-      <!-- single h1 only; data-text used by CSS pseudo-elements -->
-      <h1 id="title" class="title glitch" data-text="Endless Requium">Endless Requium</h1>
+    <h1 class="title">ENDLESS REQUIUM</h1>
+    <p class="subtitle">A Descent Into the Quiet</p>
 
-      <p id="subtitle" class="subtitle flash">
-        This experience contains disturbing content.
-      </p>
-
-      <div class="controls">
-        <button id="enableAudio" class="btn">Enable Audio</button>
-        <button id="toggleMute" class="btn hidden">Mute</button>
-        <button id="playButton" class="btn hidden">Play</button>
-        <button id="clearLS" class="btn" style="position:fixed; bottom:20px; left:20px; z-index:9999;">
-  Clear Save Data
-</button>
-
-      </div>
-    </main>
+    <div class="menu-buttons">
+      <button id="btnContinue" class="btn">Continue</button>
+      <button id="btnNew" class="btn">New Run</button>
+      <button id="btnExtras" class="btn">Extras</button>
+      <button id="btnSettings" class="btn">Settings</button>
+    </div>
   </div>
 
-  <!-- script placed at end but script.js also waits for DOMContentLoaded, safe either way -->
+  <!-- Fade Container for transitions -->
+  <div class="bg-fade" id="fadeLayer"></div>
+
   <script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const clearBtn = document.getElementById("clearLS");
-    if (clearBtn) {
-      clearBtn.addEventListener("click", () => {
-        localStorage.clear();
-        alert("LocalStorage cleared.");
-      });
+    // ====== BACKGROUND ANIMATION ======
+    const bg = document.querySelector('.bg-overlay');
+    bg.style.background = "url('./images/title_bg.png') center/cover no-repeat fixed";
+
+    // ====== ANIME.JS TITLE INTRO ======
+    window.addEventListener('DOMContentLoaded', () => {
+      anime({ targets: '.title', opacity: [0, 1], translateY: [-20, 0], duration: 1400, easing: 'easeOutExpo' });
+      anime({ targets: '.subtitle', opacity: [0, 1], delay: 400, duration: 1200, easing: 'easeOutExpo' });
+      anime({ targets: '.menu-buttons', opacity: [0, 1], translateY: [20, 0], delay: 900, duration: 1200, easing: 'easeOutExpo' });
+    });
+
+    // ====== BUTTON HANDLERS ======
+    const fadeLayer = document.getElementById('fadeLayer');
+
+    function fadeOut(callback) {
+      fadeLayer.style.opacity = 1;
+      setTimeout(callback, 900);
     }
-  });
-</script>
 
-  <script>
-  document.addEventListener("DOMContentLoaded", () => {
-    document.body.classList.add("fade-in");
-  });
-</script>
+    document.getElementById('btnNew').addEventListener('click', () => {
+      localStorage.removeItem('saveData');
+      fadeOut(() => { window.location.href = 'lore.html'; });
+    });
 
-  <script src="script.js"></script>
+    document.getElementById('btnContinue').addEventListener('click', () => {
+      if (!localStorage.getItem('saveData')) return alert('No saved run found.');
+      fadeOut(() => { window.location.href = 'lore.html'; });
+    });
+
+    document.getElementById('btnSettings').addEventListener('click', () => {
+      alert('Settings coming soon');
+    });
+
+    document.getElementById('btnExtras').addEventListener('click', () => {
+      alert('Extras coming soon');
+    });
+  </script>
 </body>
 </html>
