@@ -274,7 +274,13 @@ body[data-sanity="broken"]::after {
   justify-content: center;
   overflow: hidden;
   pointer-events: auto;
+
+  /* FIXES */
+  opacity: 1 !important;
+  z-index: 9999;
+  background: black;
 }
+
 
 .menu-buttons {
   margin-top: 40px;
