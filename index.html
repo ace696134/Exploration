@@ -1,142 +1,336 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Endless Requium</title>
 
+  <!-- project styles (you already have this) -->
   <link rel="stylesheet" href="styles.css">
 
-  <!-- Anime.js -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+  <!-- local anime.js (your choice) -->
+  <script src="libs/anime.min.js"></script>
 
+  <!-- page-specific quick styles (keeps everything self-contained) -->
   <style>
-    /* Safety: ensure title screen shows even if styles.css has opacity fades */
-    body {
-      opacity: 1 !important;
+    /* Ensure title screen is visible despite global body fade rules */
+    body.title-screen-active { opacity: 1 !important; }
+
+    /* Title container */
+    #titleScreen {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      pointer-events: auto;
+      background: #000;
+      z-index: 9999;
+    }
+
+    .bg-fade {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at center, rgba(40,0,0,0.18), rgba(0,0,0,0.75));
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* soft static / noise overlay */
+    #staticOverlay {
+      position: absolute;
+      inset: 0;
+      background-image: url('images/static.gif'); /* optional; fallback to translucent noise */
+      background-size: cover;
+      opacity: 0.035;
+      mix-blend-mode: screen;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    /* fog layers */
+    .fog { position: absolute; inset: 0; pointer-events: none; z-index: 1; }
+    .fog.f1 { background: url('images/fog1.png') repeat-x; opacity: 0.12; animation: drift1 60s linear infinite; }
+    .fog.f2 { background: url('images/fog2.png') repeat-x; opacity: 0.08; animation: drift2 110s linear infinite; }
+    @keyframes drift1 { from { background-position: 0 0 } to { background-position: 2000px 0 } }
+    @keyframes drift2 { from { background-position: 0 0 } to { background-position: -3000px 0 } }
+
+    /* Title visuals */
+    #mainTitle {
+      font-size: clamp(2rem, 8vw, 6rem);
+      letter-spacing: 6px;
+      color: #fff;
+      text-transform: uppercase;
+      text-align: center;
+      z-index: 5;
+      opacity: 0;
+      filter: drop-shadow(0 0 18px rgba(255,30,30,0.12));
+    }
+
+    #mainSubtitle {
+      margin-top: 8px;
+      font-size: clamp(0.9rem, 2.4vw, 1.25rem);
+      color: #ffd9d6;
+      opacity: 0;
+      z-index: 5;
+    }
+
+    /* menu */
+    .menu-buttons {
+      margin-top: 30px;
+      display: flex;
+      gap: 10px;
+      z-index: 5;
+      opacity: 0;
+      transform: translateY(10px);
+    }
+
+    .menuBtn {
+      background: transparent;
+      border: 2px solid #e33;
+      color: #e33;
+      padding: 10px 16px;
+      font-family: 'Underdog', sans-serif;
+      cursor: pointer;
+      border-radius: 6px;
+      font-size: 1rem;
+      transition: transform .18s ease, box-shadow .18s ease;
+    }
+    .menuBtn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 22px rgba(227,51,51,0.08), inset 0 0 8px rgba(255,153,0,0.02);
+    }
+
+    /* whisper text */
+    #whisperText {
+      position: absolute;
+      bottom: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: rgba(255,255,255,0.12);
+      font-family: 'Underdog', sans-serif;
+      font-size: 0.9rem;
+      letter-spacing: 1.5px;
+      z-index: 5;
+      pointer-events: none;
+    }
+
+    /* small fade overlay used when leaving */
+    .fadeLayer {
+      position: fixed;
+      inset: 0;
+      background: #000;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 10000;
+    }
+
+    /* responsive tweaks */
+    @media (max-width:600px) {
+      .menu-buttons { flex-direction: column; gap: 8px; }
     }
   </style>
 </head>
-
 <body>
 
-  <!-- ============================
-       TITLE SCREEN
-  ============================= -->
-  <div id="titleScreen">
+  <!-- TITLE SCREEN -->
+  <div id="titleScreen" role="dialog" aria-label="Title Screen">
 
-    <div class="bg-fade"></div>
+    <!-- visual layers -->
+    <div class="bg-fade" aria-hidden="true"></div>
+    <div id="staticOverlay" aria-hidden="true"></div>
+    <div class="fog f1" aria-hidden="true"></div>
+    <div class="fog f2" aria-hidden="true"></div>
 
-    <h1 class="title" id="mainTitle">ENDLESS REQUIUM</h1>
-    <p class="subtitle" id="mainSubtitle">A mind that breaks… remembers.</p>
+    <!-- title -->
+    <h1 id="mainTitle">ENDLESS REQUIUM</h1>
+    <p id="mainSubtitle">A mind that breaks… remembers.</p>
 
-    <div class="menu-buttons" id="menuButtons">
-      <button class="btn" id="continueBtn">Continue</button>
-      <button class="btn" id="newBtn">New Run</button>
-      <button class="btn" id="settingsBtn">Settings</button>
-      <button class="btn" id="extrasBtn">Extras</button>
+    <!-- menu -->
+    <div class="menu-buttons" id="menuButtons" role="menu" aria-label="Main Menu">
+      <button class="menuBtn" id="continueBtn">Continue</button>
+      <button class="menuBtn" id="newBtn">New Run</button>
+      <button class="menuBtn" id="settingsBtn">Settings</button>
+      <button class="menuBtn" id="extrasBtn">Extras</button>
+      <button class="menuBtn" id="quitBtn">Quit</button>
     </div>
 
+    <!-- whisper text -->
+    <div id="whisperText" aria-hidden="true"></div>
   </div>
 
-  <!-- ============================
-       TITLE SCREEN LOGIC
-  ============================= -->
+  <!-- fade layer for transitions -->
+  <div class="fadeLayer" id="fadeLayer" aria-hidden="true"></div>
+
+  <!-- optional audio for hover/click (uncomment if you add files) -->
+  <!--
+  <audio id="uiHover" src="sounds/ui_hover.wav" preload="auto"></audio>
+  <audio id="uiClick" src="sounds/ui_click.wav" preload="auto"></audio>
+  -->
+
   <script>
-    document.addEventListener("DOMContentLoaded", () => {
+  (function () {
 
-      const title = document.getElementById("mainTitle");
-      const subtitle = document.getElementById("mainSubtitle");
-      const menu = document.getElementById("menuButtons");
-      const bgFade = document.querySelector(".bg-fade");
+    // ensure title shows even if global CSS sets body opacity 0
+    document.body.classList.add('title-screen-active');
 
-      /* ---------------------------------------
-         Fade in background first
-      ---------------------------------------- */
+    // elements
+    const title = document.getElementById('mainTitle');
+    const subtitle = document.getElementById('mainSubtitle');
+    const menu = document.getElementById('menuButtons');
+    const whisper = document.getElementById('whisperText');
+    const fadeLayer = document.getElementById('fadeLayer');
+
+    // small helper: graceful redirect with fade
+    function transitionTo(url) {
+      // fade in black
       anime({
-        targets: bgFade,
+        targets: fadeLayer,
         opacity: [0, 1],
-        duration: 1200,
-        easing: "easeOutQuad"
+        duration: 800,
+        easing: 'easeInQuad',
+        complete: () => { window.location.href = url; }
       });
+    }
 
-      /* ---------------------------------------
-         Title animation
-      ---------------------------------------- */
-      anime({
+    // Intro animations (anime.js)
+    anime.timeline()
+      .add({
+        targets: '.bg-fade',
+        opacity: [0, 1],
+        duration: 1100,
+        easing: 'easeOutQuad'
+      })
+      .add({
         targets: title,
         opacity: [0, 1],
-        translateY: [-40, 0],
-        duration: 1400,
-        delay: 200,
-        easing: "easeOutExpo"
-      });
-
-      /* ---------------------------------------
-         Subtitle animation
-      ---------------------------------------- */
-      anime({
+        translateY: [-30, 0],
+        duration: 1300,
+        easing: 'easeOutExpo'
+      }, '-=700')
+      .add({
         targets: subtitle,
         opacity: [0, 1],
-        translateY: [-20, 0],
-        duration: 1400,
-        delay: 400,
-        easing: "easeOutExpo"
-      });
-
-      /* ---------------------------------------
-         Buttons appear
-      ---------------------------------------- */
-      anime({
+        translateY: [-10, 0],
+        duration: 1000,
+        easing: 'easeOutExpo'
+      }, '-=900')
+      .add({
         targets: menu,
         opacity: [0, 1],
-        translateY: [20, 0],
-        duration: 1200,
-        delay: 800,
-        easing: "easeOutExpo"
-      });
+        translateY: [12, 0],
+        duration: 900,
+        easing: 'easeOutExpo'
+      }, '-=700');
 
-
-      /* =======================================
-          BUTTON LOGIC
-      ======================================= */
-
-      function fadeOut(callback) {
-        anime({
-          targets: "#titleScreen",
-          opacity: [1, 0],
-          duration: 900,
-          easing: "easeInQuad",
-          complete: callback
-        });
-      }
-
-      /* CONTINUE */
-      document.getElementById("continueBtn").addEventListener("click", () => {
-        fadeOut(() => {
-          window.location.href = "lore/lore.html"; // replace with actual save logic later
-        });
-      });
-
-      /* NEW RUN */
-      document.getElementById("newBtn").addEventListener("click", () => {
-        fadeOut(() => {
-          window.location.href = "lore/lore.html";
-        });
-      });
-
-      /* SETTINGS */
-      document.getElementById("settingsBtn").onclick = () => {
-        alert("Settings menu coming soon.");
-      };
-
-      /* EXTRAS */
-      document.getElementById("extrasBtn").onclick = () => {
-        alert("Extras menu coming soon.");
-      };
-
+    // soft breathing on title
+    anime({
+      targets: title,
+      scale: [1, 1.02],
+      duration: 2600,
+      direction: 'alternate',
+      easing: 'easeInOutSine',
+      loop: true
     });
-  </script>
 
+    // small random subtle glitch flicker occasionally
+    setInterval(() => {
+      anime({
+        targets: title,
+        opacity: [
+          { value: 0.9, duration: 40 },
+          { value: 1,   duration: 40 }
+        ],
+        easing: 'linear'
+      });
+    }, 4300);
+
+    // whisper texts
+    const whispers = [
+      "It remembers you.",
+      "Don’t forget the road.",
+      "Something followed you home.",
+      "You should have stayed away.",
+      "The key was under the stone."
+    ];
+    function playWhisper() {
+      const text = whispers[Math.floor(Math.random() * whispers.length)];
+      whisper.textContent = text;
+      anime({
+        targets: whisper,
+        opacity: [0, 1, 0],
+        translateY: [6, 0, -6],
+        duration: 3800,
+        easing: 'easeInOutQuad'
+      });
+    }
+    setInterval(playWhisper, 9000);
+    // start first whisper after intro
+    setTimeout(playWhisper, 2400);
+
+    // UI sounds (uncomment if you have audio elements)
+    const hoverSound = document.getElementById('uiHover');
+    const clickSound = document.getElementById('uiClick');
+
+    document.querySelectorAll('.menuBtn').forEach(btn => {
+      btn.addEventListener('mouseenter', () => {
+        if (hoverSound) { hoverSound.currentTime = 0; hoverSound.play().catch(()=>{}); }
+      });
+      btn.addEventListener('click', () => {
+        if (clickSound) { clickSound.currentTime = 0; clickSound.play().catch(()=>{}); }
+      });
+    });
+
+    // Menu actions
+    document.getElementById('newBtn').addEventListener('click', () => {
+      // clear run data but keep meta-unlocks
+      localStorage.removeItem('saveData');
+      // keep deathUnlocks / trophies / unlocks
+      transitionTo('lore/lore.html');
+    });
+
+    document.getElementById('continueBtn').addEventListener('click', () => {
+      if (!localStorage.getItem('saveData')) {
+        // small shake + message if no save
+        anime({
+          targets: menu,
+          translateX: [-6, 6, -4, 4, 0],
+          duration: 350,
+          easing: 'easeInOutSine'
+        });
+        if (window.showMessage) showMessage('No saved run found.');
+        else alert('No saved run found.');
+        return;
+      }
+      // implement your load logic here; default to lore
+      transitionTo('lore/lore.html');
+    });
+
+    document.getElementById('settingsBtn').addEventListener('click', () => {
+      if (window.showMessage) showMessage('Settings coming soon.');
+      else alert('Settings coming soon.');
+    });
+
+    document.getElementById('extrasBtn').addEventListener('click', () => {
+      if (window.showMessage) showMessage('Extras coming soon.');
+      else alert('Extras coming soon.');
+    });
+
+    document.getElementById('quitBtn').addEventListener('click', () => {
+      // on web we cannot quit; provide feedback
+      if (window.showMessage) showMessage('Close the tab to quit.');
+      else alert('Close the tab to quit.');
+    });
+
+    // Keyboard shortcuts: Enter => continue, N => new run
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') document.getElementById('continueBtn').click();
+      if (e.key.toLowerCase() === 'n') document.getElementById('newBtn').click();
+    });
+
+  })();
+  </script>
 </body>
 </html>
