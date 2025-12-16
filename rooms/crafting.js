@@ -1,87 +1,71 @@
-/* -------- Crafting System for Endless Requium -------- */
+const container = document.getElementById("recipesContainer");
 
-document.addEventListener("DOMContentLoaded", () => {
+if (!container) {
+  console.error("recipesContainer not found");
+}
 
-  const recipesContainer = document.getElementById("recipesContainer");
-  const invBox = document.querySelector("#inventory");
-  const toggleBtn = document.querySelector("#invToggle");
+/* ---------- CHECK IF CRAFTABLE ---------- */
+function canCraft(recipe) {
+  return recipe.ingredients.every(i =>
+    Inventory.has(i.id, i.amount)
+  );
+}
 
-  if (!recipesContainer) return;
+/* ---------- RENDER ---------- */
+function renderRecipes() {
+  container.innerHTML = "";
 
-  /* ---------------- INVENTORY TOGGLE ---------------- */
-  if (toggleBtn && invBox) {
-    toggleBtn.addEventListener("click", () => {
-      invBox.classList.toggle("visible");
-      if (window.refreshInventoryUI) window.refreshInventoryUI();
-      renderRecipes(); // update recipe buttons whenever inventory panel toggled
-    });
-  }
+  RECIPES.forEach(recipe => {
+    const craftable = canCraft(recipe);
 
-  /* ---------------- RENDER RECIPES ---------------- */
-  function renderRecipes() {
-    recipesContainer.innerHTML = "";
+    const card = document.createElement("div");
+    card.style.border = `2px solid ${recipe.color || "red"}`;
+    card.style.padding = "12px";
+    card.style.opacity = craftable ? "1" : "0.35";
+    card.style.display = "flex";
+    card.style.alignItems = "center";
+    card.style.gap = "12px";
 
-    RECIPES.forEach(recipe => {
-      const canCraft = recipe.ingredients.every(ing => Inventory.has(ing.id, ing.amount));
-
-      const recipeBtn = document.createElement("button");
-      recipeBtn.className = "btn";
-      recipeBtn.style.display = "flex";
-      recipeBtn.style.justifyContent = "space-between";
-      recipeBtn.style.alignItems = "center";
-      recipeBtn.style.padding = "8px";
-      recipeBtn.disabled = !canCraft;
-
-      const nameSpan = document.createElement("span");
-      nameSpan.textContent = recipe.output.name;
-
-      const detailSpan = document.createElement("span");
-      detailSpan.style.fontSize = "0.9em";
-      detailSpan.style.color = "#aaa";
-      detailSpan.textContent = recipe.ingredients
-        .map(i => `${i.amount}x ${ITEMS[i.id].name}`)
-        .join(", ");
-
-      recipeBtn.appendChild(nameSpan);
-      recipeBtn.appendChild(detailSpan);
-
-      recipeBtn.addEventListener("click", () => {
-        craftRecipe(recipe);
-      });
-
-      recipesContainer.appendChild(recipeBtn);
-    });
-  }
-
-  /* ---------------- CRAFTING LOGIC ---------------- */
-  function craftRecipe(recipe) {
-    const canCraft = recipe.ingredients.every(ing => Inventory.has(ing.id, ing.amount));
-    if (!canCraft) {
-      if (window.showMessage) showMessage("You do not have the required items.");
-      return;
+    /* ICON */
+    if (recipe.icon) {
+      const img = document.createElement("img");
+      img.src = recipe.icon;
+      img.style.width = "48px";
+      img.style.height = "48px";
+      img.style.objectFit = "contain";
+      card.appendChild(img);
     }
 
-    // Remove ingredients
-    recipe.ingredients.forEach(ing => {
-      Inventory.remove(ing.id, ing.amount);
-    });
+    /* INFO */
+    const info = document.createElement("div");
+    info.style.flex = "1";
 
-    // Add crafted item
-    Inventory.add(recipe.output.id, recipe.output.amount || 1);
+    info.innerHTML = `
+      <strong>${recipe.output.name}</strong><br>
+      <span style="font-size:14px;">
+        ${recipe.ingredients.map(i => `${i.amount}x ${i.id}`).join("<br>")}
+      </span>
+    `;
 
-    // Update inventory UI
-    if (window.refreshInventoryUI) window.refreshInventoryUI();
+    card.appendChild(info);
 
-    // Show popup message
-    if (window.showMessage) showMessage(`Crafted: ${recipe.output.name}!`);
+    /* BUTTON */
+    const btn = document.createElement("button");
+    btn.className = "btn";
+    btn.textContent = craftable ? "Craft" : "Missing Items";
+    btn.disabled = !craftable;
 
-    // Refresh recipe buttons
-    renderRecipes();
-  }
+    btn.onclick = () => {
+      recipe.ingredients.forEach(i => {
+        Inventory.remove(i.id, i.amount);
+      });
+      Inventory.add(recipe.output.id, recipe.output.amount);
+      renderRecipes();
+    };
 
-  renderRecipes();
+    card.appendChild(btn);
+    container.appendChild(card);
+  });
+}
 
-  // Optional: refresh recipes whenever inventory changes externally
-  window.refreshCraftingUI = renderRecipes;
-
-});
+renderRecipes();
