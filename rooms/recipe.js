@@ -39,7 +39,7 @@ window.RECIPES = [
   {
     output: { id: "key_mold", name: "Key Mold", amount: 1 },
     ingredients: [
-      { id: "rubber", amount: 1 },
+      { id: "rubber_ball", amount: 1 },
       { id: "lighter", amount: 1 },
       { id: "master_key", amount: 1 }
     ],
