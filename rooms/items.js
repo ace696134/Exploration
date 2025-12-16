@@ -84,7 +84,15 @@ window.ITEMS = {
   type: "consumable",
   sanity: 3,
   heal: 0
-}
+},
+"Rubber Ball": {
+  id: "rubber_ball",
+  name: "Rubber Ball",
+  icon: "../images/items/rubber.png",
+  color: "#35D413",
+  description: "A small peice of rubber, it could be turned into a mold...",
+  stack: 128
+  },
 };
 
 /* -------- ITEMS LOOKUP BY ID -------- */
