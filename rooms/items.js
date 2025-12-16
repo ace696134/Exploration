@@ -93,6 +93,14 @@ window.ITEMS = {
   description: "A small peice of rubber, it could be turned into a mold...",
   stack: 128
   },
+"Master Key": {
+  id: "master_key",
+  name: "Master Key",
+  icon: "../images/items/master_key.png",
+  color: "#35D413",
+  description: "A Key that could be duplicated...",
+  stack: 1
+  },
 };
 
 /* -------- ITEMS LOOKUP BY ID -------- */
