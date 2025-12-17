@@ -1,131 +1,62 @@
-/* =====================================================
-   INVENTORY SYSTEM — Endless Requium
-   ===================================================== */
+/* rooms/inventory.js */
 
 window.Inventory = {
   data: {},
 
-  /* ---------- LOAD / SAVE ---------- */
   load() {
-    const saved = localStorage.getItem("inventory");
-    this.data = saved ? JSON.parse(saved) : {};
+    this.data = JSON.parse(localStorage.getItem("inventory") || "{}");
   },
 
   save() {
     localStorage.setItem("inventory", JSON.stringify(this.data));
+  },
+
+  add(id, amount = 1) {
+    if (!this.data[id]) this.data[id] = 0;
+    this.data[id] += amount;
+    this.save();
     refreshInventoryUI();
   },
 
-  /* ---------- CORE OPERATIONS ---------- */
-  add(itemId, amount = 1) {
-    if (!this.data[itemId]) this.data[itemId] = 0;
-    this.data[itemId] += amount;
+  remove(id, amount = 1) {
+    if (!this.data[id] || this.data[id] < amount) return false;
+    this.data[id] -= amount;
+    if (this.data[id] <= 0) delete this.data[id];
     this.save();
-  },
-
-  remove(itemId, amount = 1) {
-    if (!this.has(itemId, amount)) return false;
-    this.data[itemId] -= amount;
-    if (this.data[itemId] <= 0) delete this.data[itemId];
-    this.save();
+    refreshInventoryUI();
     return true;
   },
 
-  has(itemId, amount = 1) {
-    return (this.data[itemId] || 0) >= amount;
-  },
-
-  clearAll() {
-    this.data = {};
-    this.save();
+  has(id, amount = 1) {
+    return (this.data[id] || 0) >= amount;
   }
 };
-
-/* =====================================================
-   INVENTORY UI INIT
-   ===================================================== */
 
 document.addEventListener("DOMContentLoaded", () => {
   Inventory.load();
-
-  const invBtn   = document.getElementById("inventoryBtn");
-  const invPanel = document.getElementById("inventoryPanel");
-
-  if (!invBtn || !invPanel) {
-    console.warn("[Inventory] Inventory UI elements missing.");
-    return;
-  }
-
-  invBtn.addEventListener("click", () => {
-    invPanel.classList.toggle("hidden");
-    refreshInventoryUI();
-  });
-
   refreshInventoryUI();
 });
 
-/* =====================================================
-   INVENTORY UI RENDER
-   ===================================================== */
-
 window.refreshInventoryUI = function () {
-  const list = document.getElementById("inventoryList");
-  if (!list) return;
+  const box = document.getElementById("inventory");
+  if (!box) return;
 
-  list.innerHTML = "";
+  box.innerHTML = "";
 
-  const ids = Object.keys(Inventory.data);
-  if (!ids.length) {
-    list.innerHTML = `<p style="opacity:0.6">Inventory Empty</p>`;
-    return;
-  }
-
-  ids.forEach(id => {
-    const itemDef = window.ITEMS_BY_ID?.[id] || {
-      name: id,
-      icon: "",
-      color: "#ff3333"
-    };
+  for (const id in Inventory.data) {
+    const item = ITEMS[id];
+    if (!item) continue;
 
     const row = document.createElement("div");
     row.className = "inv-item";
-    row.style.borderColor = itemDef.color;
+    row.style.borderColor = item.color;
 
     row.innerHTML = `
-      ${itemDef.icon ? `<img class="inv-icon" src="${itemDef.icon}">` : ""}
-      <span class="inv-name">${itemDef.name}</span>
-      <span class="inv-count">x${Inventory.data[id]}</span>
+      <img class="inv-icon" src="${item.icon}">
+      <span>${item.name}</span>
+      <span>x${Inventory.data[id]}</span>
     `;
 
-    list.appendChild(row);
-  });
-};
-
-/* =====================================================
-   GLOBAL POPUP MESSAGE (NO STACKING)
-   ===================================================== */
-
-window.showMessage = function (text, duration = 2000) {
-  let popup = document.querySelector(".popup-message");
-
-  if (!popup) {
-    popup = document.createElement("div");
-    popup.className = "popup-message";
-    document.body.appendChild(popup);
+    box.appendChild(row);
   }
-
-  popup.textContent = text;
-  popup.style.opacity = "1";
-
-  clearTimeout(popup._timeout);
-  popup._timeout = setTimeout(() => {
-    popup.style.opacity = "0";
-  }, duration);
 };
-
-/* =====================================================
-   DEV / DEBUG SHORTCUTS (REMOVE LATER)
-   ===================================================== */
-
-window.__give = (id, amt = 1) => Inventory.add(id, amt);
-window.__clearInv = () => Inventory.clearAll();
