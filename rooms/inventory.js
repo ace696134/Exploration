@@ -1,39 +1,33 @@
-/* ===============================
-   INVENTORY SYSTEM — ENDLESS REQUIUM
-   =============================== */
+/* =====================================================
+   INVENTORY SYSTEM — Endless Requium
+   ===================================================== */
 
-/* ---------- CORE INVENTORY ---------- */
 window.Inventory = {
   data: {},
 
+  /* ---------- LOAD / SAVE ---------- */
   load() {
-    try {
-      const saved = localStorage.getItem("inventory");
-      this.data = saved ? JSON.parse(saved) : {};
-    } catch {
-      this.data = {};
-    }
+    const saved = localStorage.getItem("inventory");
+    this.data = saved ? JSON.parse(saved) : {};
   },
 
   save() {
     localStorage.setItem("inventory", JSON.stringify(this.data));
+    refreshInventoryUI();
   },
 
+  /* ---------- CORE OPERATIONS ---------- */
   add(itemId, amount = 1) {
     if (!this.data[itemId]) this.data[itemId] = 0;
     this.data[itemId] += amount;
     this.save();
-    refreshInventoryUI();
   },
 
   remove(itemId, amount = 1) {
-    if (!this.data[itemId]) return false;
-
+    if (!this.has(itemId, amount)) return false;
     this.data[itemId] -= amount;
     if (this.data[itemId] <= 0) delete this.data[itemId];
-
     this.save();
-    refreshInventoryUI();
     return true;
   },
 
@@ -41,90 +35,97 @@ window.Inventory = {
     return (this.data[itemId] || 0) >= amount;
   },
 
-  clear() {
+  clearAll() {
     this.data = {};
     this.save();
-    refreshInventoryUI();
   }
 };
 
-/* ---------- INIT ON PAGE LOAD ---------- */
+/* =====================================================
+   INVENTORY UI INIT
+   ===================================================== */
+
 document.addEventListener("DOMContentLoaded", () => {
   Inventory.load();
 
   const invBtn   = document.getElementById("inventoryBtn");
   const invPanel = document.getElementById("inventoryPanel");
 
-  if (!invBtn || !invPanel) return;
+  if (!invBtn || !invPanel) {
+    console.warn("[Inventory] Inventory UI elements missing.");
+    return;
+  }
 
   invBtn.addEventListener("click", () => {
     invPanel.classList.toggle("hidden");
     refreshInventoryUI();
   });
+
+  refreshInventoryUI();
 });
 
-/* ---------- INVENTORY UI RENDER ---------- */
+/* =====================================================
+   INVENTORY UI RENDER
+   ===================================================== */
+
 window.refreshInventoryUI = function () {
-  const invList = document.getElementById("inventoryList");
-  if (!invList) return;
+  const list = document.getElementById("inventoryList");
+  if (!list) return;
 
-  invList.innerHTML = "";
+  list.innerHTML = "";
 
-  const items = Inventory.data;
-  const ids = Object.keys(items);
-
-  if (ids.length === 0) {
-    invList.innerHTML = `<div class="inv-empty">Inventory Empty</div>`;
+  const ids = Object.keys(Inventory.data);
+  if (!ids.length) {
+    list.innerHTML = `<p style="opacity:0.6">Inventory Empty</p>`;
     return;
   }
 
   ids.forEach(id => {
-    const count = items[id];
-
-    const item = window.ITEMS_BY_ID?.[id] || {
+    const itemDef = window.ITEMS_BY_ID?.[id] || {
       name: id,
       icon: "",
-      color: "#e33"
+      color: "#ff3333"
     };
 
     const row = document.createElement("div");
     row.className = "inv-item";
-    row.style.borderColor = item.color;
+    row.style.borderColor = itemDef.color;
 
     row.innerHTML = `
-      ${item.icon ? `<img class="inv-icon" src="${item.icon}">` : ""}
-      <span class="inv-name">${item.name}</span>
-      <span class="inv-count">x${count}</span>
+      ${itemDef.icon ? `<img class="inv-icon" src="${itemDef.icon}">` : ""}
+      <span class="inv-name">${itemDef.name}</span>
+      <span class="inv-count">x${Inventory.data[id]}</span>
     `;
 
-    invList.appendChild(row);
+    list.appendChild(row);
   });
 };
 
-/* ---------- HORROR UI EXTENSIONS ---------- */
+/* =====================================================
+   GLOBAL POPUP MESSAGE (NO STACKING)
+   ===================================================== */
 
-/* Flicker inventory at low sanity */
-window.applyInventorySanityEffect = function (level) {
-  const panel = document.getElementById("inventoryPanel");
-  if (!panel) return;
+window.showMessage = function (text, duration = 2000) {
+  let popup = document.querySelector(".popup-message");
 
-  panel.classList.remove("inv-mid", "inv-low", "inv-broken");
+  if (!popup) {
+    popup = document.createElement("div");
+    popup.className = "popup-message";
+    document.body.appendChild(popup);
+  }
 
-  if (level === "mid") panel.classList.add("inv-mid");
-  if (level === "low") panel.classList.add("inv-low");
-  if (level === "broken") panel.classList.add("inv-broken");
+  popup.textContent = text;
+  popup.style.opacity = "1";
+
+  clearTimeout(popup._timeout);
+  popup._timeout = setTimeout(() => {
+    popup.style.opacity = "0";
+  }, duration);
 };
 
-/* Corrupt inventory visuals (future use) */
-window.corruptInventoryUI = function () {
-  const panel = document.getElementById("inventoryPanel");
-  if (!panel) return;
+/* =====================================================
+   DEV / DEBUG SHORTCUTS (REMOVE LATER)
+   ===================================================== */
 
-  panel.classList.add("inventory-corrupt");
-  setTimeout(() => panel.classList.remove("inventory-corrupt"), 800);
-};
-
-/* ---------- DEV SAFETY ---------- */
-window.debugInventory = function () {
-  console.table(Inventory.data);
-};
+window.__give = (id, amt = 1) => Inventory.add(id, amt);
+window.__clearInv = () => Inventory.clearAll();
