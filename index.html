@@ -10,20 +10,19 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
 
   <style>
-    /* ---------------- GLOBAL ---------------- */
     body {
       margin: 0;
       background: black;
       opacity: 0;
       transition: opacity 1.8s ease-in-out;
       overflow: hidden;
+      font-family: serif;
     }
 
     body.fade-in {
       opacity: 1;
     }
 
-    /* ---------------- TITLE SCREEN ---------------- */
     #titleScreen {
       position: absolute;
       inset: 0;
@@ -33,12 +32,10 @@
       justify-content: center;
       gap: 10px;
       z-index: 9999;
-      pointer-events: auto;
     }
 
     .title {
       font-size: 64px;
-      font-family: 'Cinzel', serif;
       color: white;
       letter-spacing: 6px;
       opacity: 0;
@@ -62,7 +59,7 @@
     }
 
     .btn {
-      width: 200px;
+      width: 220px;
       padding: 14px 0;
       background: transparent;
       border: 2px solid white;
@@ -80,7 +77,17 @@
       box-shadow: 0 0 20px white;
     }
 
-    /* Background gradient / vignette */
+    .btn.danger {
+      border-color: #a00;
+      color: #a00;
+    }
+
+    .btn.danger:hover {
+      background: #a00;
+      color: white;
+      box-shadow: 0 0 20px #a00;
+    }
+
     .bg-fade {
       position: absolute;
       inset: 0;
@@ -89,7 +96,6 @@
       pointer-events: none;
     }
 
-    /* Floating particles */
     .particle {
       position: absolute;
       background: white;
@@ -113,103 +119,94 @@
     <div class="menu-buttons">
       <button class="btn" id="continueBtn">CONTINUE</button>
       <button class="btn" id="newBtn">NEW RUN</button>
-      <button class="btn" id="settingsBtn">SETTINGS</button>
-      <button class="btn" id="extrasBtn">EXTRAS</button>
+      <button class="btn danger" id="deleteBtn">DELETE PROGRESS</button>
     </div>
   </div>
 
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
+<script>
+document.addEventListener("DOMContentLoaded", () => {
 
-      const title = document.querySelector(".title");
-      const subtitle = document.querySelector(".subtitle");
-      const menu = document.querySelector(".menu-buttons");
-      const bgFade = document.querySelector(".bg-fade");
+  const title = document.querySelector(".title");
+  const subtitle = document.querySelector(".subtitle");
+  const menu = document.querySelector(".menu-buttons");
+  const bgFade = document.querySelector(".bg-fade");
 
-      /* ---------------- PARTICLES ---------------- */
-      function createParticles() {
-        for (let i = 0; i < 40; i++) {
-          let p = document.createElement("div");
-          p.classList.add("particle");
-          document.body.appendChild(p);
+  const continueBtn = document.getElementById("continueBtn");
+  const newBtn = document.getElementById("newBtn");
+  const deleteBtn = document.getElementById("deleteBtn");
 
-          p.style.left = Math.random() * window.innerWidth + "px";
-          p.style.top = Math.random() * window.innerHeight + "px";
+  /* ---------- PARTICLES ---------- */
+  for (let i = 0; i < 40; i++) {
+    const p = document.createElement("div");
+    p.className = "particle";
+    document.body.appendChild(p);
 
-          anime({
-            targets: p,
-            translateY: [-20, -200],
-            opacity: [0.4, 0],
-            duration: 4000 + Math.random() * 4000,
-            easing: "linear",
-            loop: true,
-            delay: Math.random() * 2000
-          });
-        }
-      }
-      createParticles();
+    p.style.left = Math.random() * window.innerWidth + "px";
+    p.style.top = Math.random() * window.innerHeight + "px";
 
-      /* ---------------- FADE-IN BACKGROUND ---------------- */
-      anime({
-        targets: bgFade,
-        opacity: [0, 1],
-        duration: 1200,
-        easing: "easeOutQuad"
-      });
-
-      /* ---------------- TITLE ANIMATION ---------------- */
-      anime({
-        targets: title,
-        opacity: [0, 1],
-        translateY: [-40, 0],
-        duration: 1400,
-        delay: 200,
-        easing: "easeOutExpo"
-      });
-
-      anime({
-        targets: subtitle,
-        opacity: [0, 1],
-        translateY: [-20, 0],
-        duration: 1400,
-        delay: 400,
-        easing: "easeOutExpo"
-      });
-
-      anime({
-        targets: menu,
-        opacity: [0, 1],
-        translateY: [20, 0],
-        duration: 1200,
-        delay: 800,
-        easing: "easeOutExpo"
-      });
-
-      /* ---------------- BUTTON LOGIC ---------------- */
-      function fadeOut(cb) {
-        anime({
-          targets: "#titleScreen",
-          opacity: [1, 0],
-          duration: 900,
-          easing: "easeInQuad",
-          complete: cb
-        });
-      }
-
-      document.getElementById("newBtn").addEventListener("click", () => {
-        fadeOut(() => {
-          window.location.href = "rooms/lore.html";
-        });
-      });
-
-      document.getElementById("continueBtn").addEventListener("click", () => {
-        fadeOut(() => {
-          window.location.href = "rooms/lore.html";
-        });
-      });
-
+    anime({
+      targets: p,
+      translateY: [-20, -200],
+      opacity: [0.4, 0],
+      duration: 4000 + Math.random() * 4000,
+      easing: "linear",
+      loop: true,
+      delay: Math.random() * 2000
     });
-  </script>
+  }
+
+  /* ---------- INTRO ---------- */
+  anime({ targets: bgFade, opacity: [0,1], duration: 1200 });
+  anime({ targets: title, opacity: [0,1], translateY: [-40,0], delay: 200 });
+  anime({ targets: subtitle, opacity: [0,1], translateY: [-20,0], delay: 400 });
+  anime({ targets: menu, opacity: [0,1], translateY: [20,0], delay: 800 });
+
+  /* ---------- SAVE CHECK ---------- */
+  const lastRoom = localStorage.getItem("lastRoom");
+  if (!lastRoom) continueBtn.style.display = "none";
+
+  /* ---------- FADE ---------- */
+  function fadeOut(cb) {
+    anime({
+      targets: "#titleScreen",
+      opacity: [1,0],
+      duration: 900,
+      easing: "easeInQuad",
+      complete: cb
+    });
+  }
+
+  /* ---------- NEW RUN ---------- */
+  newBtn.addEventListener("click", () => {
+    if (!confirm("Start a new run? All progress will be lost.")) return;
+    wipeSave();
+    localStorage.setItem("sanity", 100);
+    fadeOut(() => location.href = "rooms/lore.html");
+  });
+
+  /* ---------- CONTINUE ---------- */
+  continueBtn.addEventListener("click", () => {
+    fadeOut(() => location.href = lastRoom);
+  });
+
+  /* ---------- DELETE ---------- */
+  deleteBtn.addEventListener("click", () => {
+    if (!confirm("Delete ALL progress?")) return;
+    wipeSave();
+    alert("Progress deleted.");
+    location.reload();
+  });
+
+  function wipeSave() {
+    localStorage.removeItem("lastRoom");
+    localStorage.removeItem("inventory");
+    localStorage.removeItem("sanity");
+    localStorage.removeItem("deathCount");
+    localStorage.removeItem("trophies");
+  }
+
+});
+</script>
 
 </body>
 </html>
