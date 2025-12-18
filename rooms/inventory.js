@@ -1,10 +1,13 @@
-/* rooms/inventory.js */
+/* =====================================================
+   INVENTORY SYSTEM (ID-BASED, SAVE SAFE)
+   ===================================================== */
 
 window.Inventory = {
   data: {},
 
   load() {
-    this.data = JSON.parse(localStorage.getItem("inventory") || "{}");
+    const saved = localStorage.getItem("inventory");
+    this.data = saved ? JSON.parse(saved) : {};
   },
 
   save() {
@@ -19,7 +22,7 @@ window.Inventory = {
   },
 
   remove(id, amount = 1) {
-    if (!this.data[id] || this.data[id] < amount) return false;
+    if (!this.has(id, amount)) return false;
     this.data[id] -= amount;
     if (this.data[id] <= 0) delete this.data[id];
     this.save();
@@ -32,19 +35,22 @@ window.Inventory = {
   }
 };
 
+/* =====================================================
+   INVENTORY UI
+   ===================================================== */
+
 document.addEventListener("DOMContentLoaded", () => {
   Inventory.load();
-  refreshInventoryUI();
 });
 
 window.refreshInventoryUI = function () {
-  const box = document.getElementById("inventory");
-  if (!box) return;
+  const inv = document.getElementById("inventory");
+  if (!inv) return;
 
-  box.innerHTML = "";
+  inv.innerHTML = "";
 
   for (const id in Inventory.data) {
-    const item = ITEMS[id];
+    const item = ITEMS_BY_ID[id];
     if (!item) continue;
 
     const row = document.createElement("div");
@@ -52,11 +58,11 @@ window.refreshInventoryUI = function () {
     row.style.borderColor = item.color;
 
     row.innerHTML = `
-      <img class="inv-icon" src="${item.icon}">
+      <img src="${item.icon}">
       <span>${item.name}</span>
-      <span>x${Inventory.data[id]}</span>
+      <span class="count">x${Inventory.data[id]}</span>
     `;
 
-    box.appendChild(row);
+    inv.appendChild(row);
   }
 };
