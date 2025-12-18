@@ -1,10 +1,4 @@
-/* Endless Requium – Room Handler
-   Inventory now supports:
-   - item name
-   - item image
-   - custom color
-   - crafting table button integration
-*/
+/* Endless Requium – Unified Room Script */
 
 document.addEventListener("DOMContentLoaded", () => {
 
@@ -13,19 +7,18 @@ document.addEventListener("DOMContentLoaded", () => {
   const bgContainer = document.getElementById("bgContainer");
   const isMuted = localStorage.getItem("gameMuted") === "1";
 
-  /* ---------------- BACKGROUND FADE ---------------- */
+  /* =====================================================
+     BACKGROUND FADE
+     ===================================================== */
   if (bgContainer) {
-    const layers = Array.from(bgContainer.querySelectorAll("img"));
+    const layers = [...bgContainer.querySelectorAll("img")];
     let current = 0;
 
     layers.forEach((img, i) => {
       img.style.opacity = i === 0 ? 1 : 0;
-      img.style.transition = "opacity 1.5s ease";
       img.style.position = "absolute";
-      img.style.top = "0";
-      img.style.left = "0";
-      img.style.width = "100%";
-      img.style.height = "100%";
+      img.style.inset = "0";
+      img.style.transition = "opacity 1.5s ease";
       img.style.objectFit = "cover";
       img.style.pointerEvents = "none";
     });
@@ -40,11 +33,16 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  /* ---------------- BODY FADE-IN ---------------- */
+  /* =====================================================
+     BODY FADE
+     ===================================================== */
   requestAnimationFrame(() => body.classList.add("fade-in"));
 
-  /* ---------------- AUDIO ---------------- */
+  /* =====================================================
+     AUDIO
+     ===================================================== */
   let ambient = null;
+
   if (audioName) {
     ambient = new Audio(`../sounds/${audioName}`);
     ambient.loop = true;
@@ -54,373 +52,196 @@ document.addEventListener("DOMContentLoaded", () => {
     ambient.play().then(() => {
       if (!isMuted) fadeAudioIn();
     }).catch(() => {
-      window.addEventListener("click", startAudioFallback);
-      window.addEventListener("keydown", startAudioFallback);
+      window.addEventListener("click", unlockAudio, { once: true });
+      window.addEventListener("keydown", unlockAudio, { once: true });
     });
   }
 
-  function startAudioFallback() {
-    if (ambient) {
-      ambient.play();
-      if (!isMuted) fadeAudioIn();
-    }
-    window.removeEventListener("click", startAudioFallback);
-    window.removeEventListener("keydown", startAudioFallback);
+  function unlockAudio() {
+    if (!ambient) return;
+    ambient.play();
+    if (!isMuted) fadeAudioIn();
   }
 
   function fadeAudioIn() {
     let v = 0;
-    const fade = setInterval(() => {
+    const i = setInterval(() => {
       v += 0.02;
-      if (ambient) ambient.volume = v;
-      if (v >= 0.6) clearInterval(fade);
-    }, 50);
+      ambient.volume = Math.min(0.6, v);
+      if (v >= 0.6) clearInterval(i);
+    }, 40);
   }
 
-  function fadeAudioOut(callback) {
-    if (!ambient) return callback();
-    if (isMuted) { ambient.pause(); return callback(); }
-
+  function fadeAudioOut(cb) {
+    if (!ambient) return cb();
     let v = ambient.volume;
-    const fade = setInterval(() => {
+    const i = setInterval(() => {
       v -= 0.03;
       ambient.volume = Math.max(0, v);
       if (v <= 0) {
-        clearInterval(fade);
+        clearInterval(i);
         ambient.pause();
-        callback();
+        cb();
       }
     }, 40);
   }
 
-  /* ---------------- INVENTORY HELPERS ---------------- */
-  const loadInventory = () => JSON.parse(localStorage.getItem("inventory") || "[]");
-  const saveInventory = (inv) => localStorage.setItem("inventory", JSON.stringify(inv));
+  /* =====================================================
+     POPUP MESSAGE (FIXED — NO STACKING)
+     ===================================================== */
+  let activePopup = null;
 
-  const removeItem = (name) => {
-    const inv = loadInventory();
-    const filtered = inv.filter(i => i.name.toLowerCase() !== name.toLowerCase());
-    saveInventory(filtered);
-  };
+  window.showMessage = function (text, duration = 2000) {
+    if (activePopup) activePopup.remove();
 
-  /* ---------------- INVENTORY RENDER ---------------- */
-  function renderInventory() {
-    const box = document.querySelector("#inventory");
-    if (!box) return;
-
-    box.innerHTML = "";
-
-    loadInventory().forEach(item => {
-      const row = document.createElement("div");
-      row.className = "inv-item";
-
-      if (item.color) row.style.borderColor = item.color;
-
-      if (item.icon) {
-        const img = document.createElement("img");
-        img.src = item.icon;
-        img.className = "inv-icon";
-        row.appendChild(img);
-      }
-
-      const text = document.createElement("span");
-      text.textContent = item.name;
-      row.appendChild(text);
-
-      box.appendChild(row);
-    });
-
-    // Crafting button
-    if (!box.querySelector("#craftingBtn")) {
-      const craftBtn = document.createElement("button");
-      craftBtn.id = "craftingBtn";
-      craftBtn.textContent = "🛠️ Crafting Table";
-      craftBtn.className = "btn";
-      craftBtn.style.marginTop = "10px";
-
-      craftBtn.addEventListener("click", () => {
-        localStorage.setItem("lastRoom", window.location.href);
-        window.location.href = "crafting.html";
-      });
-
-      box.appendChild(craftBtn);
-    }
-  }
-
-  renderInventory();
-
-  /* ---------------- INVENTORY TOGGLE ---------------- */
-  const invBox = document.querySelector("#inventory");
-  const toggleBtn = document.querySelector("#invToggle");
-
-  if (toggleBtn && invBox) {
-    toggleBtn.addEventListener("click", () => {
-      invBox.classList.toggle("visible");
-      renderInventory();
-    });
-  }
-
-  /* ---------------- POPUP MESSAGE ---------------- */
-  function showMessage(text, duration = 2000) {
     const msg = document.createElement("div");
     msg.className = "popup-message";
     msg.textContent = text;
-    document.body.append(msg);
+    document.body.appendChild(msg);
+    activePopup = msg;
 
-    requestAnimationFrame(() => {
-      msg.style.transition = "opacity 0.3s ease-out";
-      msg.style.opacity = "1";
-    });
+    requestAnimationFrame(() => msg.style.opacity = "1");
 
     setTimeout(() => {
       msg.style.opacity = "0";
-      msg.addEventListener("transitionend", () => msg.remove());
+      msg.addEventListener("transitionend", () => {
+        if (msg === activePopup) activePopup = null;
+        msg.remove();
+      });
     }, duration);
+  };
+
+  /* =====================================================
+     INVENTORY TOGGLE
+     ===================================================== */
+  const invToggle = document.getElementById("invToggle");
+  const invBox = document.getElementById("inventory");
+
+  if (invToggle && invBox) {
+    invToggle.addEventListener("click", () => {
+      invBox.classList.toggle("visible");
+      if (window.refreshInventoryUI) refreshInventoryUI();
+    });
   }
 
-/* ---------------- PICKUP ITEMS (stacking) ---------------- */
-document.querySelectorAll("[data-pickup]").forEach(btn => {
-  btn.addEventListener("click", () => {
-    const itemName = btn.dataset.pickup;
-    const itemData = ITEMS[itemName];
+  /* =====================================================
+     PICKUP SYSTEM (ID-BASED, STACKING SAFE)
+     ===================================================== */
+  document.querySelectorAll("[data-pickup]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const id = btn.dataset.pickup;
+      const item = ITEMS_BY_ID[id];
 
-    if (!itemData) {
-      console.error("Item not found in ITEMS:", itemName);
-      return;
-    }
-
-    // Load existing inventory
-    let inv = loadInventory();
-
-    // Check if item already exists in inventory
-    const existing = inv.find(i => i.id === itemData.id);
-    if (existing) {
-      // If stack limit exists, respect it
-      if (itemData.stack && existing.quantity + 1 > itemData.stack) {
-        showMessage(`Cannot carry more than ${itemData.stack} ${itemName}!`);
+      if (!item) {
+        console.error("Unknown item:", id);
         return;
       }
-      existing.quantity = (existing.quantity || 1) + 1;
-    } else {
-      // Add new item
-      inv.push({
-        id: itemData.id,
-        name: itemData.name,
-        icon: itemData.icon,
-        color: itemData.color,
-        description: itemData.description,
-        quantity: 1,
-        stack: itemData.stack || 1
-      });
-    }
 
-    saveInventory(inv);
-    showMessage(`Picked up ${itemName}!`);
-    renderInventory();
-    btn.remove(); // Remove pickup button from room
+      Inventory.add(id, 1);
+      showMessage(`Picked up ${item.name}`);
+      if (window.refreshInventoryUI) refreshInventoryUI();
+      btn.remove();
+    });
   });
-});
 
-
-  /* ---------------- USE ITEMS ---------------- */
+  /* =====================================================
+     USE ITEMS
+     ===================================================== */
   document.querySelectorAll("[data-use]").forEach(btn => {
     btn.addEventListener("click", e => {
-
       e.stopPropagation();
 
-      const neededRaw = btn.dataset.use;
-      const needed = neededRaw.trim().toLowerCase();
+      const id = btn.dataset.use;
+      const item = ITEMS_BY_ID[id];
 
-      const inv = loadInventory();
-      const match = inv.find(i => i.name.toLowerCase() === needed);
-
-      if (!match) {
-        showMessage(`You don't have "${neededRaw}".`);
+      if (!item || !Inventory.has(id, 1)) {
+        showMessage(`You don't have ${item?.name || id}`);
         return;
       }
 
-      removeItem(neededRaw);
-      renderInventory();
-      showMessage(`Used: ${neededRaw}`);
+      Inventory.remove(id, 1);
+      showMessage(`Used ${item.name}`);
+      if (window.refreshInventoryUI) refreshInventoryUI();
 
       const next = btn.dataset.jump;
-      body.style.opacity = 0;
-
-      fadeAudioOut(() => {
-        setTimeout(() => window.location.href = next, 750);
-      });
+      if (next) {
+        localStorage.setItem("lastRoom", location.href);
+        body.classList.add("fade-out");
+        fadeAudioOut(() => setTimeout(() => location.href = next, 600));
+      }
     });
   });
 
-  /* ---------------- ROOM NAVIGATION ---------------- */
+  /* =====================================================
+     ROOM NAVIGATION
+     ===================================================== */
   document.querySelectorAll("[data-jump]").forEach(btn => {
     btn.addEventListener("click", () => {
-      if (btn.hasAttribute("data-use")) return;
+      if (btn.dataset.use) return;
 
-      localStorage.setItem("lastRoom", window.location.href);
-
-      const next = btn.dataset.jump;
-      body.style.opacity = 0;
-
-      fadeAudioOut(() =>
-        setTimeout(() => window.location.href = next, 750)
-      );
+      localStorage.setItem("lastRoom", location.href);
+      body.classList.add("fade-out");
+      fadeAudioOut(() => setTimeout(() => location.href = btn.dataset.jump, 600));
     });
   });
 
-   /* ---------------- DEBUG / CONSOLE CHEATS ---------------- */
-window.giveItem = function(itemName, amount = 1) {
-  const itemData = ITEMS[itemName];
-  if (!itemData) {
-    console.error(`Item "${itemName}" does not exist in ITEMS.`);
-    return;
+  /* =====================================================
+     SANITY SYSTEM (HOOKS YOUR CSS)
+     ===================================================== */
+  function loadSanity() {
+    let s = Number(localStorage.getItem("sanity"));
+    if (isNaN(s)) s = 100;
+    localStorage.setItem("sanity", s);
+    return s;
   }
 
-  let inv = JSON.parse(localStorage.getItem("inventory") || "[]");
+  function saveSanity(v) {
+    localStorage.setItem("sanity", v);
+  }
 
-  // Check for stacking
-  const existing = inv.find(i => i.id === itemData.id);
-  if (existing) {
-    if (itemData.stack && existing.quantity + amount > itemData.stack) {
-      console.warn(`Cannot exceed stack of ${itemData.stack}. Giving max possible.`);
-      existing.quantity = itemData.stack;
-    } else {
-      existing.quantity = (existing.quantity || 1) + amount;
+  window.changeSanity = function (amount) {
+    let s = loadSanity();
+    s = Math.max(0, Math.min(100, s + amount));
+    saveSanity(s);
+    applySanityEffects(s);
+    if (s <= 0) location.href = "../rooms/death.html";
+  };
+
+  function applySanityEffects(s) {
+    body.dataset.sanity =
+      s > 60 ? "high" :
+      s > 35 ? "mid" :
+      s > 15 ? "low" : "broken";
+  }
+
+  applySanityEffects(loadSanity());
+
+  /* =====================================================
+     DODGE SYSTEM (FIXED)
+     ===================================================== */
+  let dodgeActive = false;
+  let dodgeTimer = null;
+
+  window.startDodgeWindow = function (ms = 800) {
+    dodgeActive = true;
+    clearTimeout(dodgeTimer);
+    dodgeTimer = setTimeout(() => {
+      dodgeActive = false;
+      changeSanity(-15);
+    }, ms);
+  };
+
+  document.addEventListener("keydown", e => {
+    if (dodgeActive && e.key.toLowerCase() === "d") {
+      dodgeActive = false;
+      clearTimeout(dodgeTimer);
+      const flash = document.getElementById("dodgeFlash");
+      if (flash) {
+        flash.classList.add("active");
+        setTimeout(() => flash.classList.remove("active"), 150);
+      }
+      showMessage("Dodged!");
     }
-  } else {
-    inv.push({
-      id: itemData.id,
-      name: itemData.name,
-      icon: itemData.icon,
-      color: itemData.color,
-      description: itemData.description,
-      quantity: amount,
-      stack: itemData.stack || 1
-    });
-  }
-
-  localStorage.setItem("inventory", JSON.stringify(inv));
-  if (window.refreshInventoryUI) window.refreshInventoryUI(); // update UI if available
-  console.log(`Gave ${amount}x ${itemName} to yourself.`);
-};
-/* ---------------- SANITY SYSTEM ---------------- */
-
-function loadSanity() {
-  let s = Number(localStorage.getItem("sanity"));
-  if (isNaN(s)) s = 100; 
-  localStorage.setItem("sanity", s);
-  return s;
-}
-
-function saveSanity(v) {
-  localStorage.setItem("sanity", v);
-}
-
-function loadUnlockedEnemies() {
-  return JSON.parse(localStorage.getItem("unlockedEnemies") || "[]");
-}
-
-function saveUnlockedEnemies(list) {
-  localStorage.setItem("unlockedEnemies", JSON.stringify(list));
-}
-
-window.getSanity = loadSanity;
-
-window.changeSanity = function(amount, reason = "unknown") {
-  let sanity = loadSanity();
-  sanity = Math.max(0, Math.min(100, sanity + amount));
-  saveSanity(sanity);
-  applySanityEffects(sanity);
-
-  // death
-  if (sanity <= 0) {
-    handleDeath(reason);
-  }
-};
-
-function handleDeath(reason) {
-  console.warn("Player died due to:", reason);
-
-  // save “cause of death”
-  localStorage.setItem("lastDeathCause", reason);
-
-  // unlock enemy based on cause
-  const unlocked = loadUnlockedEnemies();
-  if (!unlocked.includes(reason)) {
-    unlocked.push(reason);
-    saveUnlockedEnemies(unlocked);
-  }
-
-  // send them to death screen (you can change this page)
-  window.location.href = "../rooms/death.html";
-}
-
-/* ------------ SANITY VISUAL EFFECTS ---------------- */
-
-function applySanityEffects(sanity) {
-  const s = document.body.style;
-
-  // clear first
-  s.filter = "";
-  document.body.classList.remove("low-sanity-1","low-sanity-2","low-sanity-3");
-
-  if (sanity <= 60 && sanity > 35) {
-    document.body.classList.add("low-sanity-1"); // blur-only
-  }
-  if (sanity <= 35 && sanity > 15) {
-    document.body.classList.add("low-sanity-2"); // blur + vignette
-  }
-  if (sanity <= 15) {
-    document.body.classList.add("low-sanity-3"); // distortion
-  }
-}
-
-/* Run sanity effects on room load */
-applySanityEffects(loadSanity());
-
-   /* ---------------- DODGE SYSTEM ---------------- */
-
-let dodgeWindow = false;
-let dodgeTimeout = null;
-
-// Start a dodge prompt for X ms
-function startDodgeWindow(time = 800) {
-  dodgeWindow = true;
-
-  dodgeTimeout = setTimeout(() => {
-    dodgeWindow = false;
-    playerHit(); // Fail
-  }, time);
-}
-
-// Keyboard listener for "Dodge"
-document.addEventListener("keydown", (e) => {
-  if (dodgeWindow && e.key.toLowerCase() === "d") {
-    dodgeSuccess();
-  }
-});
-
-// When dodge succeeds
-function dodgeSuccess() {
-  dodgeWindow = false;
-  clearTimeout(dodgeTimeout);
-  showDodgeFlash();
-  console.log("DODGED!");
-  
-  // Optional: enemy stagger animation later
-}
-
-// When dodge fails
-function playerHit() {
-  console.log("HIT!");
-  reduceSanity(15); // You can change this
-}
-
-/* Visual Feedback */
-function showDodgeFlash() {
-  const flash = document.getElementById("dodgeFlash");
-  flash.classList.add("active");
-  setTimeout(() => flash.classList.remove("active"), 150);
-}
+  });
 
 });
