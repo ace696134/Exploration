@@ -128,6 +128,13 @@ document.addEventListener("DOMContentLoaded", () => {
   =============================== */
   if (window.Inventory?.load) Inventory.load();
 
+  // Inventory toggle button
+  const toggle = document.getElementById("invToggle");
+  const inv = document.getElementById("inventory");
+  if (toggle && inv) {
+    toggle.addEventListener("click", () => inv.classList.toggle("visible"));
+  }
+
   function showMessage(text, duration = 2000) {
     if (document.querySelector(".popup-message")) return;
 
@@ -146,7 +153,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   /* ===============================
      PICKUP SYSTEM
-     data-pickup="silver_key"
   =============================== */
   document.querySelectorAll("[data-pickup]").forEach(btn => {
     btn.addEventListener("click", () => {
@@ -163,7 +169,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   /* ===============================
      USE ITEMS
-     data-use="silver_key"
   =============================== */
   document.querySelectorAll("[data-use]").forEach(btn => {
     btn.addEventListener("click", () => {
@@ -182,20 +187,28 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-function fitTitleText(selector, maxFontSize = 80, minFontSize = 24) {
-  const el = document.querySelector(selector);
-  if (!el) return;
+  /* ===============================
+     TITLE AUTO-FIT
+  =============================== */
+  function fitTitleText(selector, maxFontSize = 80, minFontSize = 24) {
+    const el = document.querySelector(selector);
+    if (!el) return;
 
-  let fontSize = maxFontSize;
-  el.style.fontSize = fontSize + "px";
-
-  while (el.scrollWidth > el.clientWidth && fontSize > minFontSize) {
-    fontSize -= 1;
+    let fontSize = maxFontSize;
     el.style.fontSize = fontSize + "px";
-  }
-}
 
-document.addEventListener("DOMContentLoaded", () => {
+    while (el.scrollWidth > el.clientWidth && fontSize > minFontSize) {
+      fontSize -= 1;
+      el.style.fontSize = fontSize + "px";
+    }
+  }
+
+  // Initial fit
   fitTitleText(".title");
-});
+
+  // Adjust on window resize
+  window.addEventListener("resize", () => {
+    fitTitleText(".title");
+  });
+
 });
