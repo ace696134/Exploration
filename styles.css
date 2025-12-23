@@ -238,19 +238,22 @@ body[data-sanity="broken"] #bgContainer {
    FADE OVERLAY FIX
    ============================ */
 #fadeOverlay {
-  position: fixed;
-  inset: 0;
+  position: fixed;          /* cover the viewport */
+  top: 0;                   /* safe fallback for inset */
+  left: 0;
+  width: 100vw;
+  height: 100vh;
   background: black;
-  opacity: 0;
-  pointer-events: none;
+  opacity: 0;                /* fully transparent by default */
+  pointer-events: none;      /* clicks pass through when inactive */
   transition: opacity 1.2s ease-in-out;
-  z-index: 1000;
-}
-#fadeOverlay.active {
-  opacity: 1;
-  pointer-events: auto;
+  z-index: 1000;             /* behind inventory (z-index: 2000) */
 }
 
+#fadeOverlay.active {
+  opacity: 1;                /* fade in */
+  pointer-events: auto;      /* block interactions when active */
+}
 /* ============================
    INVENTORY Z-INDEX FIX
    ============================ */
