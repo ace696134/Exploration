@@ -1,4 +1,4 @@
-/* Endless Requium – Room Handler (FIXED) */
+/* Endless Requium – Room Handler (STABLE & FIXED) */
 
 document.addEventListener("DOMContentLoaded", () => {
 
@@ -12,11 +12,9 @@ document.addEventListener("DOMContentLoaded", () => {
   =============================== */
   if (bgContainer) {
     bgContainer.style.position = "fixed";
-    bgContainer.style.top = "0";
-    bgContainer.style.left = "0";
-    bgContainer.style.width = "100vw";
-    bgContainer.style.height = "100vh";
-    bgContainer.style.zIndex = "0";
+    bgContainer.style.inset = "0";
+    bgContainer.style.zIndex = "-5";          // ✅ push behind everything
+    bgContainer.style.pointerEvents = "none";
     bgContainer.style.overflow = "hidden";
     bgContainer.style.background = "transparent";
 
@@ -25,14 +23,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     layers.forEach((img, i) => {
       img.style.position = "absolute";
-      img.style.top = "0";
-      img.style.left = "0";
+      img.style.inset = "0";
       img.style.width = "100vw";
       img.style.height = "100vh";
       img.style.objectFit = "cover";
       img.style.opacity = i === 0 ? "1" : "0";
       img.style.transition = "opacity 1.5s ease-in-out";
-      img.style.pointerEvents = "none";
       img.style.background = "transparent";
     });
 
@@ -45,9 +41,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  /* Force content above background */
+  /* Ensure content is always above background */
   document.querySelectorAll(".center-box, #inventory, #invToggle")
-    .forEach(el => el.style.zIndex = "2");
+    .forEach(el => el.style.zIndex = "5");
 
   /* ===============================
      FADE IN
@@ -55,7 +51,7 @@ document.addEventListener("DOMContentLoaded", () => {
   requestAnimationFrame(() => body.classList.add("fade-in"));
 
   /* ===============================
-     AUDIO
+     AUDIO SYSTEM
   =============================== */
   let ambient = null;
 
@@ -66,19 +62,19 @@ document.addEventListener("DOMContentLoaded", () => {
     ambient.muted = isMuted;
 
     ambient.play().then(fadeAudioIn).catch(() => {
-      window.addEventListener("click", startAudio);
-      window.addEventListener("keydown", startAudio);
+      window.addEventListener("click", startAudio, { once: true });
+      window.addEventListener("keydown", startAudio, { once: true });
     });
   }
 
   function startAudio() {
+    if (!ambient) return;
     ambient.play();
     fadeAudioIn();
-    window.removeEventListener("click", startAudio);
-    window.removeEventListener("keydown", startAudio);
   }
 
   function fadeAudioIn() {
+    if (!ambient) return;
     let v = 0;
     const fade = setInterval(() => {
       v += 0.02;
@@ -88,7 +84,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function fadeAudioOut(cb) {
-    if (!ambient) return cb();
+    if (!ambient) return cb?.();
     let v = ambient.volume;
     const fade = setInterval(() => {
       v -= 0.03;
@@ -96,28 +92,31 @@ document.addEventListener("DOMContentLoaded", () => {
       if (v <= 0) {
         clearInterval(fade);
         ambient.pause();
-        cb();
+        cb?.();
       }
     }, 40);
   }
 
   /* ===============================
-     GLOBAL ROOM NAV FUNCTION (FIX)
+     ROOM NAVIGATION (FIXED)
+     Supports GoToRoom & goToRoom
   =============================== */
-  window.goToRoom = function (room) {
+  function _go(room) {
+    if (!room) return;
     localStorage.setItem("lastRoom", location.href);
     body.style.opacity = "0";
     fadeAudioOut(() => {
-      setTimeout(() => {
-        location.href = room;
-      }, 700);
+      setTimeout(() => location.href = room, 700);
     });
-  };
+  }
+
+  window.goToRoom = _go;
+  window.GoToRoom = _go; // ✅ supports your HTML calls
 
   /* ===============================
-     INVENTORY
+     INVENTORY SYSTEM
   =============================== */
-  if (window.Inventory) Inventory.load();
+  if (window.Inventory?.load) Inventory.load();
 
   function showMessage(text, duration = 2000) {
     if (document.querySelector(".popup-message")) return;
@@ -136,39 +135,40 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   /* ===============================
-     PICKUP
+     PICKUP SYSTEM
+     data-pickup="silver_key"
   =============================== */
   document.querySelectorAll("[data-pickup]").forEach(btn => {
     btn.addEventListener("click", () => {
       const id = btn.dataset.pickup;
-      const item = ITEMS_BY_ID[id];
-      if (!item) return;
+      const item = window.ITEMS_BY_ID?.[id];
+      if (!item || !window.Inventory) return;
 
       Inventory.add(id, 1);
       showMessage(`Picked up ${item.name}`);
-      refreshInventoryUI();
+      window.refreshInventoryUI?.();
       btn.remove();
     });
   });
 
   /* ===============================
      USE ITEMS
+     data-use="silver_key"
   =============================== */
   document.querySelectorAll("[data-use]").forEach(btn => {
     btn.addEventListener("click", () => {
       const id = btn.dataset.use;
       const next = btn.dataset.jump;
 
-      if (!Inventory.has(id)) {
+      if (!Inventory?.has(id)) {
         showMessage("You don't have that.");
         return;
       }
 
       Inventory.remove(id, 1);
-      refreshInventoryUI();
+      window.refreshInventoryUI?.();
       showMessage("Used item.");
-
-      goToRoom(next);
+      _go(next);
     });
   });
 
