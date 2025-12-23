@@ -69,12 +69,12 @@ body.fade-out { opacity: 0 !important; }
    TITLES (ROOMS)
    ============================ */
 .title {
-  font-size: clamp(2rem, 6vw, 5rem); /* default scaling */
+  font-size: clamp(2rem, 6vw, 5rem);
   line-height: 1;
   text-align: center;
-  max-width: 90vw; /* prevent overflow */
-  white-space: nowrap; /* try to keep single line */
-  overflow: hidden;
+  max-width: 90vw;
+  white-space: normal;   /* allow wrapping */
+  word-break: break-word;
 }
 
 .subtitle {
