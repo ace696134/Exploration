@@ -234,12 +234,28 @@ body[data-sanity="broken"] #bgContainer {
   margin-top: 40px;
 }
 
-.bg-fade {
-  position: absolute;
+/* ============================
+   FADE OVERLAY FIX
+   ============================ */
+#fadeOverlay {
+  position: fixed;
   inset: 0;
   background: black;
   opacity: 0;
   pointer-events: none;
+  transition: opacity 1.2s ease-in-out;
+  z-index: 1000;
+}
+#fadeOverlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ============================
+   INVENTORY Z-INDEX FIX
+   ============================ */
+#invToggle, #inventory {
+  z-index: 2000; /* above overlays so button works */
 }
 
 /* ============================
