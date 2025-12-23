@@ -182,4 +182,20 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
+function fitTitleText(selector, maxFontSize = 80, minFontSize = 24) {
+  const el = document.querySelector(selector);
+  if (!el) return;
+
+  let fontSize = maxFontSize;
+  el.style.fontSize = fontSize + "px";
+
+  while (el.scrollWidth > el.clientWidth && fontSize > minFontSize) {
+    fontSize -= 1;
+    el.style.fontSize = fontSize + "px";
+  }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  fitTitleText(".title");
+});
 });
