@@ -155,7 +155,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  /* ---------- INTRO ---------- */
+  /* ---------- INTRO ANIMATIONS ---------- */
   anime({ targets: bgFade, opacity: [0,1], duration: 1200 });
   anime({ targets: title, opacity: [0,1], translateY: [-40,0], delay: 200 });
   anime({ targets: subtitle, opacity: [0,1], translateY: [-20,0], delay: 400 });
@@ -189,20 +189,17 @@ document.addEventListener("DOMContentLoaded", () => {
     fadeOut(() => location.href = lastRoom);
   });
 
-  /* ---------- DELETE ---------- */
+  /* ---------- DELETE PROGRESS ---------- */
   deleteBtn.addEventListener("click", () => {
-    if (!confirm("Delete ALL progress?")) return;
+    if (!confirm("Delete ALL progress? This cannot be undone.")) return;
     wipeSave();
     alert("Progress deleted.");
     location.reload();
   });
 
+  /* ---------- FULL WIPE (FIX) ---------- */
   function wipeSave() {
-    localStorage.removeItem("lastRoom");
-    localStorage.removeItem("inventory");
-    localStorage.removeItem("sanity");
-    localStorage.removeItem("deathCount");
-    localStorage.removeItem("trophies");
+    localStorage.clear();
   }
 
 });
