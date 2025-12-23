@@ -1,60 +1,82 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta-name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Endless Requium - Lore</title>
-  <link rel="stylesheet" href="../styles.css">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Endless Requium — Room</title>
+
+<!-- GLOBAL STYLES -->
+<link rel="stylesheet" href="../styles.css" />
 </head>
 
-<body data-audio="ambient.mp3">
+<body data-audio="ambient.mp3" data-sanity="high">
 
-  <!-- INVENTORY BUTTON -->
-  <button id="invToggle">Inventory</button>
+<!-- ======================
+BACKGROUND CONTAINER
+====================== -->
+<div id="bgContainer">
+// Blank
+</div>
 
-  <!-- INVENTORY BOX -->
-  <div id="inventory" class="hidden"></div>
+<!-- ======================
+INVENTORY UI
+====================== -->
+<button id="invToggle">Inventory</button>
+<div id="inventory" class="hidden"></div>
 
-  <!-- CENTERED ROOM CONTENT -->
-  <div class="center-box">
-    <h1 class="title glitch" style="opacity:1;" data-text="Room Title">Endless Requium</h1>
-    <p class="subtitle" style="opacity:1;">
-      Try to get out.. If you wanna hear the sounds for any room, click anywhere or press a key.
-    </p>
+<!-- ======================
+ROOM CONTENT
+====================== -->
+<div class="center-box">
 
-    <!-- Navigation -->
-    <button class="btn" data-jump="road.html">Walk back to the car.</button>
-    <button class="btn" data-jump="door.html">Go to the door.</button>
-  </div>
+<!-- TITLE -->
+<h1 class="title">Welcome to Endless requiem!</h1>
+<p class="subtitle"> Try to get out.. If you wanna hear the sounds for any room, click anywhere or press a key..</p>
 
-  <!-- Screen Effects -->
-  <div class="vignette"></div>
-  <div class="scanlines"></div>
-  <div class="grain"></div>
+<!-- ===== NAVIGATION ===== -->
+<button class="btn" onclick="Enter.(road.html')">
+Go to Next Room
+</button>
 
-  <!-- ----------------------------- -->
-  <!--            SCRIPTS            -->
-  <!-- ----------------------------- -->
+</div>
 
- <script src="../rooms/items.js"></script>
+<!-- ======================
+VISUAL OVERLAYS
+====================== -->
+<div class="vignette"></div>
+<div class="scanlines"></div>
+<div class="grain"></div>
+
+<!-- ======================
+SYSTEM SCRIPTS (ORDER MATTERS)
+====================== -->
+
+<!-- Core data -->
+<script src="../rooms/items.js"></script>
 <script src="../rooms/inventory.js"></script>
 
+<!-- Gameplay systems -->
 <script src="../rooms/sanity.js"></script>
 <script src="../rooms/death_unlocks.js"></script>
 <script src="../rooms/enemies.js"></script>
-<script src="../rooms/rooms_system.js"></script>
 <script src="../rooms/trophies.js"></script>
 
+<!-- Utilities -->
+<script src="../rooms/pickup.js"></script>
 <script src="../utils.js"></script>
+
+<!-- Room handler LAST -->
 <script src="../rooms/script.js"></script>
 
+<!-- ======================
+INIT
+====================== -->
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+document.body.classList.add("fade-in");
 
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      document.body.classList.add("fade-in");
-    });
-  </script>
+});
+</script>
 
-  <div id="dodgeFlash"></div>
 </body>
 </html>
