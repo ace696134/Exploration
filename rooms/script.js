@@ -1,4 +1,4 @@
-/* Endless Requium – Room Handler (FIXED & CONSOLIDATED) */
+/* Endless Requium – Room Handler (FIXED) */
 
 document.addEventListener("DOMContentLoaded", () => {
 
@@ -8,26 +8,32 @@ document.addEventListener("DOMContentLoaded", () => {
   const isMuted = localStorage.getItem("gameMuted") === "1";
 
   /* ===============================
-     BACKGROUND HANDLER (FIXED)
+     BACKGROUND HANDLER (NO BLACK BOX)
   =============================== */
   if (bgContainer) {
     bgContainer.style.position = "fixed";
-    bgContainer.style.inset = "0";
-    bgContainer.style.zIndex = "-1";
+    bgContainer.style.top = "0";
+    bgContainer.style.left = "0";
+    bgContainer.style.width = "100vw";
+    bgContainer.style.height = "100vh";
+    bgContainer.style.zIndex = "0";
     bgContainer.style.overflow = "hidden";
+    bgContainer.style.background = "transparent";
 
-    const layers = Array.from(bgContainer.querySelectorAll("img"));
+    const layers = [...bgContainer.querySelectorAll("img")];
     let current = 0;
 
     layers.forEach((img, i) => {
       img.style.position = "absolute";
-      img.style.inset = "0";
+      img.style.top = "0";
+      img.style.left = "0";
       img.style.width = "100vw";
       img.style.height = "100vh";
       img.style.objectFit = "cover";
       img.style.opacity = i === 0 ? "1" : "0";
       img.style.transition = "opacity 1.5s ease-in-out";
       img.style.pointerEvents = "none";
+      img.style.background = "transparent";
     });
 
     if (layers.length > 1) {
@@ -39,8 +45,12 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  /* Force content above background */
+  document.querySelectorAll(".center-box, #inventory, #invToggle")
+    .forEach(el => el.style.zIndex = "2");
+
   /* ===============================
-     BODY FADE
+     FADE IN
   =============================== */
   requestAnimationFrame(() => body.classList.add("fade-in"));
 
@@ -55,7 +65,7 @@ document.addEventListener("DOMContentLoaded", () => {
     ambient.volume = 0;
     ambient.muted = isMuted;
 
-    ambient.play().then(() => fadeAudioIn()).catch(() => {
+    ambient.play().then(fadeAudioIn).catch(() => {
       window.addEventListener("click", startAudio);
       window.addEventListener("keydown", startAudio);
     });
@@ -92,9 +102,22 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   /* ===============================
-     INVENTORY (SINGLE SOURCE)
+     GLOBAL ROOM NAV FUNCTION (FIX)
   =============================== */
-  Inventory.load();
+  window.goToRoom = function (room) {
+    localStorage.setItem("lastRoom", location.href);
+    body.style.opacity = "0";
+    fadeAudioOut(() => {
+      setTimeout(() => {
+        location.href = room;
+      }, 700);
+    });
+  };
+
+  /* ===============================
+     INVENTORY
+  =============================== */
+  if (window.Inventory) Inventory.load();
 
   function showMessage(text, duration = 2000) {
     if (document.querySelector(".popup-message")) return;
@@ -113,18 +136,13 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   /* ===============================
-     PICKUP SYSTEM (FIXED)
-     data-pickup="silver_key"
+     PICKUP
   =============================== */
   document.querySelectorAll("[data-pickup]").forEach(btn => {
     btn.addEventListener("click", () => {
       const id = btn.dataset.pickup;
       const item = ITEMS_BY_ID[id];
-
-      if (!item) {
-        console.error("Unknown item:", id);
-        return;
-      }
+      if (!item) return;
 
       Inventory.add(id, 1);
       showMessage(`Picked up ${item.name}`);
@@ -135,7 +153,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   /* ===============================
      USE ITEMS
-     data-use="silver_key"
   =============================== */
   document.querySelectorAll("[data-use]").forEach(btn => {
     btn.addEventListener("click", () => {
@@ -151,48 +168,8 @@ document.addEventListener("DOMContentLoaded", () => {
       refreshInventoryUI();
       showMessage("Used item.");
 
-      body.style.opacity = 0;
-      fadeAudioOut(() => {
-        setTimeout(() => location.href = next, 700);
-      });
+      goToRoom(next);
     });
-  });
-
-  /* ===============================
-     ROOM NAVIGATION
-  =============================== */
-  document.querySelectorAll("[data-jump]").forEach(btn => {
-    if (btn.hasAttribute("data-use")) return;
-
-    btn.addEventListener("click", () => {
-      localStorage.setItem("lastRoom", location.href);
-      body.style.opacity = 0;
-      fadeAudioOut(() =>
-        setTimeout(() => location.href = btn.dataset.jump, 700)
-      );
-    });
-  });
-
-  /* ===============================
-     DODGE SYSTEM (UNCHANGED)
-  =============================== */
-  let dodgeWindow = false;
-  let dodgeTimeout = null;
-
-  window.startDodgeWindow = function (time = 800) {
-    dodgeWindow = true;
-    dodgeTimeout = setTimeout(() => {
-      dodgeWindow = false;
-      changeSanity(-15, "hit");
-    }, time);
-  };
-
-  document.addEventListener("keydown", e => {
-    if (dodgeWindow && e.key.toLowerCase() === "d") {
-      dodgeWindow = false;
-      clearTimeout(dodgeTimeout);
-      console.log("Dodged");
-    }
   });
 
 });
