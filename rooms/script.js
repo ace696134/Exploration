@@ -1,4 +1,6 @@
-/* Endless Requium – Room Handler (STABLE & FIXED) */
+/* ================================
+   Endless Requium – Full Script
+================================ */
 
 document.addEventListener("DOMContentLoaded", () => {
 
@@ -8,16 +10,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const isMuted = localStorage.getItem("gameMuted") === "1";
 
   /* ===============================
-     BACKGROUND HANDLER (NO BLACK BOX)
+     BACKGROUND HANDLER
   =============================== */
   if (bgContainer) {
-    bgContainer.style.position = "fixed";
-    bgContainer.style.inset = "0";
-    bgContainer.style.zIndex = "-5";          // ✅ push behind everything
-    bgContainer.style.pointerEvents = "none";
-    bgContainer.style.overflow = "hidden";
-    bgContainer.style.background = "transparent";
-
     const layers = [...bgContainer.querySelectorAll("img")];
     let current = 0;
 
@@ -41,12 +36,12 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  /* Ensure content is always above background */
+  /* Ensure content is above background */
   document.querySelectorAll(".center-box, #inventory, #invToggle")
     .forEach(el => el.style.zIndex = "5");
 
   /* ===============================
-     FADE IN
+     FADE IN BODY
   =============================== */
   requestAnimationFrame(() => body.classList.add("fade-in"));
 
@@ -98,20 +93,35 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   /* ===============================
-     ROOM NAVIGATION (FIXED)
-     Supports GoToRoom & goToRoom
+     FADE OVERLAY HELPER
+  =============================== */
+  function fadeScreen(cb, duration = 1200) {
+    const overlay = document.getElementById("fadeOverlay");
+    if (!overlay) return cb?.();
+
+    overlay.classList.add("active");
+    setTimeout(() => {
+      overlay.classList.remove("active");
+      cb?.();
+    }, duration);
+  }
+
+  /* ===============================
+     ROOM NAVIGATION
   =============================== */
   function _go(room) {
     if (!room) return;
     localStorage.setItem("lastRoom", location.href);
-    body.style.opacity = "0";
-    fadeAudioOut(() => {
-      setTimeout(() => location.href = room, 700);
+
+    fadeScreen(() => {
+      fadeAudioOut(() => {
+        setTimeout(() => location.href = room, 200);
+      });
     });
   }
 
   window.goToRoom = _go;
-  window.GoToRoom = _go; // ✅ supports your HTML calls
+  window.GoToRoom = _go;
 
   /* ===============================
      INVENTORY SYSTEM
