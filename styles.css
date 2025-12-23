@@ -14,8 +14,6 @@ html, body {
   color: #e33;
   font-family: 'Underdog', sans-serif;
   overflow: hidden;
-
-  /* IMPORTANT: no flex here */
   display: block;
 }
 
@@ -54,17 +52,20 @@ body.fade-out { opacity: 0 !important; }
    CENTER CONTENT
    ============================ */
 .center-box {
-  position: fixed; /* fix to viewport */
+  position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  z-index: 5; /* above bg but below inventory */
+  z-index: 5;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center; /* vertical centering */
   gap: 14px;
   text-align: center;
+  max-width: 90vw;         /* prevent overflow */
 }
+
 /* ============================
    TITLES (ROOMS)
    ============================ */
@@ -73,7 +74,7 @@ body.fade-out { opacity: 0 !important; }
   line-height: 1;
   text-align: center;
   max-width: 90vw;
-  white-space: normal;   /* allow wrapping */
+  white-space: normal;
   word-break: break-word;
 }
 
@@ -82,9 +83,10 @@ body.fade-out { opacity: 0 !important; }
   color: #ffd9d6;
   margin-top: 10px;
   text-align: center;
-  word-break: break-word;         /* allow wrapping */
-  max-width: 80vw;                /* prevent overflow */
+  max-width: 80vw;
+  word-break: break-word;
 }
+
 /* ============================
    BUTTONS
    ============================ */
@@ -120,7 +122,8 @@ body.fade-out { opacity: 0 !important; }
   background: black;
   color: red;
   cursor: pointer;
-  z-index: 2000; /* fixed */
+  z-index: 2000; /* ensure button is on top */
+  pointer-events: auto; /* allow clicks */
 }
 
 #inventory {
@@ -136,12 +139,11 @@ body.fade-out { opacity: 0 !important; }
   display: flex;
   flex-direction: column;
   gap: 6px;
-
   transform: translateY(150px);
   opacity: 0;
   transition: transform 0.35s ease, opacity 0.35s ease;
-
-  z-index: 2000; /* fixed */
+  z-index: 2000; /* above overlays */
+  pointer-events: auto;
 }
 
 #inventory.visible {
@@ -182,7 +184,7 @@ body.fade-out { opacity: 0 !important; }
   border-radius: 6px;
   opacity: 0;
   transition: opacity 0.3s ease;
-  z-index: 20;
+  z-index: 3000; /* above inventory */
 }
 
 /* ============================
@@ -220,7 +222,6 @@ body[data-sanity="broken"] #bgContainer {
   inset: 0;
   background: black;
   z-index: 9999;
-
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -238,30 +239,24 @@ body[data-sanity="broken"] #bgContainer {
 }
 
 /* ============================
-   FADE OVERLAY FIX
+   FADE OVERLAY
    ============================ */
 #fadeOverlay {
-  position: fixed;          /* cover the viewport */
-  top: 0;                   /* safe fallback for inset */
+  position: fixed;
+  top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
   background: black;
-  opacity: 0;                /* fully transparent by default */
-  pointer-events: none;      /* clicks pass through when inactive */
+  opacity: 0;
+  pointer-events: none;
   transition: opacity 1.2s ease-in-out;
-  z-index: 1000;             /* behind inventory (z-index: 2000) */
+  z-index: 1000;
 }
 
 #fadeOverlay.active {
-  opacity: 1;                /* fade in */
-  pointer-events: auto;      /* block interactions when active */
-}
-/* ============================
-   INVENTORY Z-INDEX FIX
-   ============================ */
-#invToggle, #inventory {
-  z-index: 2000; /* above overlays so button works */
+  opacity: 1;
+  pointer-events: auto;
 }
 
 /* ============================
