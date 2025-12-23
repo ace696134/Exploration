@@ -1,4 +1,6 @@
-/* ---------- GENERAL ---------- */
+/* ============================
+   RESET / BASE
+   ============================ */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -6,49 +8,83 @@
 }
 
 html, body {
+  width: 100%;
   height: 100%;
-  background: #000;
+  background: black;
   color: #e33;
   font-family: 'Underdog', sans-serif;
   overflow: hidden;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+
+  /* IMPORTANT: no flex here */
+  display: block;
 }
 
-/* ---------- HIDDEN ELEMENT ---------- */
-.hidden { display: none; }
+/* ============================
+   GLOBAL FADES
+   ============================ */
+body {
+  opacity: 0;
+  transition: opacity 1.8s ease-in-out;
+}
 
-/* ---------- CENTER LAYOUT ---------- */
+body.fade-in  { opacity: 1; }
+body.fade-out { opacity: 0 !important; }
+
+/* ============================
+   BACKGROUND
+   ============================ */
+#bgContainer {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background: transparent;
+  overflow: hidden;
+}
+
+#bgContainer img {
+  position: absolute;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+/* ============================
+   CENTER CONTENT
+   ============================ */
 .center-box {
-  text-align: center;
+  position: relative;
+  z-index: 5;
+
   display: flex;
   flex-direction: column;
-  gap: 14px;
   align-items: center;
-  z-index: 50;
+  gap: 14px;
+
+  text-align: center;
 }
 
-/* ---------- TITLE / SUBTITLE ---------- */
+/* ============================
+   TITLES (ROOMS)
+   ============================ */
 .title {
   font-size: clamp(2rem, 6vw, 5rem);
-  margin: 0;
-  position: relative;
-  display: inline-block;
-  line-height: 0.95;
-  opacity: 0; /* needed for Anime.js */
   letter-spacing: 4px;
+  line-height: 0.95;
+  opacity: 1;
 }
 
 .subtitle {
   font-size: clamp(0.9rem, 2.4vw, 1.4rem);
   color: #ffd9d6;
-  opacity: 0.9;
-  opacity: 0; /* anime.js fade-in */
   margin-top: 10px;
+  opacity: 0.9;
 }
 
-/* ---------- BUTTONS ---------- */
+/* ============================
+   BUTTONS
+   ============================ */
 .btn {
   background: transparent;
   color: #e33;
@@ -60,16 +96,18 @@ html, body {
   transition: 0.25s ease;
 }
 
-.btn:not(.hidden) {
-  margin-top: 8px;
-}
-
 .btn:hover {
   background: #e33;
-  color: #000;
+  color: black;
 }
 
-/* ---------- INVENTORY ---------- */
+.hidden {
+  display: none;
+}
+
+/* ============================
+   INVENTORY
+   ============================ */
 #invToggle {
   position: fixed;
   top: 20px;
@@ -79,7 +117,7 @@ html, body {
   background: black;
   color: red;
   cursor: pointer;
-  z-index: 1000;
+  z-index: 10;
 }
 
 #inventory {
@@ -89,17 +127,18 @@ html, body {
   min-width: 220px;
   max-width: 300px;
   padding: 12px;
-  background: rgba(0, 0, 0, 0.85);
+  background: rgba(0,0,0,0.85);
   border: 2px solid red;
   color: red;
-  font-size: 18px;
   display: flex;
   flex-direction: column;
   gap: 6px;
+
   transform: translateY(150px);
   opacity: 0;
   transition: transform 0.35s ease, opacity 0.35s ease;
-  z-index: 1000;
+
+  z-index: 10;
 }
 
 #inventory.visible {
@@ -115,7 +154,6 @@ html, body {
   padding: 6px 10px;
   background: rgba(0,0,0,0.6);
   color: white;
-  font-size: 18px;
   border-radius: 4px;
 }
 
@@ -125,167 +163,75 @@ html, body {
   object-fit: contain;
 }
 
-/* ---------- POPUP MESSAGE ---------- */
+/* ============================
+   POPUP MESSAGE
+   ============================ */
 .popup-message {
   position: fixed;
   top: 20%;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(0, 0, 0, 0.85);
+  background: rgba(0,0,0,0.85);
   color: red;
   padding: 12px 24px;
   border: 2px solid red;
   font-size: 1.1rem;
-  z-index: 2000;
-  opacity: 0;
-  pointer-events: none;
   border-radius: 6px;
+  opacity: 0;
   transition: opacity 0.3s ease;
-}
-
-/* ---------- RESPONSIVE ---------- */
-@media (max-width: 600px) {
-  .title {
-    font-size: clamp(1.6rem, 12vw, 3rem);
-  }
-  .subtitle {
-    font-size: 0.95rem;
-  }
-  .btn {
-    font-size: 0.95rem;
-    padding: 8px 14px;
-  }
-  #inventory {
-    min-width: 180px;
-    font-size: 16px;
-  }
-  .inv-item {
-    font-size: 16px;
-  }
-}
-
-/* ---------- GLOBAL FADES ---------- */
-body {
-  opacity: 0;
-  transition: opacity 1.8s ease-in-out;
-}
-
-body.fade-in    { opacity: 1; }
-body.fade-out   { opacity: 0 !important; }
-
-/* ---------- CRAFTING BUTTON IN INVENTORY ---------- */
-#craftingBtn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  border: 2px solid #ff9900;
-  background: black;
-  color: #ff9900;
-  padding: 6px 10px;
-  font-size: 18px;
-  cursor: pointer;
-  border-radius: 6px;
-  transition: 0.25s ease;
-}
-
-#craftingBtn:hover {
-  background: #ff9900;
-  color: black;
+  z-index: 20;
 }
 
 /* ============================
-   SANITY VISUAL EFFECTS
+   OVERLAYS
    ============================ */
-
-body[data-sanity="high"] #bgContainer {
-  filter: none;
+.vignette,
+.scanlines,
+.grain {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
 }
 
-/* MID */
+/* ============================
+   SANITY EFFECTS
+   ============================ */
 body[data-sanity="mid"] #bgContainer {
   filter: blur(2px) brightness(0.95) saturate(110%);
 }
 
-/* LOW */
 body[data-sanity="low"] #bgContainer {
   filter: blur(4px) brightness(0.9) saturate(130%) contrast(1.15);
 }
 
-body[data-sanity="low"] {
-  animation: sanity-shift 1.5s infinite ease-in-out;
-}
-
-@keyframes sanity-shift {
-  0% { filter: contrast(1.0); }
-  50% { filter: contrast(1.15) saturate(130%); }
-  100% { filter: contrast(1.0); }
-}
-
-/* BROKEN */
 body[data-sanity="broken"] #bgContainer {
   filter: blur(6px) hue-rotate(20deg) contrast(1.6) saturate(150%);
 }
 
-body[data-sanity="broken"] {
-  animation: sanity-break 0.15s infinite;
-  filter: brightness(0.85);
-}
-
-@keyframes sanity-break {
-  0% { transform: translate(0,0); }
-  25% { transform: translate(-2px, 1px); }
-  50% { transform: translate(2px, -1px); }
-  75% { transform: translate(-1px, -2px); }
-  100% { transform: translate(1px, 2px); }
-}
-
-/* Broken sanity vignette */
-body[data-sanity="broken"]::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  background: radial-gradient(circle, transparent 40%, rgba(0,0,0,0.8) 100%);
-}
-
-/* ---------- DODGE FLASH EFFECT ---------- */
-#dodgeFlash {
-  position: fixed;
-  inset: 0;
-  background: rgba(255, 255, 255, 0.25);
-  backdrop-filter: blur(8px);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.15s ease-out;
-}
-
-#dodgeFlash.active {
-  opacity: 1;
-}
-
-/* ---------- TITLE SCREEN (Anime.js) ---------- */
+/* ============================
+   TITLE SCREEN ONLY
+   ============================ */
 #titleScreen {
-  position: absolute;
+  position: fixed;
   inset: 0;
+  background: black;
+  z-index: 9999;
+
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
-  pointer-events: auto;
-
-  /* FIXES */
-  opacity: 1 !important;
-  z-index: 9999;
-  background: black;
 }
 
+#titleScreen .title,
+#titleScreen .subtitle,
+#titleScreen .menu-buttons {
+  opacity: 0; /* Anime.js controls these */
+}
 
 .menu-buttons {
   margin-top: 40px;
-  opacity: 0;
-  transform: translateY(20px);
 }
 
 .bg-fade {
@@ -294,4 +240,13 @@ body[data-sanity="broken"]::after {
   background: black;
   opacity: 0;
   pointer-events: none;
+}
+
+/* ============================
+   RESPONSIVE
+   ============================ */
+@media (max-width: 600px) {
+  .title { font-size: 2.2rem; }
+  .subtitle { font-size: 1rem; }
+  .btn { font-size: 0.95rem; }
 }
