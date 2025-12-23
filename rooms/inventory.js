@@ -8,6 +8,8 @@ window.Inventory = {
   load() {
     const saved = localStorage.getItem("inventory");
     this.data = saved ? JSON.parse(saved) : {};
+    // refresh UI after loading
+    window.refreshInventoryUI?.();
   },
 
   save() {
@@ -18,7 +20,7 @@ window.Inventory = {
     if (!this.data[id]) this.data[id] = 0;
     this.data[id] += amount;
     this.save();
-    refreshInventoryUI();
+    window.refreshInventoryUI?.();
   },
 
   remove(id, amount = 1) {
@@ -26,7 +28,7 @@ window.Inventory = {
     this.data[id] -= amount;
     if (this.data[id] <= 0) delete this.data[id];
     this.save();
-    refreshInventoryUI();
+    window.refreshInventoryUI?.();
     return true;
   },
 
@@ -38,20 +40,6 @@ window.Inventory = {
 /* =====================================================
    INVENTORY UI
    ===================================================== */
-
-document.addEventListener("DOMContentLoaded", () => {
-  Inventory.load();
-  refreshInventoryUI();
-
-  // ===== INVENTORY TOGGLE BUTTON =====
-  const toggle = document.getElementById("invToggle");
-  const inv = document.getElementById("inventory");
-  if (toggle && inv) {
-    toggle.addEventListener("click", () => {
-      inv.classList.toggle("visible");
-    });
-  }
-});
 
 window.refreshInventoryUI = function () {
   const inv = document.getElementById("inventory");
@@ -68,7 +56,7 @@ window.refreshInventoryUI = function () {
     row.style.borderColor = item.color;
 
     row.innerHTML = `
-      <img src="${item.icon}">
+      <img src="${item.icon}" class="inv-icon">
       <span>${item.name}</span>
       <span class="count">x${Inventory.data[id]}</span>
     `;
@@ -76,3 +64,21 @@ window.refreshInventoryUI = function () {
     inv.appendChild(row);
   }
 };
+
+/* ============================
+   DOM READY
+============================ */
+
+document.addEventListener("DOMContentLoaded", () => {
+  // Load inventory **after refreshInventoryUI exists**
+  Inventory.load();
+
+  // ===== INVENTORY TOGGLE BUTTON =====
+  const toggle = document.getElementById("invToggle");
+  const inv = document.getElementById("inventory");
+  if (toggle && inv) {
+    toggle.addEventListener("click", () => {
+      inv.classList.toggle("visible");
+    });
+  }
+});
