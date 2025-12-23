@@ -176,18 +176,26 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  /* ---------- NEW RUN ---------- */
-  newBtn.addEventListener("click", () => {
-    if (!confirm("Start a new run? All progress will be lost.")) return;
-    wipeSave();
-    localStorage.setItem("sanity", 100);
-    fadeOut(() => location.href = "rooms/lore.html");
-  });
+/* ---------- NEW RUN ---------- */
+newBtn.addEventListener("click", () => {
+  if (!confirm("Start a new run? All progress will be lost.")) return;
 
-  /* ---------- CONTINUE ---------- */
-  continueBtn.addEventListener("click", () => {
-    fadeOut(() => location.href = lastRoom);
-  });
+  wipeSave();
+  localStorage.setItem("sanity", 100);
+
+  fadeOut();
+  setTimeout(() => {
+    window.location.href = "rooms/lore.html";
+  }, 950);
+});
+
+/* ---------- CONTINUE ---------- */
+continueBtn.addEventListener("click", () => {
+  fadeOut();
+  setTimeout(() => {
+    window.location.href = localStorage.getItem("lastRoom");
+  }, 950);
+});
 
   /* ---------- DELETE PROGRESS ---------- */
   deleteBtn.addEventListener("click", () => {
