@@ -41,6 +41,16 @@ window.Inventory = {
 
 document.addEventListener("DOMContentLoaded", () => {
   Inventory.load();
+  refreshInventoryUI();
+
+  // ===== INVENTORY TOGGLE BUTTON =====
+  const toggle = document.getElementById("invToggle");
+  const inv = document.getElementById("inventory");
+  if (toggle && inv) {
+    toggle.addEventListener("click", () => {
+      inv.classList.toggle("visible");
+    });
+  }
 });
 
 window.refreshInventoryUI = function () {
