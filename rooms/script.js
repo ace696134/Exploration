@@ -110,7 +110,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     fadeScreen(() => {
       fadeAudioOut(() => {
-        setTimeout(() => location.href = room, 200);
+        setTimeout(() => (location.href = room), 200);
       });
     });
   }
@@ -119,19 +119,19 @@ document.addEventListener("DOMContentLoaded", () => {
   window.GoToRoom = go;
 
   /* ===============================
-     INVENTORY INIT
+     INVENTORY INIT (SAFE)
   =============================== */
   if (window.Inventory?.load) {
     Inventory.load();
     window.refreshInventoryUI?.();
   }
 
-  const toggle = document.getElementById("invToggle");
-  const inv = document.getElementById("inventory");
+  const invToggle = document.getElementById("invToggle");
+  const inventory = document.getElementById("inventory");
 
-  if (toggle && inv) {
-    toggle.addEventListener("click", () => {
-      inv.classList.toggle("visible");
+  if (invToggle && inventory) {
+    invToggle.addEventListener("click", () => {
+      inventory.classList.toggle("visible");
     });
   }
 
@@ -146,7 +146,7 @@ document.addEventListener("DOMContentLoaded", () => {
     msg.textContent = text;
     document.body.appendChild(msg);
 
-    requestAnimationFrame(() => msg.style.opacity = "1");
+    requestAnimationFrame(() => (msg.style.opacity = "1"));
 
     setTimeout(() => {
       msg.style.opacity = "0";
@@ -184,16 +184,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
       Inventory.remove(id, 1);
       showMessage("Used item.");
-      go(next);
+      if (next) go(next);
     });
   });
 
   /* ===============================
-     TITLE AUTO-FIT
+     TITLE AUTO-FIT (NO WRAP FORCE)
   =============================== */
   function fitTitleText(selector, max = 80, min = 24) {
     const el = document.querySelector(selector);
     if (!el) return;
+
+    el.style.whiteSpace = "normal";
+    el.style.wordBreak = "break-word";
 
     let size = max;
     el.style.fontSize = size + "px";
