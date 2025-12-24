@@ -1,14 +1,38 @@
-#inventoryPanel {
+/* ==========================
+   INVENTORY PANEL
+========================== */
+
+#inventory {
   position: fixed;
   top: 20px;
   right: 20px;
+
   background: rgba(0,0,0,0.9);
   padding: 15px;
+
   border: 2px solid red;
   width: 260px;
   max-height: 70vh;
   overflow-y: auto;
+
+  z-index: 10;
+
+  /* START CLOSED */
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-10px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
 }
+
+#inventory.visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+/* ==========================
+   INVENTORY ITEMS
+========================== */
 
 .inv-item {
   display: flex;
@@ -24,7 +48,7 @@
   height: 32px;
 }
 
-.inv-count {
+.inv-item .count {
   margin-left: auto;
   opacity: 0.8;
 }
