@@ -1,26 +1,40 @@
-/* ==========================
+/* ============================
    INVENTORY PANEL
-========================== */
+============================ */
 
-#inventory {
+#invToggle {
   position: fixed;
   top: 20px;
   right: 20px;
-
-  background: rgba(0,0,0,0.9);
-  padding: 15px;
-
+  padding: 8px 16px;
   border: 2px solid red;
-  width: 260px;
-  max-height: 70vh;
-  overflow-y: auto;
+  background: black;
+  color: red;
+  cursor: pointer;
+  z-index: 2000;
+}
 
-  z-index: 10;
+#inventory {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  min-width: 220px;
+  max-width: 300px;
+  min-height: 60px;
+  padding: 12px;
+  background: rgba(0,0,0,0.85);
+  border: 2px solid red;
+  color: red;
 
-  /* START CLOSED */
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  z-index: 2000;
+
   opacity: 0;
   pointer-events: none;
-  transform: translateY(-10px);
+  transform: translateY(10px);
   transition: opacity 0.25s ease, transform 0.25s ease;
 }
 
@@ -30,25 +44,24 @@
   transform: translateY(0);
 }
 
-/* ==========================
-   INVENTORY ITEMS
-========================== */
-
 .inv-item {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 6px;
-  border: 2px solid;
-  margin-bottom: 8px;
+  border: 2px solid red;
+  padding: 6px 10px;
+  background: rgba(0,0,0,0.6);
+  color: white;
+  border-radius: 4px;
 }
 
-.inv-item img {
+.inv-icon {
   width: 32px;
   height: 32px;
+  object-fit: contain;
 }
 
-.inv-item .count {
+.inv-count {
   margin-left: auto;
   opacity: 0.8;
 }
