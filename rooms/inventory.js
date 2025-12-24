@@ -1,5 +1,5 @@
 /* =====================================================
-   INVENTORY SYSTEM (ID-BASED, SAVE SAFE)
+   INVENTORY SYSTEM (ID-BASED, STACKABLE, CLICK-OUTSIDE CLOSE)
    ===================================================== */
 
 window.Inventory = {
@@ -19,7 +19,7 @@ window.Inventory = {
     if (!this.data[id]) this.data[id] = 0;
     this.data[id] += amount;
     this.save();
-    refreshInventoryUI();
+    window.refreshInventoryUI?.();
   },
 
   remove(id, amount = 1) {
@@ -27,7 +27,7 @@ window.Inventory = {
     this.data[id] -= amount;
     if (this.data[id] <= 0) delete this.data[id];
     this.save();
-    refreshInventoryUI();
+    window.refreshInventoryUI?.();
     return true;
   },
 
@@ -39,10 +39,10 @@ window.Inventory = {
 /* =====================================================
    INVENTORY UI
    ===================================================== */
+
 document.addEventListener("DOMContentLoaded", () => {
-  console.log("Inventory DOMContentLoaded");
   Inventory.load();
-  refreshInventoryUI();
+  window.refreshInventoryUI?.();
 
   const toggle = document.getElementById("invToggle");
   const inv = document.getElementById("inventory");
@@ -50,23 +50,23 @@ document.addEventListener("DOMContentLoaded", () => {
   if (!toggle) console.warn("Inventory toggle not found!");
   if (!inv) console.warn("Inventory panel not found!");
 
+  // Toggle button
   if (toggle && inv) {
     toggle.addEventListener("click", (e) => {
-      console.log("Inventory toggle clicked");
-
-      // Explicit toggle without touching innerHTML
-      if (inv.classList.contains("visible")) {
-        inv.classList.remove("visible"); // close
-      } else {
-        inv.classList.add("visible"); // open
-        refreshInventoryUI(); // update only on open
-      }
+      inv.classList.toggle("visible");
+      window.refreshInventoryUI?.();
+      e.stopPropagation(); // prevent click-outside closing immediately
     });
   }
 
-  // Optional: close inventory if clicking outside
-  document.addEventListener("click", (e) => {
-    if (inv && inv.classList.contains("visible") && e.target !== inv && e.target !== toggle) {
+  // Click outside to close
+  document.addEventListener("mousedown", (e) => {
+    if (!inv) return;
+    if (
+      inv.classList.contains("visible") &&
+      !e.target.closest("#inventory") &&
+      !e.target.closest("#invToggle")
+    ) {
       inv.classList.remove("visible");
     }
   });
