@@ -24,7 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
       img.style.objectFit = "cover";
       img.style.opacity = i === 0 ? "1" : "0";
       img.style.transition = "opacity 1.5s ease-in-out";
-      img.style.background = "transparent";
+      img.style.pointerEvents = "none";
     });
 
     if (layers.length > 1) {
@@ -35,10 +35,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }, 5000);
     }
   }
-
-  /* Ensure content is above background */
-  document.querySelectorAll(".center-box, #inventory, #invToggle")
-    .forEach(el => el.style.zIndex = "5");
 
   /* ===============================
      FADE IN BODY
@@ -69,7 +65,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function fadeAudioIn() {
-    if (!ambient) return;
     let v = 0;
     const fade = setInterval(() => {
       v += 0.02;
@@ -79,21 +74,20 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function fadeAudioOut(cb) {
-    if (!ambient) return cb?.();
-    let v = ambient.volume;
+    let v = ambient?.volume ?? 0;
     const fade = setInterval(() => {
       v -= 0.03;
-      ambient.volume = Math.max(0, v);
+      if (ambient) ambient.volume = Math.max(0, v);
       if (v <= 0) {
         clearInterval(fade);
-        ambient.pause();
+        ambient?.pause();
         cb?.();
       }
     }, 40);
   }
 
   /* ===============================
-     FADE OVERLAY HELPER
+     FADE OVERLAY
   =============================== */
   function fadeScreen(cb, duration = 1200) {
     const overlay = document.getElementById("fadeOverlay");
@@ -109,8 +103,9 @@ document.addEventListener("DOMContentLoaded", () => {
   /* ===============================
      ROOM NAVIGATION
   =============================== */
-  function _go(room) {
+  function go(room) {
     if (!room) return;
+
     localStorage.setItem("lastRoom", location.href);
 
     fadeScreen(() => {
@@ -120,21 +115,29 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  window.goToRoom = _go;
-  window.GoToRoom = _go;
+  window.goToRoom = go;
+  window.GoToRoom = go;
 
   /* ===============================
-     INVENTORY SYSTEM
+     INVENTORY INIT
   =============================== */
-  if (window.Inventory?.load) Inventory.load();
-
-  // Inventory toggle button
-  const toggle = document.getElementById("invToggle");
-  const inv = document.getElementById("inventory");
-  if (toggle && inv) {
-    toggle.addEventListener("click", () => inv.classList.toggle("visible"));
+  if (window.Inventory?.load) {
+    Inventory.load();
+    window.refreshInventoryUI?.();
   }
 
+  const toggle = document.getElementById("invToggle");
+  const inv = document.getElementById("inventory");
+
+  if (toggle && inv) {
+    toggle.addEventListener("click", () => {
+      inv.classList.toggle("visible");
+    });
+  }
+
+  /* ===============================
+     POPUP MESSAGE
+  =============================== */
   function showMessage(text, duration = 2000) {
     if (document.querySelector(".popup-message")) return;
 
@@ -147,12 +150,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     setTimeout(() => {
       msg.style.opacity = "0";
-      msg.addEventListener("transitionend", () => msg.remove());
+      msg.addEventListener("transitionend", () => msg.remove(), { once: true });
     }, duration);
   }
 
   /* ===============================
-     PICKUP SYSTEM
+     PICKUPS
   =============================== */
   document.querySelectorAll("[data-pickup]").forEach(btn => {
     btn.addEventListener("click", () => {
@@ -162,7 +165,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       Inventory.add(id, 1);
       showMessage(`Picked up ${item.name}`);
-      window.refreshInventoryUI?.();
       btn.remove();
     });
   });
@@ -175,40 +177,34 @@ document.addEventListener("DOMContentLoaded", () => {
       const id = btn.dataset.use;
       const next = btn.dataset.jump;
 
-      if (!Inventory?.has(id)) {
+      if (!Inventory.has(id)) {
         showMessage("You don't have that.");
         return;
       }
 
       Inventory.remove(id, 1);
-      window.refreshInventoryUI?.();
       showMessage("Used item.");
-      _go(next);
+      go(next);
     });
   });
 
   /* ===============================
      TITLE AUTO-FIT
   =============================== */
-  function fitTitleText(selector, maxFontSize = 80, minFontSize = 24) {
+  function fitTitleText(selector, max = 80, min = 24) {
     const el = document.querySelector(selector);
     if (!el) return;
 
-    let fontSize = maxFontSize;
-    el.style.fontSize = fontSize + "px";
+    let size = max;
+    el.style.fontSize = size + "px";
 
-    while (el.scrollWidth > el.clientWidth && fontSize > minFontSize) {
-      fontSize -= 1;
-      el.style.fontSize = fontSize + "px";
+    while (el.scrollWidth > el.clientWidth && size > min) {
+      size--;
+      el.style.fontSize = size + "px";
     }
   }
 
-  // Initial fit
   fitTitleText(".title");
-
-  // Adjust on window resize
-  window.addEventListener("resize", () => {
-    fitTitleText(".title");
-  });
+  window.addEventListener("resize", () => fitTitleText(".title"));
 
 });
