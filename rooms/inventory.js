@@ -1,13 +1,10 @@
-/* =====================================================
-   INVENTORY SYSTEM (ID-BASED, SAVE SAFE)
-===================================================== */
-
 window.Inventory = {
   data: {},
 
   load() {
     const saved = localStorage.getItem("inventory");
     this.data = saved ? JSON.parse(saved) : {};
+    console.log("Inventory loaded", this.data);
   },
 
   save() {
@@ -35,21 +32,21 @@ window.Inventory = {
   }
 };
 
-/* =====================================================
-   INVENTORY UI
-===================================================== */
-
 document.addEventListener("DOMContentLoaded", () => {
+  console.log("Inventory DOMContentLoaded");
   Inventory.load();
-  window.refreshInventoryUI?.();
 
   const toggle = document.getElementById("invToggle");
   const inv = document.getElementById("inventory");
 
+  if (!toggle) console.warn("Inventory toggle not found!");
+  if (!inv) console.warn("Inventory panel not found!");
+
   if (toggle && inv) {
     toggle.addEventListener("click", () => {
-      window.refreshInventoryUI?.();   // always refresh
-      inv.classList.toggle("visible"); // toggle visible class
+      console.log("Inventory toggle clicked");
+      window.refreshInventoryUI?.();
+      inv.classList.toggle("visible");
     });
   }
 });
