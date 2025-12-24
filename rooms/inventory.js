@@ -18,7 +18,7 @@ window.Inventory = {
     if (!this.data[id]) this.data[id] = 0;
     this.data[id] += amount;
     this.save();
-    refreshInventoryUI();
+    window.refreshInventoryUI?.();
   },
 
   remove(id, amount = 1) {
@@ -26,7 +26,7 @@ window.Inventory = {
     this.data[id] -= amount;
     if (this.data[id] <= 0) delete this.data[id];
     this.save();
-    refreshInventoryUI();
+    window.refreshInventoryUI?.();
     return true;
   },
 
@@ -41,13 +41,17 @@ window.Inventory = {
 
 document.addEventListener("DOMContentLoaded", () => {
   Inventory.load();
-  refreshInventoryUI();
+  window.refreshInventoryUI?.();
 
   const toggle = document.getElementById("invToggle");
   const inv = document.getElementById("inventory");
 
   if (toggle && inv) {
     toggle.addEventListener("click", () => {
+      // Refresh UI before showing
+      window.refreshInventoryUI?.();
+
+      // Toggle visibility using CSS class
       inv.classList.toggle("visible");
     });
   }
@@ -76,7 +80,7 @@ window.refreshInventoryUI = function () {
     row.innerHTML = `
       <img class="inv-icon" src="${item.icon}">
       <span>${item.name}</span>
-      <span>x${Inventory.data[id]}</span>
+      <span class="inv-count">x${Inventory.data[id]}</span>
     `;
 
     inv.appendChild(row);
