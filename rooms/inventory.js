@@ -1,3 +1,7 @@
+/* =====================================================
+   INVENTORY SYSTEM (ID-BASED, SAVE SAFE)
+   ===================================================== */
+
 window.Inventory = {
   data: {},
 
@@ -15,7 +19,7 @@ window.Inventory = {
     if (!this.data[id]) this.data[id] = 0;
     this.data[id] += amount;
     this.save();
-    window.refreshInventoryUI?.();
+    refreshInventoryUI();
   },
 
   remove(id, amount = 1) {
@@ -23,7 +27,7 @@ window.Inventory = {
     this.data[id] -= amount;
     if (this.data[id] <= 0) delete this.data[id];
     this.save();
-    window.refreshInventoryUI?.();
+    refreshInventoryUI();
     return true;
   },
 
@@ -32,9 +36,13 @@ window.Inventory = {
   }
 };
 
+/* =====================================================
+   INVENTORY UI
+   ===================================================== */
 document.addEventListener("DOMContentLoaded", () => {
   console.log("Inventory DOMContentLoaded");
   Inventory.load();
+  refreshInventoryUI();
 
   const toggle = document.getElementById("invToggle");
   const inv = document.getElementById("inventory");
@@ -43,14 +51,30 @@ document.addEventListener("DOMContentLoaded", () => {
   if (!inv) console.warn("Inventory panel not found!");
 
   if (toggle && inv) {
-    toggle.addEventListener("click", () => {
+    toggle.addEventListener("click", (e) => {
       console.log("Inventory toggle clicked");
-      window.refreshInventoryUI?.();
-      inv.classList.toggle("visible");
+
+      // Explicit toggle without touching innerHTML
+      if (inv.classList.contains("visible")) {
+        inv.classList.remove("visible"); // close
+      } else {
+        inv.classList.add("visible"); // open
+        refreshInventoryUI(); // update only on open
+      }
     });
   }
+
+  // Optional: close inventory if clicking outside
+  document.addEventListener("click", (e) => {
+    if (inv && inv.classList.contains("visible") && e.target !== inv && e.target !== toggle) {
+      inv.classList.remove("visible");
+    }
+  });
 });
 
+/* =====================================================
+   REFRESH INVENTORY UI
+   ===================================================== */
 window.refreshInventoryUI = function () {
   const inv = document.getElementById("inventory");
   if (!inv) return;
