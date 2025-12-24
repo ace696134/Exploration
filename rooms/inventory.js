@@ -1,6 +1,6 @@
 /* =====================================================
    INVENTORY SYSTEM (ID-BASED, SAVE SAFE)
-   ===================================================== */
+===================================================== */
 
 window.Inventory = {
   data: {},
@@ -37,7 +37,7 @@ window.Inventory = {
 
 /* =====================================================
    INVENTORY UI
-   ===================================================== */
+===================================================== */
 
 document.addEventListener("DOMContentLoaded", () => {
   Inventory.load();
@@ -48,11 +48,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (toggle && inv) {
     toggle.addEventListener("click", () => {
-      // Refresh UI before showing
-      window.refreshInventoryUI?.();
-
-      // Toggle visibility using CSS class
-      inv.classList.toggle("visible");
+      window.refreshInventoryUI?.();   // always refresh
+      inv.classList.toggle("visible"); // toggle visible class
     });
   }
 });
@@ -80,7 +77,7 @@ window.refreshInventoryUI = function () {
     row.innerHTML = `
       <img class="inv-icon" src="${item.icon}">
       <span>${item.name}</span>
-      <span class="inv-count">x${Inventory.data[id]}</span>
+      <span>x${Inventory.data[id]}</span>
     `;
 
     inv.appendChild(row);
