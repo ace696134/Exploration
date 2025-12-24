@@ -132,24 +132,30 @@ body.fade-out { opacity: 0 !important; }
   right: 20px;
   min-width: 220px;
   max-width: 300px;
-  min-height: 60px;              /* 👈 IMPORTANT */
+  min-height: 60px;
   padding: 12px;
 
   background: rgba(0,0,0,0.85);
   border: 2px solid red;
   color: red;
 
-  display: none;                 /* 👈 HARD HIDE */
+  display: flex;
   flex-direction: column;
   gap: 6px;
 
   z-index: 2000;
+
+  opacity: 0;                 /* start hidden */
+  pointer-events: none;       /* disable clicks when hidden */
+  transform: translateY(10px);/* slight slide down */
+  transition: opacity 0.25s ease, transform 0.25s ease;
 }
 
 #inventory.visible {
-  display: flex;                 /* 👈 HARD SHOW */
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
 }
-
 
 .inv-item {
   display: flex;
