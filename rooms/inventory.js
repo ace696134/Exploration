@@ -1,5 +1,5 @@
 /* ============================
-   INVENTORY SYSTEM
+   INVENTORY SYSTEM – FIXED
 ============================ */
 
 window.Inventory = {
@@ -37,38 +37,6 @@ window.Inventory = {
 };
 
 /* ============================
-   INVENTORY UI
-============================ */
-
-document.addEventListener("DOMContentLoaded", () => {
-  Inventory.load();
-
-  const toggleBtn = document.getElementById("invToggle");
-  const invPanel = document.getElementById("inventory");
-
-  if (!toggleBtn || !invPanel) return;
-
-  // Toggle inventory visibility
-  toggleBtn.addEventListener("click", (e) => {
-    invPanel.classList.toggle("visible");
-    refreshInventoryUI();
-    e.stopPropagation();
-  });
-
-  // Close if clicking outside
-  document.addEventListener("mousedown", (e) => {
-    if (invPanel.classList.contains("visible") &&
-        !e.target.closest("#inventory") &&
-        !e.target.closest("#invToggle")) {
-      invPanel.classList.remove("visible");
-    }
-  });
-
-  // Initial render
-  refreshInventoryUI();
-});
-
-/* ============================
    REFRESH INVENTORY UI
 ============================ */
 
@@ -101,7 +69,7 @@ window.refreshInventoryUI = function () {
     invPanel.appendChild(row);
   });
 
-  // Optional: Crafting button
+  // Crafting button
   if (!invPanel.querySelector("#craftingBtn")) {
     const craftBtn = document.createElement("button");
     craftBtn.id = "craftingBtn";
@@ -117,3 +85,68 @@ window.refreshInventoryUI = function () {
     invPanel.appendChild(craftBtn);
   }
 };
+
+/* ============================
+   INVENTORY TOGGLE
+============================ */
+
+document.addEventListener("DOMContentLoaded", () => {
+  Inventory.load();
+  refreshInventoryUI();
+
+  const toggleBtn = document.getElementById("invToggle");
+  const invPanel = document.getElementById("inventory");
+
+  if (!toggleBtn || !invPanel) return;
+
+  // Toggle on button click
+  toggleBtn.addEventListener("click", (e) => {
+    invPanel.classList.toggle("visible");
+    refreshInventoryUI();
+    e.stopPropagation();
+  });
+
+  // Close if clicking outside
+  document.addEventListener("mousedown", (e) => {
+    if (invPanel.classList.contains("visible") &&
+        !e.target.closest("#inventory") &&
+        !e.target.closest("#invToggle")) {
+      invPanel.classList.remove("visible");
+    }
+  });
+});
+
+/* ============================
+   HELPER: PICKUP ITEMS
+============================ */
+
+window.pickupItem = function(itemId) {
+  if (!Inventory.has(itemId)) {
+    Inventory.add(itemId, 1);
+    const item = window.ITEMS_BY_ID[itemId];
+    if (item) {
+      showMessage(`Picked up ${item.name}`);
+    }
+    refreshInventoryUI();
+  }
+};
+
+/* ============================
+   HELPER: POPUP MESSAGE
+============================ */
+
+function showMessage(text, duration = 2000) {
+  if (document.querySelector(".popup-message")) return;
+
+  const msg = document.createElement("div");
+  msg.className = "popup-message";
+  msg.textContent = text;
+  document.body.appendChild(msg);
+
+  requestAnimationFrame(() => msg.style.opacity = "1");
+
+  setTimeout(() => {
+    msg.style.opacity = "0";
+    msg.addEventListener("transitionend", () => msg.remove(), { once: true });
+  }, duration);
+}
