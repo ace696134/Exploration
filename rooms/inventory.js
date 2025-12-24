@@ -1,6 +1,6 @@
-/* =====================================================
-   INVENTORY SYSTEM (ID-BASED, STACKABLE, CLICK-OUTSIDE CLOSE)
-   ===================================================== */
+/* ============================
+   INVENTORY SYSTEM
+============================ */
 
 window.Inventory = {
   data: {},
@@ -36,55 +36,51 @@ window.Inventory = {
   }
 };
 
-/* =====================================================
+/* ============================
    INVENTORY UI
-   ===================================================== */
+============================ */
 
 document.addEventListener("DOMContentLoaded", () => {
   Inventory.load();
-  window.refreshInventoryUI?.();
 
-  const toggle = document.getElementById("invToggle");
-  const inv = document.getElementById("inventory");
+  const toggleBtn = document.getElementById("invToggle");
+  const invPanel = document.getElementById("inventory");
 
-  if (!toggle) console.warn("Inventory toggle not found!");
-  if (!inv) console.warn("Inventory panel not found!");
+  if (!toggleBtn || !invPanel) return;
 
-  // Toggle button
-  if (toggle && inv) {
-    toggle.addEventListener("click", (e) => {
-      inv.classList.toggle("visible");
-      window.refreshInventoryUI?.();
-      e.stopPropagation(); // prevent click-outside closing immediately
-    });
-  }
+  // Toggle inventory visibility
+  toggleBtn.addEventListener("click", (e) => {
+    invPanel.classList.toggle("visible");
+    refreshInventoryUI();
+    e.stopPropagation();
+  });
 
-  // Click outside to close
+  // Close if clicking outside
   document.addEventListener("mousedown", (e) => {
-    if (!inv) return;
-    if (
-      inv.classList.contains("visible") &&
-      !e.target.closest("#inventory") &&
-      !e.target.closest("#invToggle")
-    ) {
-      inv.classList.remove("visible");
+    if (invPanel.classList.contains("visible") &&
+        !e.target.closest("#inventory") &&
+        !e.target.closest("#invToggle")) {
+      invPanel.classList.remove("visible");
     }
   });
+
+  // Initial render
+  refreshInventoryUI();
 });
 
-/* =====================================================
+/* ============================
    REFRESH INVENTORY UI
-   ===================================================== */
-window.refreshInventoryUI = function () {
-  const inv = document.getElementById("inventory");
-  if (!inv) return;
+============================ */
 
-  inv.innerHTML = "";
+window.refreshInventoryUI = function () {
+  const invPanel = document.getElementById("inventory");
+  if (!invPanel) return;
+
+  invPanel.innerHTML = "";
 
   const ids = Object.keys(Inventory.data);
-
   if (ids.length === 0) {
-    inv.innerHTML = `<div style="opacity:0.6">(empty)</div>`;
+    invPanel.innerHTML = `<div style="opacity:0.6">(empty)</div>`;
     return;
   }
 
@@ -94,13 +90,30 @@ window.refreshInventoryUI = function () {
 
     const row = document.createElement("div");
     row.className = "inv-item";
+    if (item.color) row.style.borderColor = item.color;
 
     row.innerHTML = `
       <img class="inv-icon" src="${item.icon}">
       <span>${item.name}</span>
-      <span>x${Inventory.data[id]}</span>
+      <span class="inv-count">x${Inventory.data[id]}</span>
     `;
 
-    inv.appendChild(row);
+    invPanel.appendChild(row);
   });
+
+  // Optional: Crafting button
+  if (!invPanel.querySelector("#craftingBtn")) {
+    const craftBtn = document.createElement("button");
+    craftBtn.id = "craftingBtn";
+    craftBtn.textContent = "🛠️ Crafting Table";
+    craftBtn.className = "btn";
+    craftBtn.style.marginTop = "10px";
+
+    craftBtn.addEventListener("click", () => {
+      localStorage.setItem("lastRoom", window.location.href);
+      window.location.href = "crafting.html";
+    });
+
+    invPanel.appendChild(craftBtn);
+  }
 };
